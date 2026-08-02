@@ -1,4 +1,4 @@
-const CACHE = 'atlas-v3-alpha11-manual-benchmark';
+const CACHE = 'atlas-v3-alpha12-estimated-history';
 const APP_SHELL = [
   '/',
   '/index.html',

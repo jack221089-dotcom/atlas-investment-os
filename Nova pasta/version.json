@@ -1,11 +1,11 @@
 {
-  "version": "3.0.0-alpha.11",
-  "name": "ATLAS 3.0 Alpha 11 — Manual Benchmark Selector",
+  "version": "3.0.0-alpha.12",
+  "name": "ATLAS 3.0 Alpha 12 — Estimated Portfolio History",
   "released_at": "2026-08-02",
   "notes": [
-    "Seleção manual entre S&P 500, MSCI World, Nasdaq-100 e Berkshire Hathaway",
-    "A carteira permanece sempre visível",
-    "Comparação normalizada para base 100",
-    "O benchmark escolhido fica guardado no navegador"
+    "Histórico estimado da carteira desde 2022",
+    "Modos Estimado, Real e Automático",
+    "Estimativa baseada no benchmark selecionado e ajustada à rentabilidade atual",
+    "Aviso visual quando o histórico não é real"
   ]
 }
