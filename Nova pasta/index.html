@@ -133,6 +133,13 @@ body{background:
 }
 @media(max-width:520px){.metric-grid-premium,.quick-premium{grid-template-columns:1fr}.decision-card{align-items:flex-start}.decision-action{display:none}}
 
+
+/* ATLAS Intelligence Center — Alpha 6 */
+.intelligence-hero{display:grid;grid-template-columns:minmax(260px,.72fr) 1.28fr;gap:22px;background:linear-gradient(145deg,#151d29,#10161f);border:1px solid #2b3748;border-radius:20px;padding:24px;margin-bottom:18px;box-shadow:0 18px 50px rgba(0,0,0,.18)}
+.eyebrow{font-size:12px;letter-spacing:.16em;color:#9bacbf;font-weight:800}.score-line{display:flex;align-items:flex-end;margin-top:8px}.score-number{font-size:72px;line-height:.9;font-weight:850}.score-max{font-size:23px;color:#8290a3;margin:0 0 8px 5px}.score-label{font-size:18px;font-weight:800;margin-top:10px}.score-components{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.sm-component{display:flex;justify-content:space-between;align-items:center;background:#0e141d;border:1px solid #273342;border-radius:12px;padding:13px}.intel-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0 24px}.intel-card{background:linear-gradient(145deg,#151c27,#111720);border:1px solid #293443;border-radius:17px;padding:18px}.intel-title{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.intel-title h2{margin:0;font-size:19px}.smart-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}.smart-summary>div{background:#0d131c;border:1px solid #26313e;border-radius:11px;padding:11px}.smart-summary span{display:block;font-size:11px;color:#8f9daf}.smart-summary b{display:block;margin-top:5px}.smart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.signal-card{background:#0e141d;border:1px solid #273342;border-radius:13px;padding:13px}.signal-head{display:flex;justify-content:space-between;gap:10px}.signal-value{font-size:21px;font-weight:800;margin:13px 0 5px}.source-link{display:inline-block;margin-top:10px;color:#b99ae8;font-size:12px}.module-empty{background:#0e141d;border:1px dashed #2c3848;border-radius:13px;padding:16px;color:#aeb9c8}.module-empty p{margin:7px 0 0;line-height:1.5}.disclaimer{font-size:11px;color:#8190a3;margin-top:13px;border-top:1px solid #26313e;padding-top:11px}
+@media(max-width:950px){.intelligence-hero,.intel-tabs{grid-template-columns:1fr}.smart-summary{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:580px){.score-components,.smart-grid{grid-template-columns:1fr}.score-number{font-size:58px}}
+
 </style>
   <title>ATLAS Investment Operating System 3.0</title>
 </head>
@@ -165,7 +172,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 4</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 6</small>
       </div>
     </aside>
 
@@ -196,7 +203,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.4'
+  version:'3.0.0-alpha.6'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -215,8 +222,6 @@ function futureEvents(){
  return OFFICIAL_CALENDAR.filter(e=>new Date(`${e.date}T23:59:59`)>=now).sort((a,b)=>a.date.localeCompare(b.date));
 }
 
-
-
 const db=supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseKey);
 let session=null,deferredInstall=null;
 let pwaState={manifest:false,serviceWorker:false,installable:false,installed:window.matchMedia('(display-mode: standalone)').matches};
@@ -234,7 +239,7 @@ const serviceState={
 const state={
  assets:[],operations:[],dividends:[],diary:[],knowledge:[],goals:[],snapshots:[],
  radar:{market:'Normal',summary:'Nenhuma alteração relevante.',updated:''},
- news:[],newsOverview:null,prices:{},messages:[]
+ news:[],newsOverview:null,radarData:null,prices:{},messages:[]
 };
 const pages=[
  ['home','🏠 Home'],['dashboard','📊 Dashboard'],['portfolio','💼 Carteira'],
@@ -283,7 +288,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.4','3.0.0 Alpha 4');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.6','3.0.0 Alpha 6');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -453,7 +458,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.4','3.0.0 Alpha 4'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.6','3.0.0 Alpha 6'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -510,34 +515,88 @@ async function addDividend(e){e.preventDefault();try{const o=formObj(e);o.net_va
 async function editAsset(id){const a=state.assets.find(x=>x.id===id);if(!a)return;const quantity=prompt('Quantidade',a.quantity);if(quantity===null)return;const avg=prompt('Preço médio',a.average_price);if(avg===null)return;const current=prompt('Preço manual',a.current_price);if(current===null)return;const target=prompt('Objetivo %',a.target_weight);if(target===null)return;const {error}=await db.from('assets').update({quantity:+quantity,average_price:+avg,current_price:+current,target_weight:+target}).eq('id',id);if(error)return toast(error.message);await loadAll()}
 async function removeRow(table,id){if(!confirm('Eliminar este registo?'))return;const {error}=await db.from(table).delete().eq('id',id);if(error)return toast(error.message);await loadAll()}
 
+function smartMoneyScore(){
+ const data=state.radarData||{};
+ const components=[];
+ const insiders=data?.sections?.insiders;
+ const signal=insiders?.summary?.signal;
+ if(insiders && insiders.status!=='disabled' && insiders.status!=='error'){
+  const value=signal==='buying'?78:signal==='selling'?32:50;
+  components.push({key:'insiders',label:'Insiders',value,weight:30,available:true});
+ }else components.push({key:'insiders',label:'Insiders',value:null,weight:30,available:false});
+ const level=data?.overview?.level;
+ if(level){
+  const value=level==='low'?72:level==='medium'?52:28;
+  components.push({key:'macro',label:'Macro e notícias',value,weight:25,available:true});
+ }else components.push({key:'macro',label:'Macro e notícias',value:null,weight:25,available:false});
+ const next=futureEvents()[0];
+ if(next){
+  const days=Math.ceil((new Date(next.date+'T00:00:00')-new Date())/86400000);
+  const value=next.impact==='high' && days<=7?42:next.impact==='medium' && days<=7?58:70;
+  components.push({key:'calendar',label:'Calendário macro',value,weight:15,available:true});
+ }else components.push({key:'calendar',label:'Calendário macro',value:null,weight:15,available:false});
+ const optional=[
+  ['buybacks','Buybacks',15],['funds','Grandes fundos',15]
+ ];
+ optional.forEach(([key,label,weight])=>{
+  const section=data?.sections?.[key];
+  if(section?.score!=null)components.push({key,label,value:Number(section.score),weight,available:true});
+  else components.push({key,label,value:null,weight,available:false});
+ });
+ const available=components.filter(c=>c.available);
+ const weight=available.reduce((s,c)=>s+c.weight,0);
+ const score=weight?Math.round(available.reduce((s,c)=>s+c.value*c.weight,0)/weight):50;
+ const label=score>=75?'Muito positivo':score>=60?'Positivo':score>=45?'Neutro':score>=30?'Cautela':'Pressão negativa';
+ const tone=score>=60?'good':score>=45?'warn':'bad';
+ return {score,label,tone,components,coverage:Math.round(weight/100*100)};
+}
+function money(v){return v==null?'—':new Intl.NumberFormat('pt-PT',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v)}
+function formatDateTime(v){if(!v)return '—';try{return new Intl.DateTimeFormat('pt-PT',{dateStyle:'medium'}).format(new Date(v))}catch{return v}}
+function moduleState(section){
+ if(!section)return {label:'Sem cobertura gratuita',className:'muted'};
+ if(section.status==='ok')return {label:'Com dados',className:'good'};
+ if(section.status==='empty')return {label:'Sem ocorrências',className:'warn'};
+ if(section.status==='disabled')return {label:'Não configurado',className:'warn'};
+ return {label:'Indisponível',className:'bad'};
+}
+
 function impactLabel(x){return x==='high'?'Elevado':x==='medium'?'Atenção':'Reduzido'}
 function renderRadar(){
- const news=state.news.length?`<div class="news-list">${state.news.map(n=>`<article class="news"><div class="news-top"><div><div class="muted small">${esc(n.topic||'Economia')} · ${esc(n.domain||'')}</div><h3><a href="${safeUrl(n.url)}" target="_blank">${esc(n.title)}</a></h3></div><span class="badge ${n.impact||'low'}">${impactLabel(n.impact)}</span></div><div class="muted small">${esc(n.reason||'')}</div></article>`).join('')}</div>`:empty('Ainda não atualizaste o Radar.');
- $('radar').innerHTML=`${head('Radar económico','Notícias das últimas 48 horas, impacto e incerteza','<button class="btn primary" id="radar-refresh">Atualizar Radar</button>')}<div class="note">${esc(state.newsOverview?.conclusion||state.radar.summary)}</div><h2>Fontes e acontecimentos</h2>${news}<div class="muted small">A classificação é indicativa. O ATLAS não substitui aconselhamento financeiro.</div>`;
+ const data=state.radarData||{};
+ const score=smartMoneyScore();
+ const insiders=data?.sections?.insiders;
+ const transactions=insiders?.transactions||[];
+ const buybacks=data?.sections?.buybacks;
+ const funds=data?.sections?.funds;
+ const nextEvents=futureEvents().slice(0,4);
+ const news=state.news||[];
+ const insiderState=moduleState(insiders),buybackState=moduleState(buybacks),fundState=moduleState(funds);
+ const componentRows=score.components.map(c=>`<div class="sm-component"><span>${esc(c.label)}</span><b class="${c.available?(c.value>=60?'good':c.value>=45?'warn':'bad'):'muted'}">${c.available?c.value+'/100':'Sem dados'}</b></div>`).join('');
+ const newsHtml=news.length?`<div class="news-list">${news.map(n=>`<article class="news"><div class="news-top"><div><div class="muted small">${esc(n.topic||'Economia')} · ${esc(n.domain||'')} · ${formatDateTime(n.published_at||n.seendate)}</div><h3><a href="${safeUrl(n.url)}" target="_blank" rel="noopener">${esc(n.title)}</a></h3></div><span class="badge ${n.impact||'low'}">${impactLabel(n.impact)}</span></div><div class="muted small">${esc(n.reason||'')}</div></article>`).join('')}</div>`:empty('Sem notícias relevantes nas fontes disponíveis.');
+ const insiderHtml=transactions.length?`<div class="smart-grid">${transactions.slice(0,10).map(t=>`<article class="signal-card"><div class="signal-head"><div><b>${esc(t.ticker||t.issuer)}</b><div class="muted small">${esc(t.insider||'Insider')} · ${esc(t.role||'')}</div></div><span class="badge ${t.action==='buy'?'low':'medium'}">${t.action==='buy'?'Compra':'Venda'}</span></div><div class="signal-value">${money(t.estimated_value)}</div><div class="muted small">${t.shares??'—'} ações · ${formatDateTime(t.transaction_date)}</div><a class="source-link" href="${safeUrl(t.filing_url)}" target="_blank" rel="noopener">SEC Form 4 ↗</a></article>`).join('')}</div>`:`<div class="module-empty"><b>${insiderState.label}</b><p>${esc(insiders?.summary?.conclusion||'Não foram encontradas compras ou vendas no mercado aberto no período analisado.')}</p></div>`;
+ $('radar').innerHTML=`${head('ATLAS Intelligence Center','Smart Money, macro, eventos e notícias públicas','<button class="btn primary" id="radar-refresh">Atualizar Intelligence Center</button>')}
+ <section class="intelligence-hero"><div><div class="eyebrow">SMART MONEY SCORE</div><div class="score-line"><span class="score-number ${score.tone}">${score.score}</span><span class="score-max">/100</span></div><div class="score-label ${score.tone}">${score.label}</div><p class="muted">Cobertura gratuita disponível: ${score.coverage}%. Componentes sem dados não entram no cálculo.</p></div><div class="score-components">${componentRows}</div></section>
+ <div class="note ${score.tone}"><b>Conclusão ATLAS</b><br>${esc(state.newsOverview?.conclusion||'Atualiza o centro para obter uma leitura dos sinais disponíveis.')}</div>
+ <div class="intel-tabs">
+  <section class="intel-card"><div class="intel-title"><h2>💼 Smart Money</h2><span class="${insiderState.className}">${insiderState.label}</span></div><div class="smart-summary"><div><span>Compras</span><b class="good">${insiders?.summary?.buys??0}</b></div><div><span>Vendas</span><b class="warn">${insiders?.summary?.sells??0}</b></div><div><span>Valor compras</span><b>${money(insiders?.summary?.estimated_buy_value)}</b></div><div><span>Valor vendas</span><b>${money(insiders?.summary?.estimated_sell_value)}</b></div></div>${insiderHtml}<div class="disclaimer">${esc(insiders?.disclaimer||'Apenas dados públicos divulgados após a execução.')}</div></section>
+  <section class="intel-card"><div class="intel-title"><h2>💰 Buybacks</h2><span class="${buybackState.className}">${buybackState.label}</span></div><div class="module-empty"><b>Monitor preparado</b><p>Programas de recompra exigem leitura e normalização de comunicados e filings. Nesta versão, dados não verificados ficam fora do score.</p></div></section>
+  <section class="intel-card"><div class="intel-title"><h2>🏛️ Grandes fundos</h2><span class="${fundState.className}">${fundState.label}</span></div><div class="module-empty"><b>SEC 13F — cobertura limitada</b><p>Os dados são públicos e gratuitos, mas trimestrais e atrasados. O ATLAS não apresenta alterações até conseguir comparar dois períodos com segurança.</p></div></section>
+  <section class="intel-card"><div class="intel-title"><h2>📈 Opções e Dark Pools</h2><span class="muted">Sem cobertura gratuita fiável</span></div><div class="module-empty"><b>Não entram no score</b><p>Dados completos e em tempo útil são geralmente pagos. O ATLAS não inventa estimativas nem usa fontes opacas.</p></div></section>
+ </div>
+ <h2>🌍 Macro e notícias</h2>${newsHtml}
+ <h2>📅 Próximos eventos oficiais</h2><div class="calendar-list">${nextEvents.length?nextEvents.map(e=>`<div class="calendar-event"><div><b>${esc(e.date)}</b><div class="muted small">${esc(e.time||'')}</div></div><div><b>${esc(e.event)}</b><div class="muted small">${esc(e.country)} · ${esc(e.source)}</div></div><span class="badge ${e.impact}">${impactLabel(e.impact)}</span></div>`).join(''):empty('Sem eventos futuros.')}</div>
+ <div class="muted small">O score é um indicador experimental baseado apenas em informação pública. Não é recomendação de investimento.</div>`;
  $('radar-refresh').onclick=refreshRadar;
 }
 async function refreshRadar(){
- const b=$('radar-refresh');
- serviceState.radar='loading';
- if(b){b.disabled=true;b.innerHTML='<span class="spinner"></span>A analisar…'}
- renderHome();renderSystem();
+ const b=$('radar-refresh');serviceState.radar='loading';if(b){b.disabled=true;b.innerHTML='<span class="spinner"></span>A atualizar…'}renderHome();renderSystem();
  try{
-  const {data,error}=await db.functions.invoke(CONFIG.functions.radar,{body:{tickers:state.assets.map(a=>a.ticker).filter(Boolean)}});
+  const {data,error}=await db.functions.invoke(CONFIG.functions.radar,{body:{tickers:[],insider_symbols:['AAPL','MSFT','NVDA','AMZN','META','GOOGL'],news_hours:72,insider_days:45}});
   if(error)throw error;
-  state.news=data?.articles||[];
-  state.newsOverview=data?.overview||null;
-  serviceState.radar=state.news.length||state.newsOverview?'operational':'empty';
-  renderRadar();renderHome();renderSystem();
-  toast(state.news.length?'Radar atualizado':'Radar atualizado sem notícias relevantes');
- }catch(e){
-  console.error(e);
-  serviceState.radar='error';
-  renderHome();renderSystem();
-  toast('Radar indisponível. Confirma economic-radar e os Logs.');
- }finally{
-  const btn=$('radar-refresh');
-  if(btn){btn.disabled=false;btn.textContent='Atualizar Radar'}
- }
+  state.radarData=data||null;state.news=data?.articles||data?.sections?.macro_and_news?.articles||[];state.newsOverview=data?.overview||null;
+  serviceState.radar=state.news.length||data?.sections?.insiders?'operational':'empty';renderRadar();renderHome();renderSystem();toast('Intelligence Center atualizado');
+ }catch(e){console.error(e);serviceState.radar='error';renderHome();renderSystem();toast('Radar indisponível. Confirma economic-radar e os Logs.');}
+ finally{const btn=$('radar-refresh');if(btn){btn.disabled=false;btn.textContent='Atualizar Intelligence Center'}}
 }
 
 function renderCalendar(){
@@ -567,7 +626,7 @@ async function askAI(){
  state.messages.push({role:'ai',text:'A cruzar carteira, risco, Radar, Diário e objetivos…'});renderAssistant();
  serviceState.ai='loading';renderHome();renderSystem();
  try{
-  const payload={question:q,portfolio:state.assets.map(a=>({...a,live_price:effectivePrice(a)})),operations:state.operations.slice(0,50),dividends:state.dividends,diary:state.diary.slice(0,30),goals:state.goals,radar:state.newsOverview||state.radar,news:state.news.slice(0,12),calendar:futureEvents().slice(0,10),snapshots:state.snapshots.slice(-30)};
+  const payload={question:q,portfolio:state.assets.map(a=>({...a,live_price:effectivePrice(a)})),operations:state.operations.slice(0,50),dividends:state.dividends,diary:state.diary.slice(0,30),goals:state.goals,radar:state.radarData||state.newsOverview||state.radar,news:state.news.slice(0,12),calendar:futureEvents().slice(0,10),snapshots:state.snapshots.slice(-30)};
   const {data,error}=await db.functions.invoke(CONFIG.functions.ai,{body:payload});
   if(error)throw error;
   serviceState.ai='operational';

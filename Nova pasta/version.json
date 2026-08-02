@@ -1,12 +1,13 @@
 {
-  "version": "3.0.0-alpha.4",
-  "name": "ATLAS 3.0 Alpha 4",
+  "version": "3.0.0-alpha.6",
+  "name": "ATLAS 3.0 Alpha 6 — Intelligence Center",
   "released_at": "2026-08-02",
   "notes": [
-    "Manifesto PWA corrigido",
-    "Ícones 192x192 e 512x512",
-    "Service worker com cache correto",
-    "Instalação e diagnóstico PWA melhorados",
-    "Cache antigo removido automaticamente"
+    "ATLAS Intelligence Center",
+    "Smart Money Score 0–100",
+    "Insiders públicos SEC Form 4",
+    "Macro, notícias e calendário no mesmo ecrã",
+    "Sem integração com carteira ou corretoras",
+    "Compatível com a pasta atual Nova pasta"
   ]
 }

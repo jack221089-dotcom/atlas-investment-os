@@ -1,4 +1,4 @@
-const CACHE = 'atlas-v3-alpha4-netlify';
+const CACHE = 'atlas-v3-alpha6-intelligence-netlify';
 const APP_SHELL = [
   '/',
   '/index.html',
