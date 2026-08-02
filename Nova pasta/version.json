@@ -1,10 +1,10 @@
 {
-  "version": "3.0.0-alpha.8",
-  "name": "ATLAS 3.0 Alpha 8 — Better Asset Editor",
+  "version": "3.0.0-alpha.9",
+  "name": "ATLAS 3.0 Alpha 9 — Simple Asset Editor",
   "released_at": "2026-08-02",
   "notes": [
-    "Editor completo de ativos em janela modal",
-    "Edição simultânea de nome, ticker, categoria, quantidade, preços, objetivo e convicção",
-    "Melhor utilização em computador e telemóvel"
+    "Editor reduzido a Nome, Ticker, Valor investido, Número de posições e Preço médio",
+    "Valor investido sincronizado com posições × preço médio",
+    "Categoria identificada automaticamente pelo ATLAS"
   ]
 }

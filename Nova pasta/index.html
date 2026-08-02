@@ -215,7 +215,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 8</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 9</small>
       </div>
     </aside>
 
@@ -246,7 +246,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.8'
+  version:'3.0.0-alpha.9'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -331,7 +331,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.8','3.0.0 Alpha 8');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.9','3.0.0 Alpha 9');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -501,7 +501,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.8','3.0.0 Alpha 8'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.9','3.0.0 Alpha 9'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -538,7 +538,80 @@ function runSearch(term){
  box.querySelectorAll('.result').forEach(x=>x.onclick=()=>showPage(x.dataset.page));
 }
 
-function assetForm(){return `<form id="asset-form" class="form hidden"><label>Ativo<input name="name" required></label><label>Ticker Finnhub<input name="ticker"></label><label>Categoria<select name="category"><option>ETF</option><option>Ouro</option><option>Ação</option><option>Liquidez</option></select></label><label>Quantidade<input name="quantity" type="number" step="any" value="0"></label><label>Preço médio<input name="average_price" type="number" step="any" value="0"></label><label>Preço manual<input name="current_price" type="number" step="any" value="0"></label><label>Objetivo %<input name="target_weight" type="number" step="any" value="0"></label><label>Convicção 1–5<input name="conviction" type="number" min="1" max="5" value="3"></label><div class="full"><button class="btn primary">Guardar ativo</button></div></form>`}
+
+function inferAssetCategory(ticker,name=''){
+  const t=String(ticker||'').toUpperCase();
+  const n=String(name||'').toLowerCase();
+
+  if(['SGLN','IGLN','PHAU'].includes(t)||n.includes('gold')||n.includes('ouro')) return 'Ouro';
+  if(['SXR8','QDVE','IWDA','EUNL','VUAA','CSPX','VWCE','VWRL'].includes(t)||n.includes('etf')||n.includes('ishares')||n.includes('vanguard')) return 'ETF';
+  if(['EUR','USD','CASH'].includes(t)||n.includes('liquidez')||n.includes('cash')) return 'Liquidez';
+  return 'Ação';
+}
+
+function bindInvestmentFields(form){
+  if(!form)return;
+
+  const invested=form.elements.invested_value;
+  const quantity=form.elements.quantity;
+  const average=form.elements.average_price;
+  if(!invested||!quantity||!average)return;
+
+  let editingInvested=false;
+
+  const formatNumber=value=>{
+    const number=Number(value);
+    return Number.isFinite(number)?String(Math.round(number*100000000)/100000000):'';
+  };
+
+  const updateInvested=()=>{
+    if(editingInvested)return;
+    const q=Number(quantity.value||0);
+    const p=Number(average.value||0);
+    invested.value=formatNumber(q*p);
+  };
+
+  invested.addEventListener('focus',()=>{editingInvested=true});
+  invested.addEventListener('blur',()=>{
+    const total=Number(invested.value||0);
+    const q=Number(quantity.value||0);
+
+    if(Number.isFinite(total)&&Number.isFinite(q)&&q>0){
+      average.value=formatNumber(total/q);
+    }
+
+    editingInvested=false;
+    updateInvested();
+  });
+
+  quantity.addEventListener('input',updateInvested);
+  average.addEventListener('input',updateInvested);
+  updateInvested();
+}
+
+function simpleAssetFields(asset={}){
+  const quantity=Number(asset.quantity||0);
+  const average=Number(asset.average_price||0);
+  const invested=quantity*average;
+
+  return `
+    ${assetEditorField('Nome','name',asset.name||'')}
+    ${assetEditorField('Ticker','ticker',asset.ticker||'')}
+    ${assetEditorField('Valor investido','invested_value',invested,'number','step="any" min="0"')}
+    ${assetEditorField('Número de posições','quantity',quantity,'number','step="any" min="0"')}
+    ${assetEditorField('Preço médio','average_price',average,'number','step="any" min="0"')}
+  `;
+}
+
+function assetForm(){return `
+<form id="asset-form" class="form hidden">
+  <label>Nome<input name="name" required placeholder="Ex.: Joby Aviation"></label>
+  <label>Ticker<input name="ticker" required placeholder="Ex.: JOBY"></label>
+  <label>Valor investido<input name="invested_value" type="number" step="any" min="0" value="0"></label>
+  <label>Número de posições<input name="quantity" type="number" step="any" min="0" value="0"></label>
+  <label>Preço médio<input name="average_price" type="number" step="any" min="0" value="0"></label>
+  <div class="full"><button class="btn primary">Guardar ativo</button></div>
+</form>`}
 function opForm(){return `<form id="op-form" class="form hidden"><label>Data<input name="date" type="date" required></label><label>Ativo<select name="asset_name">${state.assets.map(a=>`<option>${esc(a.name)}</option>`).join('')}</select></label><label>Tipo<select name="type"><option>Compra</option><option>Reforço</option><option>Venda</option></select></label><label>Valor<input name="value" type="number" step="any" required></label><label class="full">Notas<textarea name="notes"></textarea></label><div class="full"><button class="btn primary">Guardar operação</button></div></form>`}
 function divForm(){return `<form id="div-form" class="form hidden"><label>Data<input name="date" type="date" required></label><label>Ativo<select name="asset_name">${state.assets.map(a=>`<option>${esc(a.name)}</option>`).join('')}</select></label><label>Valor líquido<input name="net_value" type="number" step="any" required></label><label class="full">Notas<textarea name="notes"></textarea></label><div class="full"><button class="btn primary">Guardar dividendo</button></div></form>`}
 function renderPortfolio(){
@@ -552,7 +625,43 @@ function renderPortfolio(){
 }
 function toggle(id){$(id)?.classList.toggle('hidden')}
 async function insert(table,obj){obj.user_id=uid();const {error}=await db.from(table).insert(obj);if(error)throw error;await loadAll()}
-async function addAsset(e){e.preventDefault();try{const o=formObj(e);['quantity','average_price','current_price','target_weight','conviction'].forEach(k=>o[k]=+o[k]);await insert('assets',o);toast('Ativo guardado')}catch(x){toast(x.message)}}
+async function addAsset(e){
+  e.preventDefault();
+
+  try{
+    const fd=new FormData(e.currentTarget);
+    const name=String(fd.get('name')||'').trim();
+    const ticker=String(fd.get('ticker')||'').trim().toUpperCase();
+    const quantity=Number(fd.get('quantity')||0);
+    let averagePrice=Number(fd.get('average_price')||0);
+    const investedValue=Number(fd.get('invested_value')||0);
+
+    if(!name)return toast('Indica o nome do ativo.');
+    if(!ticker)return toast('Indica o ticker.');
+    if(!Number.isFinite(quantity)||quantity<0)return toast('Número de posições inválido.');
+    if(!Number.isFinite(averagePrice)||averagePrice<0)return toast('Preço médio inválido.');
+
+    if(quantity>0&&investedValue>0){
+      averagePrice=investedValue/quantity;
+    }
+
+    const payload={
+      name,
+      ticker,
+      category:inferAssetCategory(ticker,name),
+      quantity,
+      average_price:averagePrice,
+      current_price:0,
+      target_weight:0,
+      conviction:3,
+    };
+
+    await insert('assets',payload);
+    toast('Ativo guardado');
+  }catch(error){
+    toast(error.message);
+  }
+}
 async function addOperation(e){e.preventDefault();try{const o=formObj(e);o.value=+o.value;await insert('operations',o);toast('Operação guardada')}catch(x){toast(x.message)}}
 async function addDividend(e){e.preventDefault();try{const o=formObj(e);o.net_value=+o.net_value;await insert('dividends',o);toast('Dividendo guardado')}catch(x){toast(x.message)}}
 
@@ -587,18 +696,7 @@ async function editAsset(id){
       <form id="asset-edit-form">
         <div class="edit-modal-body">
           <div class="edit-grid">
-            ${assetEditorField('Nome do ativo','name',a.name)}
-            ${assetEditorField('Ticker Finnhub','ticker',a.ticker)}
-            <label>Categoria
-              <select name="category">
-                ${['ETF','Ouro','Ação','Liquidez'].map(v=>`<option ${a.category===v?'selected':''}>${v}</option>`).join('')}
-              </select>
-            </label>
-            ${assetEditorField('Quantidade','quantity',a.quantity,'number','step="any"')}
-            ${assetEditorField('Preço médio','average_price',a.average_price,'number','step="any"')}
-            ${assetEditorField('Preço manual','current_price',a.current_price,'number','step="any"')}
-            ${assetEditorField('Objetivo %','target_weight',a.target_weight,'number','step="any" min="0" max="100"')}
-            ${assetEditorField('Convicção 1–5','conviction',a.conviction??3,'number','min="1" max="5" step="1"')}
+            ${simpleAssetFields(a)}
           </div>
         </div>
 
@@ -620,22 +718,32 @@ async function editAsset(id){
   });
 
   const form=modal.querySelector('#asset-edit-form');
+  bindInvestmentFields(form);
   form.addEventListener('submit',async e=>{
     e.preventDefault();
     const fd=new FormData(form);
+    const name=String(fd.get('name')||'').trim();
+    const ticker=String(fd.get('ticker')||'').trim().toUpperCase();
+    const quantity=Number(fd.get('quantity')||0);
+    const investedValue=Number(fd.get('invested_value')||0);
+    let averagePrice=Number(fd.get('average_price')||0);
+
+    if(quantity>0&&investedValue>0){
+      averagePrice=investedValue/quantity;
+    }
+
     const payload={
-      name:String(fd.get('name')||'').trim(),
-      ticker:String(fd.get('ticker')||'').trim().toUpperCase(),
-      category:String(fd.get('category')||'ETF'),
-      quantity:Number(fd.get('quantity')||0),
-      average_price:Number(fd.get('average_price')||0),
-      current_price:Number(fd.get('current_price')||0),
-      target_weight:Number(fd.get('target_weight')||0),
-      conviction:Number(fd.get('conviction')||3),
+      name,
+      ticker,
+      category:inferAssetCategory(ticker,name),
+      quantity,
+      average_price:averagePrice,
     };
 
     if(!payload.name)return toast('Indica o nome do ativo.');
-    if(!Number.isFinite(payload.quantity))return toast('Quantidade inválida.');
+    if(!payload.ticker)return toast('Indica o ticker.');
+    if(!Number.isFinite(payload.quantity)||payload.quantity<0)return toast('Número de posições inválido.');
+    if(!Number.isFinite(payload.average_price)||payload.average_price<0)return toast('Preço médio inválido.');
 
     const submit=form.querySelector('button[type="submit"]');
     submit.disabled=true;
