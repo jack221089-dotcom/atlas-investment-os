@@ -142,6 +142,47 @@ body{background:
 
 
 .tracked-panel{margin:14px 0 18px}.tracked-row{display:flex;gap:10px;margin:12px 0}.tracked-row input{flex:1;min-width:180px}.tracked-groups{display:grid;grid-template-columns:1fr 1fr;gap:16px}.tracked-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}.tracked-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border);border-radius:999px;background:var(--panel2);font-weight:700}.tracked-chip small{font-size:10px;color:var(--muted);font-weight:500}.tracked-chip button{border:0;background:transparent;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:0}.tracked-chip.auto{border-style:dashed}@media(max-width:760px){.tracked-groups{grid-template-columns:1fr}.tracked-row{flex-direction:column}}
+
+.edit-modal-backdrop{
+  position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+  padding:24px;background:rgba(3,7,13,.78);backdrop-filter:blur(8px)
+}
+.edit-modal-backdrop.hidden{display:none}
+.edit-modal{
+  width:min(720px,100%);max-height:calc(100vh - 48px);overflow:auto;
+  background:var(--panel,#151c27);border:1px solid var(--line,#2b3647);
+  border-radius:20px;box-shadow:0 30px 90px rgba(0,0,0,.55)
+}
+.edit-modal-head{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:20px 22px;border-bottom:1px solid var(--line,#2b3647)
+}
+.edit-modal-head h2{margin:0;font-size:22px}
+.edit-modal-close{
+  width:40px;height:40px;border-radius:12px;border:1px solid var(--line,#2b3647);
+  background:transparent;color:var(--text,#fff);font-size:22px;cursor:pointer
+}
+.edit-modal-body{padding:22px}
+.edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.edit-grid label{display:flex;flex-direction:column;gap:8px;color:var(--muted,#9eb0c8);font-size:13px}
+.edit-grid input,.edit-grid select{
+  width:100%;min-height:46px;padding:11px 12px;border-radius:12px;
+  border:1px solid var(--line,#2b3647);background:var(--bg,#090d13);
+  color:var(--text,#fff);font:inherit
+}
+.edit-grid input:focus,.edit-grid select:focus{
+  outline:none;border-color:#7aa7ff;box-shadow:0 0 0 3px rgba(122,167,255,.14)
+}
+.edit-modal-actions{
+  display:flex;justify-content:flex-end;gap:12px;padding:18px 22px;
+  border-top:1px solid var(--line,#2b3647)
+}
+@media(max-width:640px){
+  .edit-modal-backdrop{padding:10px;align-items:flex-end}
+  .edit-modal{max-height:92vh;border-radius:18px 18px 0 0}
+  .edit-grid{grid-template-columns:1fr}
+}
+
 </style>
   <title>ATLAS Investment Operating System 3.0</title>
 </head>
@@ -174,7 +215,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 7</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 8</small>
       </div>
     </aside>
 
@@ -205,7 +246,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.7'
+  version:'3.0.0-alpha.8'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -290,7 +331,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.7','3.0.0 Alpha 7');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.8','3.0.0 Alpha 8');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -460,7 +501,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.7','3.0.0 Alpha 7'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.8','3.0.0 Alpha 8'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -514,7 +555,106 @@ async function insert(table,obj){obj.user_id=uid();const {error}=await db.from(t
 async function addAsset(e){e.preventDefault();try{const o=formObj(e);['quantity','average_price','current_price','target_weight','conviction'].forEach(k=>o[k]=+o[k]);await insert('assets',o);toast('Ativo guardado')}catch(x){toast(x.message)}}
 async function addOperation(e){e.preventDefault();try{const o=formObj(e);o.value=+o.value;await insert('operations',o);toast('Operação guardada')}catch(x){toast(x.message)}}
 async function addDividend(e){e.preventDefault();try{const o=formObj(e);o.net_value=+o.net_value;await insert('dividends',o);toast('Dividendo guardado')}catch(x){toast(x.message)}}
-async function editAsset(id){const a=state.assets.find(x=>x.id===id);if(!a)return;const quantity=prompt('Quantidade',a.quantity);if(quantity===null)return;const avg=prompt('Preço médio',a.average_price);if(avg===null)return;const current=prompt('Preço manual',a.current_price);if(current===null)return;const target=prompt('Objetivo %',a.target_weight);if(target===null)return;const {error}=await db.from('assets').update({quantity:+quantity,average_price:+avg,current_price:+current,target_weight:+target}).eq('id',id);if(error)return toast(error.message);await loadAll()}
+
+function closeAssetEditor(){
+  document.getElementById('asset-edit-modal')?.remove();
+}
+
+function assetEditorField(label,name,value,type='text',extra=''){
+  const safe=value===null||value===undefined?'':String(value);
+  return `<label>${label}<input name="${name}" type="${type}" value="${esc(safe)}" ${extra}></label>`;
+}
+
+async function editAsset(id){
+  const a=state.assets.find(x=>x.id===id);
+  if(!a)return;
+
+  closeAssetEditor();
+
+  const modal=document.createElement('div');
+  modal.id='asset-edit-modal';
+  modal.className='edit-modal-backdrop';
+  modal.innerHTML=`
+    <section class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="asset-edit-title">
+      <div class="edit-modal-head">
+        <div>
+          <div class="muted small">Editar ativo</div>
+          <h2 id="asset-edit-title">${esc(a.name||a.ticker||'Ativo')}</h2>
+        </div>
+        <button type="button" class="edit-modal-close" aria-label="Fechar">×</button>
+      </div>
+
+      <form id="asset-edit-form">
+        <div class="edit-modal-body">
+          <div class="edit-grid">
+            ${assetEditorField('Nome do ativo','name',a.name)}
+            ${assetEditorField('Ticker Finnhub','ticker',a.ticker)}
+            <label>Categoria
+              <select name="category">
+                ${['ETF','Ouro','Ação','Liquidez'].map(v=>`<option ${a.category===v?'selected':''}>${v}</option>`).join('')}
+              </select>
+            </label>
+            ${assetEditorField('Quantidade','quantity',a.quantity,'number','step="any"')}
+            ${assetEditorField('Preço médio','average_price',a.average_price,'number','step="any"')}
+            ${assetEditorField('Preço manual','current_price',a.current_price,'number','step="any"')}
+            ${assetEditorField('Objetivo %','target_weight',a.target_weight,'number','step="any" min="0" max="100"')}
+            ${assetEditorField('Convicção 1–5','conviction',a.conviction??3,'number','min="1" max="5" step="1"')}
+          </div>
+        </div>
+
+        <div class="edit-modal-actions">
+          <button type="button" class="btn" data-cancel>Cancelar</button>
+          <button type="submit" class="btn primary">Guardar alterações</button>
+        </div>
+      </form>
+    </section>`;
+
+  document.body.appendChild(modal);
+
+  const close=()=>closeAssetEditor();
+  modal.querySelector('.edit-modal-close').addEventListener('click',close);
+  modal.querySelector('[data-cancel]').addEventListener('click',close);
+  modal.addEventListener('click',e=>{if(e.target===modal)close()});
+  document.addEventListener('keydown',function escClose(e){
+    if(e.key==='Escape'){close();document.removeEventListener('keydown',escClose)}
+  });
+
+  const form=modal.querySelector('#asset-edit-form');
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const fd=new FormData(form);
+    const payload={
+      name:String(fd.get('name')||'').trim(),
+      ticker:String(fd.get('ticker')||'').trim().toUpperCase(),
+      category:String(fd.get('category')||'ETF'),
+      quantity:Number(fd.get('quantity')||0),
+      average_price:Number(fd.get('average_price')||0),
+      current_price:Number(fd.get('current_price')||0),
+      target_weight:Number(fd.get('target_weight')||0),
+      conviction:Number(fd.get('conviction')||3),
+    };
+
+    if(!payload.name)return toast('Indica o nome do ativo.');
+    if(!Number.isFinite(payload.quantity))return toast('Quantidade inválida.');
+
+    const submit=form.querySelector('button[type="submit"]');
+    submit.disabled=true;
+    submit.textContent='A guardar…';
+
+    const {error}=await db.from('assets').update(payload).eq('id',id);
+    if(error){
+      submit.disabled=false;
+      submit.textContent='Guardar alterações';
+      return toast(error.message);
+    }
+
+    close();
+    await loadAll();
+    toast('Ativo atualizado');
+  });
+
+  setTimeout(()=>form.elements.name?.focus(),50);
+}
 async function removeRow(table,id){if(!confirm('Eliminar este registo?'))return;const {error}=await db.from(table).delete().eq('id',id);if(error)return toast(error.message);await loadAll()}
 
 function smartMoneyScore(){

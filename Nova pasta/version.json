@@ -1,11 +1,10 @@
 {
-  "version": "3.0.0-alpha.7",
-  "name": "ATLAS 3.0 Alpha 7 — Tracked Companies",
+  "version": "3.0.0-alpha.8",
+  "name": "ATLAS 3.0 Alpha 8 — Better Asset Editor",
   "released_at": "2026-08-02",
   "notes": [
-    "Tickers da Carteira enviados automaticamente ao Intelligence Center",
-    "JOBY e novas ações passam a ser acompanhadas",
-    "Lista manual de empresas acompanhadas",
-    "Janela de insiders aumentada para 90 dias"
+    "Editor completo de ativos em janela modal",
+    "Edição simultânea de nome, ticker, categoria, quantidade, preços, objetivo e convicção",
+    "Melhor utilização em computador e telemóvel"
   ]
 }
