@@ -183,6 +183,77 @@ body{background:
   .edit-grid{grid-template-columns:1fr}
 }
 
+
+.asset-editor-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.45fr) minmax(240px,.75fr);
+  gap:18px;
+  align-items:start
+}
+.asset-editor-fields{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px
+}
+.asset-field{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  color:var(--muted,#9eb0c8);
+  font-size:13px
+}
+.asset-field.full{grid-column:1/-1}
+.asset-field-label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:700;
+  color:var(--text,#eef4ff)
+}
+.asset-field-icon{
+  width:30px;height:30px;
+  display:grid;place-items:center;
+  border-radius:9px;
+  background:rgba(122,167,255,.10);
+  font-size:16px
+}
+.asset-field input{
+  width:100%;min-height:48px;padding:11px 12px;
+  border-radius:12px;border:1px solid var(--line,#2b3647);
+  background:var(--bg,#090d13);color:var(--text,#fff);font:inherit
+}
+.asset-field input:focus{
+  outline:none;border-color:#7aa7ff;
+  box-shadow:0 0 0 3px rgba(122,167,255,.14)
+}
+.asset-calculation-panel{
+  position:sticky;top:12px;
+  background:linear-gradient(145deg,#121a25,#0e151f);
+  border:1px solid var(--line,#2b3647);
+  border-radius:16px;padding:16px
+}
+.asset-calculation-panel h3{margin:0 0 14px;font-size:16px}
+.asset-calculation-list{display:grid;gap:11px}
+.asset-calculation-item{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:12px;border:1px solid rgba(148,163,184,.15);
+  border-radius:12px;background:rgba(255,255,255,.025)
+}
+.asset-calculation-name{
+  display:flex;align-items:center;gap:9px;color:var(--muted,#9eb0c8);
+  font-size:13px
+}
+.asset-calculation-value{font-size:16px;font-weight:800;text-align:right}
+.asset-calculation-note{
+  margin-top:13px;color:var(--muted,#9eb0c8);
+  font-size:11px;line-height:1.45
+}
+@media(max-width:760px){
+  .asset-editor-layout{grid-template-columns:1fr}
+  .asset-editor-fields{grid-template-columns:1fr}
+  .asset-calculation-panel{position:static}
+}
+
 </style>
   <title>ATLAS Investment Operating System 3.0</title>
 </head>
@@ -215,7 +286,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 9</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 10</small>
       </div>
     </aside>
 
@@ -246,7 +317,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.9'
+  version:'3.0.0-alpha.10'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -331,7 +402,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.9','3.0.0 Alpha 9');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.10','3.0.0 Alpha 10');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -501,7 +572,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.9','3.0.0 Alpha 9'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.10','3.0.0 Alpha 10'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -549,67 +620,141 @@ function inferAssetCategory(ticker,name=''){
   return 'Ação';
 }
 
-function bindInvestmentFields(form){
-  if(!form)return;
 
-  const invested=form.elements.invested_value;
-  const quantity=form.elements.quantity;
-  const average=form.elements.average_price;
-  if(!invested||!quantity||!average)return;
+function parseAtlasNumber(value){
+  if(typeof value==='number')return Number.isFinite(value)?value:0;
+  let text=String(value??'').trim().replace(/\s/g,'');
+  if(!text)return 0;
 
-  let editingInvested=false;
-
-  const formatNumber=value=>{
-    const number=Number(value);
-    return Number.isFinite(number)?String(Math.round(number*100000000)/100000000):'';
-  };
-
-  const updateInvested=()=>{
-    if(editingInvested)return;
-    const q=Number(quantity.value||0);
-    const p=Number(average.value||0);
-    invested.value=formatNumber(q*p);
-  };
-
-  invested.addEventListener('focus',()=>{editingInvested=true});
-  invested.addEventListener('blur',()=>{
-    const total=Number(invested.value||0);
-    const q=Number(quantity.value||0);
-
-    if(Number.isFinite(total)&&Number.isFinite(q)&&q>0){
-      average.value=formatNumber(total/q);
+  // Aceita 3.765,98 e 3765.98.
+  if(text.includes(',')&&text.includes('.')){
+    if(text.lastIndexOf(',')>text.lastIndexOf('.')){
+      text=text.replace(/\./g,'').replace(',','.');
+    }else{
+      text=text.replace(/,/g,'');
     }
+  }else if(text.includes(',')){
+    text=text.replace(',','.');
+  }
 
-    editingInvested=false;
-    updateInvested();
-  });
-
-  quantity.addEventListener('input',updateInvested);
-  average.addEventListener('input',updateInvested);
-  updateInvested();
+  const number=Number(text);
+  return Number.isFinite(number)?number:0;
 }
 
-function simpleAssetFields(asset={}){
+function formatAtlasMoney(value){
+  const number=Number(value||0);
+  return new Intl.NumberFormat('pt-PT',{
+    style:'currency',
+    currency:'EUR',
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  }).format(Number.isFinite(number)?number:0);
+}
+
+function formatAtlasPercent(value){
+  const number=Number(value||0);
+  const sign=number>0?'+':'';
+  return `${sign}${new Intl.NumberFormat('pt-PT',{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  }).format(Number.isFinite(number)?number:0)}%`;
+}
+
+function assetInput(label,icon,name,value,type='text',extra='',full=false){
+  const safe=value===null||value===undefined?'':String(value);
+  return `<label class="asset-field ${full?'full':''}">
+    <span class="asset-field-label"><span class="asset-field-icon">${icon}</span>${label}</span>
+    <input name="${name}" type="${type}" value="${esc(safe)}" ${extra}>
+  </label>`;
+}
+
+function assetEditorFields(asset={}){
   const quantity=Number(asset.quantity||0);
   const average=Number(asset.average_price||0);
-  const invested=quantity*average;
+  const current=Number(asset.current_price||0);
+  const currentValue=quantity*current;
 
   return `
-    ${assetEditorField('Nome','name',asset.name||'')}
-    ${assetEditorField('Ticker','ticker',asset.ticker||'')}
-    ${assetEditorField('Valor investido','invested_value',invested,'number','step="any" min="0"')}
-    ${assetEditorField('Número de posições','quantity',quantity,'number','step="any" min="0"')}
-    ${assetEditorField('Preço médio','average_price',average,'number','step="any" min="0"')}
+    ${assetInput('Nome','🏷️','name',asset.name||'','text','',true)}
+    ${assetInput('Ticker','📈','ticker',asset.ticker||'')}
+    ${assetInput('Número de posições','📦','quantity',quantity,'number','step="any" min="0"')}
+    ${assetInput('Preço médio','💶','average_price',average,'number','step="any" min="0"')}
+    ${assetInput('Valor atual','💼','current_value',currentValue,'number','step="any" min="0"')}
   `;
+}
+
+function assetCalculationPanel(){
+  return `<aside class="asset-calculation-panel">
+    <h3>Resumo automático</h3>
+    <div class="asset-calculation-list">
+      <div class="asset-calculation-item">
+        <span class="asset-calculation-name"><span>💵</span>Valor investido</span>
+        <strong class="asset-calculation-value" data-calc="invested">${formatAtlasMoney(0)}</strong>
+      </div>
+      <div class="asset-calculation-item">
+        <span class="asset-calculation-name"><span>📈</span>Lucro</span>
+        <strong class="asset-calculation-value" data-calc="profit">${formatAtlasMoney(0)}</strong>
+      </div>
+      <div class="asset-calculation-item">
+        <span class="asset-calculation-name"><span>📊</span>Rentabilidade</span>
+        <strong class="asset-calculation-value" data-calc="return">${formatAtlasPercent(0)}</strong>
+      </div>
+    </div>
+    <div class="asset-calculation-note">
+      Valor investido = posições × preço médio.<br>
+      Lucro = valor atual − valor investido.
+    </div>
+  </aside>`;
+}
+
+function bindAssetCalculations(form){
+  if(!form)return;
+
+  const quantity=form.elements.quantity;
+  const average=form.elements.average_price;
+  const currentValue=form.elements.current_value;
+  if(!quantity||!average||!currentValue)return;
+
+  const update=()=>{
+    const q=parseAtlasNumber(quantity.value);
+    const avg=parseAtlasNumber(average.value);
+    const current=parseAtlasNumber(currentValue.value);
+
+    const invested=q*avg;
+    const profit=current-invested;
+    const returnPct=invested>0?(profit/invested)*100:0;
+
+    const investedEl=form.querySelector('[data-calc="invested"]');
+    const profitEl=form.querySelector('[data-calc="profit"]');
+    const returnEl=form.querySelector('[data-calc="return"]');
+
+    if(investedEl)investedEl.textContent=formatAtlasMoney(invested);
+    if(profitEl){
+      profitEl.textContent=(profit>0?'+':'')+formatAtlasMoney(profit);
+      profitEl.className=`asset-calculation-value ${profit>0?'good':profit<0?'bad':''}`;
+    }
+    if(returnEl){
+      returnEl.textContent=formatAtlasPercent(returnPct);
+      returnEl.className=`asset-calculation-value ${returnPct>0?'good':returnPct<0?'bad':''}`;
+    }
+  };
+
+  [quantity,average,currentValue].forEach(input=>{
+    input.addEventListener('input',update);
+    input.addEventListener('change',update);
+  });
+
+  update();
 }
 
 function assetForm(){return `
 <form id="asset-form" class="form hidden">
-  <label>Nome<input name="name" required placeholder="Ex.: Joby Aviation"></label>
-  <label>Ticker<input name="ticker" required placeholder="Ex.: JOBY"></label>
-  <label>Valor investido<input name="invested_value" type="number" step="any" min="0" value="0"></label>
-  <label>Número de posições<input name="quantity" type="number" step="any" min="0" value="0"></label>
-  <label>Preço médio<input name="average_price" type="number" step="any" min="0" value="0"></label>
+  <div class="asset-editor-layout full">
+    <div class="asset-editor-fields">
+      ${assetEditorFields({})}
+    </div>
+    ${assetCalculationPanel()}
+  </div>
   <div class="full"><button class="btn primary">Guardar ativo</button></div>
 </form>`}
 function opForm(){return `<form id="op-form" class="form hidden"><label>Data<input name="date" type="date" required></label><label>Ativo<select name="asset_name">${state.assets.map(a=>`<option>${esc(a.name)}</option>`).join('')}</select></label><label>Tipo<select name="type"><option>Compra</option><option>Reforço</option><option>Venda</option></select></label><label>Valor<input name="value" type="number" step="any" required></label><label class="full">Notas<textarea name="notes"></textarea></label><div class="full"><button class="btn primary">Guardar operação</button></div></form>`}
@@ -632,18 +777,17 @@ async function addAsset(e){
     const fd=new FormData(e.currentTarget);
     const name=String(fd.get('name')||'').trim();
     const ticker=String(fd.get('ticker')||'').trim().toUpperCase();
-    const quantity=Number(fd.get('quantity')||0);
-    let averagePrice=Number(fd.get('average_price')||0);
-    const investedValue=Number(fd.get('invested_value')||0);
+    const quantity=parseAtlasNumber(fd.get('quantity'));
+    const averagePrice=parseAtlasNumber(fd.get('average_price'));
+    const currentValue=parseAtlasNumber(fd.get('current_value'));
 
     if(!name)return toast('Indica o nome do ativo.');
     if(!ticker)return toast('Indica o ticker.');
-    if(!Number.isFinite(quantity)||quantity<0)return toast('Número de posições inválido.');
-    if(!Number.isFinite(averagePrice)||averagePrice<0)return toast('Preço médio inválido.');
+    if(quantity<0)return toast('Número de posições inválido.');
+    if(averagePrice<0)return toast('Preço médio inválido.');
+    if(currentValue<0)return toast('Valor atual inválido.');
 
-    if(quantity>0&&investedValue>0){
-      averagePrice=investedValue/quantity;
-    }
+    const currentPrice=quantity>0?currentValue/quantity:0;
 
     const payload={
       name,
@@ -651,7 +795,7 @@ async function addAsset(e){
       category:inferAssetCategory(ticker,name),
       quantity,
       average_price:averagePrice,
-      current_price:0,
+      current_price:currentPrice,
       target_weight:0,
       conviction:3,
     };
@@ -695,8 +839,11 @@ async function editAsset(id){
 
       <form id="asset-edit-form">
         <div class="edit-modal-body">
-          <div class="edit-grid">
-            ${simpleAssetFields(a)}
+          <div class="asset-editor-layout">
+            <div class="asset-editor-fields">
+              ${assetEditorFields(a)}
+            </div>
+            ${assetCalculationPanel()}
           </div>
         </div>
 
@@ -718,19 +865,16 @@ async function editAsset(id){
   });
 
   const form=modal.querySelector('#asset-edit-form');
-  bindInvestmentFields(form);
+  bindAssetCalculations(form);
   form.addEventListener('submit',async e=>{
     e.preventDefault();
     const fd=new FormData(form);
     const name=String(fd.get('name')||'').trim();
     const ticker=String(fd.get('ticker')||'').trim().toUpperCase();
-    const quantity=Number(fd.get('quantity')||0);
-    const investedValue=Number(fd.get('invested_value')||0);
-    let averagePrice=Number(fd.get('average_price')||0);
-
-    if(quantity>0&&investedValue>0){
-      averagePrice=investedValue/quantity;
-    }
+    const quantity=parseAtlasNumber(fd.get('quantity'));
+    const averagePrice=parseAtlasNumber(fd.get('average_price'));
+    const currentValue=parseAtlasNumber(fd.get('current_value'));
+    const currentPrice=quantity>0?currentValue/quantity:0;
 
     const payload={
       name,
@@ -738,6 +882,7 @@ async function editAsset(id){
       category:inferAssetCategory(ticker,name),
       quantity,
       average_price:averagePrice,
+      current_price:currentPrice,
     };
 
     if(!payload.name)return toast('Indica o nome do ativo.');

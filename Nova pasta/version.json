@@ -1,10 +1,12 @@
 {
-  "version": "3.0.0-alpha.9",
-  "name": "ATLAS 3.0 Alpha 9 — Simple Asset Editor",
+  "version": "3.0.0-alpha.10",
+  "name": "ATLAS 3.0 Alpha 10 — Portfolio Calculations",
   "released_at": "2026-08-02",
   "notes": [
-    "Editor reduzido a Nome, Ticker, Valor investido, Número de posições e Preço médio",
-    "Valor investido sincronizado com posições × preço médio",
-    "Categoria identificada automaticamente pelo ATLAS"
+    "Editor com Nome, Ticker, Número de posições, Preço médio e Valor atual",
+    "Ícones nos campos",
+    "Resumo em tempo real de Valor investido, Lucro e Rentabilidade",
+    "Valores monetários formatados com duas casas decimais",
+    "Valor atual convertido automaticamente em preço atual por posição"
   ]
 }
