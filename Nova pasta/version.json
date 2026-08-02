@@ -1,13 +1,11 @@
 {
-  "version": "3.0.0-alpha.6",
-  "name": "ATLAS 3.0 Alpha 6 — Intelligence Center",
+  "version": "3.0.0-alpha.7",
+  "name": "ATLAS 3.0 Alpha 7 — Tracked Companies",
   "released_at": "2026-08-02",
   "notes": [
-    "ATLAS Intelligence Center",
-    "Smart Money Score 0–100",
-    "Insiders públicos SEC Form 4",
-    "Macro, notícias e calendário no mesmo ecrã",
-    "Sem integração com carteira ou corretoras",
-    "Compatível com a pasta atual Nova pasta"
+    "Tickers da Carteira enviados automaticamente ao Intelligence Center",
+    "JOBY e novas ações passam a ser acompanhadas",
+    "Lista manual de empresas acompanhadas",
+    "Janela de insiders aumentada para 90 dias"
   ]
 }

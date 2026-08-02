@@ -140,6 +140,8 @@ body{background:
 @media(max-width:950px){.intelligence-hero,.intel-tabs{grid-template-columns:1fr}.smart-summary{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:580px){.score-components,.smart-grid{grid-template-columns:1fr}.score-number{font-size:58px}}
 
+
+.tracked-panel{margin:14px 0 18px}.tracked-row{display:flex;gap:10px;margin:12px 0}.tracked-row input{flex:1;min-width:180px}.tracked-groups{display:grid;grid-template-columns:1fr 1fr;gap:16px}.tracked-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}.tracked-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border);border-radius:999px;background:var(--panel2);font-weight:700}.tracked-chip small{font-size:10px;color:var(--muted);font-weight:500}.tracked-chip button{border:0;background:transparent;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:0}.tracked-chip.auto{border-style:dashed}@media(max-width:760px){.tracked-groups{grid-template-columns:1fr}.tracked-row{flex-direction:column}}
 </style>
   <title>ATLAS Investment Operating System 3.0</title>
 </head>
@@ -172,7 +174,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 6</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 7</small>
       </div>
     </aside>
 
@@ -203,7 +205,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.6'
+  version:'3.0.0-alpha.7'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -288,7 +290,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.6','3.0.0 Alpha 6');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.7','3.0.0 Alpha 7');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -458,7 +460,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.6','3.0.0 Alpha 6'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.7','3.0.0 Alpha 7'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -561,6 +563,33 @@ function moduleState(section){
 }
 
 function impactLabel(x){return x==='high'?'Elevado':x==='medium'?'Atenção':'Reduzido'}
+function trackedSymbols(){
+ const portfolio=state.assets.map(a=>String(a.ticker||'').trim().toUpperCase()).filter(Boolean);
+ let manual=[];
+ try{manual=JSON.parse(localStorage.getItem('atlas_tracked_symbols')||'[]')}catch{}
+ return [...new Set([...portfolio,...manual.map(x=>String(x).trim().toUpperCase()).filter(Boolean)])];
+}
+function manualTrackedSymbols(){
+ try{return JSON.parse(localStorage.getItem('atlas_tracked_symbols')||'[]').map(x=>String(x).trim().toUpperCase()).filter(Boolean)}catch{return []}
+}
+function saveManualTrackedSymbols(symbols){
+ localStorage.setItem('atlas_tracked_symbols',JSON.stringify([...new Set(symbols)]));
+}
+function addTrackedSymbol(){
+ const input=$('tracked-symbol-input');
+ const symbol=String(input?.value||'').trim().toUpperCase().replace(/[^A-Z0-9.\-]/g,'');
+ if(!symbol)return toast('Escreve um ticker válido.');
+ const list=manualTrackedSymbols();
+ if(!list.includes(symbol))list.push(symbol);
+ saveManualTrackedSymbols(list);
+ renderRadar();
+ toast(symbol+' adicionado ao acompanhamento.');
+}
+function removeTrackedSymbol(symbol){
+ saveManualTrackedSymbols(manualTrackedSymbols().filter(x=>x!==symbol));
+ renderRadar();
+ toast(symbol+' removido do acompanhamento manual.');
+}
 function renderRadar(){
  const data=state.radarData||{};
  const score=smartMoneyScore();
@@ -571,12 +600,21 @@ function renderRadar(){
  const nextEvents=futureEvents().slice(0,4);
  const news=state.news||[];
  const insiderState=moduleState(insiders),buybackState=moduleState(buybacks),fundState=moduleState(funds);
+ const portfolioSymbols=state.assets.map(a=>String(a.ticker||'').trim().toUpperCase()).filter(Boolean);
+ const manualSymbols=manualTrackedSymbols();
+ const allTracked=trackedSymbols();
  const componentRows=score.components.map(c=>`<div class="sm-component"><span>${esc(c.label)}</span><b class="${c.available?(c.value>=60?'good':c.value>=45?'warn':'bad'):'muted'}">${c.available?c.value+'/100':'Sem dados'}</b></div>`).join('');
  const newsHtml=news.length?`<div class="news-list">${news.map(n=>`<article class="news"><div class="news-top"><div><div class="muted small">${esc(n.topic||'Economia')} · ${esc(n.domain||'')} · ${formatDateTime(n.published_at||n.seendate)}</div><h3><a href="${safeUrl(n.url)}" target="_blank" rel="noopener">${esc(n.title)}</a></h3></div><span class="badge ${n.impact||'low'}">${impactLabel(n.impact)}</span></div><div class="muted small">${esc(n.reason||'')}</div></article>`).join('')}</div>`:empty('Sem notícias relevantes nas fontes disponíveis.');
  const insiderHtml=transactions.length?`<div class="smart-grid">${transactions.slice(0,10).map(t=>`<article class="signal-card"><div class="signal-head"><div><b>${esc(t.ticker||t.issuer)}</b><div class="muted small">${esc(t.insider||'Insider')} · ${esc(t.role||'')}</div></div><span class="badge ${t.action==='buy'?'low':'medium'}">${t.action==='buy'?'Compra':'Venda'}</span></div><div class="signal-value">${money(t.estimated_value)}</div><div class="muted small">${t.shares??'—'} ações · ${formatDateTime(t.transaction_date)}</div><a class="source-link" href="${safeUrl(t.filing_url)}" target="_blank" rel="noopener">SEC Form 4 ↗</a></article>`).join('')}</div>`:`<div class="module-empty"><b>${insiderState.label}</b><p>${esc(insiders?.summary?.conclusion||'Não foram encontradas compras ou vendas no mercado aberto no período analisado.')}</p></div>`;
  $('radar').innerHTML=`${head('ATLAS Intelligence Center','Smart Money, macro, eventos e notícias públicas','<button class="btn primary" id="radar-refresh">Atualizar Intelligence Center</button>')}
  <section class="intelligence-hero"><div><div class="eyebrow">SMART MONEY SCORE</div><div class="score-line"><span class="score-number ${score.tone}">${score.score}</span><span class="score-max">/100</span></div><div class="score-label ${score.tone}">${score.label}</div><p class="muted">Cobertura gratuita disponível: ${score.coverage}%. Componentes sem dados não entram no cálculo.</p></div><div class="score-components">${componentRows}</div></section>
  <div class="note ${score.tone}"><b>Conclusão ATLAS</b><br>${esc(state.newsOverview?.conclusion||'Atualiza o centro para obter uma leitura dos sinais disponíveis.')}</div>
+ <section class="intel-card tracked-panel"><div class="intel-title"><h2>👁 Empresas acompanhadas</h2><span class="muted">${allTracked.length} símbolos</span></div>
+  <div class="tracked-row"><input id="tracked-symbol-input" placeholder="Ex.: JOBY, AAPL, MSFT"><button class="btn primary" id="tracked-symbol-add">Adicionar</button></div>
+  <div class="tracked-groups"><div><b>Da Carteira</b><div class="tracked-chips">${portfolioSymbols.length?portfolioSymbols.map(s=>`<span class="tracked-chip auto">${esc(s)}<small>automático</small></span>`).join(''):'<span class="muted small">Nenhum ticker registado na Carteira.</span>'}</div></div>
+  <div><b>Manuais</b><div class="tracked-chips">${manualSymbols.length?manualSymbols.map(s=>`<span class="tracked-chip">${esc(s)}<button onclick="window.atlas.removeTrackedSymbol('${s}')" aria-label="Remover ${s}">×</button></span>`).join(''):'<span class="muted small">Ainda não adicionaste empresas manualmente.</span>'}</div></div></div>
+  <div class="muted small">Os tickers da Carteira entram automaticamente. Empresas adicionadas aqui são acompanhadas mesmo sem estarem na Carteira.</div>
+ </section>
  <div class="intel-tabs">
   <section class="intel-card"><div class="intel-title"><h2>💼 Smart Money</h2><span class="${insiderState.className}">${insiderState.label}</span></div><div class="smart-summary"><div><span>Compras</span><b class="good">${insiders?.summary?.buys??0}</b></div><div><span>Vendas</span><b class="warn">${insiders?.summary?.sells??0}</b></div><div><span>Valor compras</span><b>${money(insiders?.summary?.estimated_buy_value)}</b></div><div><span>Valor vendas</span><b>${money(insiders?.summary?.estimated_sell_value)}</b></div></div>${insiderHtml}<div class="disclaimer">${esc(insiders?.disclaimer||'Apenas dados públicos divulgados após a execução.')}</div></section>
   <section class="intel-card"><div class="intel-title"><h2>💰 Buybacks</h2><span class="${buybackState.className}">${buybackState.label}</span></div><div class="module-empty"><b>Monitor preparado</b><p>Programas de recompra exigem leitura e normalização de comunicados e filings. Nesta versão, dados não verificados ficam fora do score.</p></div></section>
@@ -587,11 +625,14 @@ function renderRadar(){
  <h2>📅 Próximos eventos oficiais</h2><div class="calendar-list">${nextEvents.length?nextEvents.map(e=>`<div class="calendar-event"><div><b>${esc(e.date)}</b><div class="muted small">${esc(e.time||'')}</div></div><div><b>${esc(e.event)}</b><div class="muted small">${esc(e.country)} · ${esc(e.source)}</div></div><span class="badge ${e.impact}">${impactLabel(e.impact)}</span></div>`).join(''):empty('Sem eventos futuros.')}</div>
  <div class="muted small">O score é um indicador experimental baseado apenas em informação pública. Não é recomendação de investimento.</div>`;
  $('radar-refresh').onclick=refreshRadar;
+ const addTracked=$('tracked-symbol-add');if(addTracked)addTracked.onclick=addTrackedSymbol;
+ const trackedInput=$('tracked-symbol-input');if(trackedInput)trackedInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addTrackedSymbol()}};
 }
 async function refreshRadar(){
  const b=$('radar-refresh');serviceState.radar='loading';if(b){b.disabled=true;b.innerHTML='<span class="spinner"></span>A atualizar…'}renderHome();renderSystem();
  try{
-  const {data,error}=await db.functions.invoke(CONFIG.functions.radar,{body:{tickers:[],insider_symbols:['AAPL','MSFT','NVDA','AMZN','META','GOOGL'],news_hours:72,insider_days:45}});
+  const symbols=trackedSymbols();
+  const {data,error}=await db.functions.invoke(CONFIG.functions.radar,{body:{tickers:symbols,insider_symbols:symbols,news_hours:72,insider_days:90}});
   if(error)throw error;
   state.radarData=data||null;state.news=data?.articles||data?.sections?.macro_and_news?.articles||[];state.newsOverview=data?.overview||null;
   serviceState.radar=state.news.length||data?.sections?.insiders?'operational':'empty';renderRadar();renderHome();renderSystem();toast('Intelligence Center atualizado');
@@ -732,7 +773,7 @@ async function requestNotifications(){
 function installApp(){if(deferredInstall){deferredInstall.prompt();deferredInstall=null}else toast('Publica em HTTPS e usa o menu do navegador para instalar.')}
 async function logout(){await db.auth.signOut();location.reload()}
 
-window.atlas={show:showPage,refreshPrices:refreshMarketData,refreshRadar,editAsset,remove:removeRow,sync:loadAll,install:installApp,notify:requestNotifications,logout,checkUpdates:()=>checkForUpdates(true),applyUpdate};
+window.atlas={show:showPage,refreshPrices:refreshMarketData,refreshRadar,editAsset,remove:removeRow,sync:loadAll,install:installApp,notify:requestNotifications,logout,checkUpdates:()=>checkForUpdates(true),applyUpdate,removeTrackedSymbol};
 
 $('auth-form').onsubmit=async e=>{e.preventDefault();$('auth-status').textContent='A entrar…';const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)return $('auth-status').textContent=error.message;session=data.session;await openApp()};
 $('signup').onclick=async()=>{const {error}=await db.auth.signUp({email:$('email').value.trim(),password:$('password').value});$('auth-status').textContent=error?error.message:'Conta criada. Confirma o email se for solicitado.'};
