@@ -345,7 +345,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 12</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 13</small>
       </div>
     </aside>
 
@@ -376,7 +376,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.12'
+  version:'3.0.0-alpha.13'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -461,7 +461,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.12','3.0.0 Alpha 12');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.13','3.0.0 Alpha 13');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -631,7 +631,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.12','3.0.0 Alpha 12'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.13','3.0.0 Alpha 13'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -711,15 +711,17 @@ function commonBenchmarkData(portfolio,benchmark){
 }
 
 async function fetchBenchmarkSeries(){
-  if(Object.keys(benchmarkSeriesCache).length)return benchmarkSeriesCache;
-
   const result=await db.functions.invoke('benchmark-data',{
-    body:{range:'MAX'}
+    body:{requested_at:new Date().toISOString()}
   });
 
-  if(result.error)throw result.error;
-  benchmarkSeriesCache=result.data?.series||{};
-  return benchmarkSeriesCache;
+  if(result?.error)throw result.error;
+
+  const payload=result?.data||{};
+  const series=payload?.series||{};
+
+  benchmarkSeriesCache=series;
+  return series;
 }
 
 
@@ -730,26 +732,35 @@ function currentPortfolioReturnPercent(){
 }
 
 function estimatePortfolioFromBenchmark(benchmarkRows){
-  const startDate='2022-01-03';
-  const rows=(benchmarkRows||[]).filter(row=>String(row.date||'')>=startDate);
+  const rows=(benchmarkRows||[])
+    .map(row=>({
+      date:String(row?.date||'').slice(0,10),
+      value:Number(row?.value)
+    }))
+    .filter(row=>row.date>='2022-01-01'&&Number.isFinite(row.value)&&row.value>0)
+    .sort((a,b)=>a.date.localeCompare(b.date));
+
   if(rows.length<2)return[];
 
-  const finalTarget=100+currentPortfolioReturnPercent();
-  const first=Number(rows[0].value||100);
-  const last=Number(rows.at(-1).value||first);
-  const benchmarkReturn=last-first;
+  const targetReturn=currentPortfolioReturnPercent();
+  const targetEnd=100+targetReturn;
 
-  // Ajusta a amplitude ao retorno final da carteira.
-  const scale=Math.abs(benchmarkReturn)>0.0001?(finalTarget-100)/benchmarkReturn:0;
+  const first=rows[0].value;
+  const last=rows[rows.length-1].value;
+  const marketMove=last-first;
 
   return rows.map((row,index)=>{
-    const normalized=100+(Number(row.value||first)-first)*scale;
-    // Suavização ligeira para evitar curvas excessivamente artificiais.
     const progress=index/(rows.length-1);
-    const correction=(finalTarget-normalized)*Math.pow(progress,3);
-    return {
-      date:String(row.date).slice(0,10),
-      value:normalized+correction
+    const marketShape=Math.abs(marketMove)>0.000001
+      ? (row.value-first)/marketMove
+      : progress;
+
+    // Mantém as oscilações do benchmark e garante o valor final da carteira.
+    const value=100+(targetEnd-100)*marketShape;
+
+    return{
+      date:row.date,
+      value:index===rows.length-1?targetEnd:value
     };
   });
 }
@@ -782,6 +793,7 @@ async function drawManualBenchmark(){
     selector.value=selectedBenchmark;
     selector.onchange=async()=>{
       selectedBenchmark=selector.value;
+      benchmarkSeriesCache={};
       localStorage.setItem('atlas-benchmark',selectedBenchmark);
       await drawManualBenchmark();
     };
@@ -825,7 +837,11 @@ async function drawManualBenchmark(){
         ]},
         options:{plugins:{legend:{labels:{color:'#f5f7fa'}}}}
       }));
-      if(comparison)comparison.textContent=activeMode==='estimated'?'Não foi possível criar a estimativa':'Ainda sem histórico real suficiente';
+      if(comparison)comparison.textContent=benchmark.length<2
+        ?'A função benchmark-data não devolveu histórico'
+        :activeMode==='estimated'
+          ?'Não foi possível criar a estimativa'
+          :'Ainda sem histórico real suficiente';
       return;
     }
 

@@ -1,4 +1,4 @@
-const CACHE = 'atlas-v3-alpha12-estimated-history';
+const CACHE = 'atlas-v3-alpha13-timeline-fix';
 const APP_SHELL = [
   '/',
   '/index.html',

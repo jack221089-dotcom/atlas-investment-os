@@ -1,11 +1,11 @@
 {
-  "version": "3.0.0-alpha.12",
-  "name": "ATLAS 3.0 Alpha 12 — Estimated Portfolio History",
+  "version": "3.0.0-alpha.13",
+  "name": "ATLAS 3.0 Alpha 13 — Timeline Fix",
   "released_at": "2026-08-02",
   "notes": [
-    "Histórico estimado da carteira desde 2022",
-    "Modos Estimado, Real e Automático",
-    "Estimativa baseada no benchmark selecionado e ajustada à rentabilidade atual",
-    "Aviso visual quando o histórico não é real"
+    "Correção mínima da timeline Carteira vs benchmark",
+    "Pedido fresco à função benchmark-data",
+    "Histórico estimado desde 2022",
+    "Sem alterações aos restantes módulos"
   ]
 }
