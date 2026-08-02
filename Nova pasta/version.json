@@ -1,0 +1,12 @@
+{
+  "version": "3.0.0-alpha.4",
+  "name": "ATLAS 3.0 Alpha 4",
+  "released_at": "2026-08-02",
+  "notes": [
+    "Manifesto PWA corrigido",
+    "Ícones 192x192 e 512x512",
+    "Service worker com cache correto",
+    "Instalação e diagnóstico PWA melhorados",
+    "Cache antigo removido automaticamente"
+  ]
+}

@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090b10">
+  <meta name="description" content="ATLAS Investment Operating System 3.0">
+  <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <style>
+:root{
+ --bg:#090b10;--side:#07090d;--panel:#131821;--panel2:#1a202b;--text:#f5f7fa;
+ --muted:#9aa6b6;--line:#29313e;--accent:#f4f6f8;--good:#62ca7b;--warn:#e9bd5a;
+ --bad:#e37474;--blue:#7cb7ff;--radius:16px
+}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}.hidden{display:none!important}.small{font-size:12px}.muted{color:var(--muted)}
+.shell{display:grid;grid-template-columns:245px 1fr;min-height:100vh}.sidebar{background:var(--side);border-right:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;z-index:30}
+.brand{display:flex;align-items:center;gap:12px;padding:2px 8px 24px}.brand-mark{font-size:28px}.brand strong{font-size:19px;display:block}.brand span{font-size:10px;color:var(--muted)}
+nav{display:grid;gap:4px}nav button{background:transparent;color:var(--muted);border:0;text-align:left;padding:11px 12px;border-radius:11px;cursor:pointer}
+nav button:hover,nav button.active{background:var(--panel);color:var(--text)}.side-bottom{margin-top:auto;display:grid;gap:9px;padding:8px}
+.main{padding:42px 36px;max-width:1320px;width:100%;margin:auto}.mobile-header{display:none}
+h1{font-size:36px;letter-spacing:-1px;margin:0 0 7px}h2{font-size:22px;margin:34px 0 15px}h3{margin:0}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px}
+.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.metric .label{font-size:12px;color:var(--muted)}.metric .value{font-size:26px;font-weight:750;margin:7px 0}.metric .foot{font-size:11px;color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:11px;cursor:pointer}.btn.primary{background:var(--accent);color:#111;border-color:var(--accent);font-weight:750}.btn.ghost{background:transparent}.btn.danger{color:#ffd9d9}.btn.full{width:100%}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:17px 0}.good{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+.form label{font-size:12px;color:var(--muted)}.form input,.form select,.form textarea{display:block;width:100%;margin-top:5px;background:#0d1118;color:var(--text);border:1px solid var(--line);padding:10px;border-radius:9px}.form textarea{min-height:90px}.form .full{grid-column:1/-1}
+.note{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:15px}.empty{background:var(--panel);border:1px dashed var(--line);border-radius:14px;color:var(--muted);padding:22px}
+.hero{display:grid;grid-template-columns:1.4fr .8fr;gap:14px}.hero-main{background:linear-gradient(145deg,#171d27,#0f131a);border:1px solid var(--line);border-radius:22px;padding:26px}.hero-main h1{font-size:42px}.hero-main .headline{font-size:23px;font-weight:750;margin:18px 0 8px}.hero-side{display:grid;gap:12px}.status{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:17px;display:flex;justify-content:space-between;gap:12px}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.quick button{text-align:left;min-height:85px}
+.asset-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.asset{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}.asset-top{display:flex;justify-content:space-between;gap:12px}.asset-name{font-size:20px;font-weight:760}.tag{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:5px 8px;color:var(--muted)}
+.stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stats4 b{display:block;margin-top:4px}.progress{height:8px;background:#0d1016;border-radius:99px;overflow:hidden;margin:13px 0}.progress span{display:block;height:100%;background:var(--accent)}
+.chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.chart-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;min-height:320px}.chart-card canvas{max-height:270px}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{font-size:11px;color:var(--muted)}tr:last-child td{border-bottom:0}
+.news-list,.timeline,.calendar-list{display:grid;gap:11px}.news,.entry,.calendar-event{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px}.news-top,.entry-top{display:flex;justify-content:space-between;gap:12px}.news h3{font-size:16px;margin:8px 0}.news a{color:var(--text);text-decoration:none}.news a:hover{text-decoration:underline}
+.badge{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:5px 8px;white-space:nowrap}.badge.low{color:var(--good)}.badge.medium{color:var(--warn)}.badge.high{color:var(--bad)}
+.calendar-event{display:grid;grid-template-columns:130px 1fr auto;gap:14px;align-items:center}.search{width:100%;background:#0d1118;color:var(--text);border:1px solid var(--line);padding:12px;border-radius:11px}.results{display:grid;gap:8px;margin-top:10px}.result{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}
+.chat{display:grid;grid-template-rows:1fr auto;min-height:65vh}.messages{display:grid;gap:12px;align-content:start}.message{max-width:850px;border-radius:16px;padding:14px 16px;line-height:1.55;white-space:pre-wrap}.message.user{background:var(--panel2);margin-left:auto}.message.ai{background:var(--panel);border:1px solid var(--line)}.composer{display:flex;gap:10px;position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 25%);padding-top:30px}.composer textarea{flex:1;background:#0d1118;color:var(--text);border:1px solid var(--line);border-radius:13px;padding:12px;min-height:52px;resize:vertical}
+.auth-shell{min-height:100vh;display:grid;place-items:center;padding:20px}.auth-card{width:min(420px,100%);background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:28px}.auth-card p{color:var(--muted);margin-top:-5px}.stack{display:grid;gap:12px;margin-top:22px}.stack label{font-size:12px;color:var(--muted)}.stack input{display:block;width:100%;margin-top:5px;background:#0d1118;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px}
+.toast{position:fixed;right:18px;bottom:18px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 15px;z-index:100}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--text);border-radius:50%;animation:spin .8s linear infinite;margin-right:7px;vertical-align:-2px}@keyframes spin{to{transform:rotate(360deg)}}.icon-btn{border:0;background:transparent;color:var(--text);font-size:20px}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.sidebar{position:fixed;left:-260px;width:245px;transition:.2s}.sidebar.open{left:0}.mobile-header{display:flex;position:sticky;top:0;z-index:25;justify-content:space-between;background:rgba(7,9,13,.95);backdrop-filter:blur(12px);padding:13px 16px;border-bottom:1px solid var(--line)}.main{padding:23px 15px 50px}.hero,.chart-grid{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.quick{grid-template-columns:repeat(2,1fr)}.asset-grid{grid-template-columns:1fr}.form{grid-template-columns:1fr}.form .full{grid-column:1}.calendar-event{grid-template-columns:1fr}}
+@media(max-width:520px){.grid,.quick{grid-template-columns:1fr}.hero-main h1{font-size:32px}.stats4{grid-template-columns:repeat(2,1fr)}}
+
+/* ATLAS 3.0 Alpha 2 — premium home */
+:root{
+  --green-glow:rgba(74,222,128,.18);
+  --blue-glow:rgba(96,165,250,.16);
+  --purple-glow:rgba(192,132,252,.15);
+}
+body{background:
+ radial-gradient(circle at 70% -20%,rgba(44,82,130,.12),transparent 32%),
+ radial-gradient(circle at 92% 15%,rgba(24,150,92,.06),transparent 24%),
+ var(--bg)}
+.sidebar{box-shadow:14px 0 40px rgba(0,0,0,.18)}
+.brand span{font-size:11px;letter-spacing:.01em}
+.main{max-width:1450px}
+.home-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,.65fr);gap:18px}
+.home-main,.home-rail{display:grid;gap:16px;align-content:start}
+.premium-hero{
+  position:relative;overflow:hidden;min-height:278px;
+  background:linear-gradient(135deg,#141b26 0%,#10161f 55%,#0e171b 100%);
+  border:1px solid #2a3443;border-radius:22px;padding:28px;
+  box-shadow:0 22px 55px rgba(0,0,0,.2)
+}
+.premium-hero:before{
+  content:"";position:absolute;width:330px;height:330px;border-radius:50%;
+  right:-90px;top:-115px;background:radial-gradient(circle,rgba(53,217,132,.18),transparent 68%)
+}
+.hero-kicker{color:#a9bad0;font-size:14px;margin-bottom:28px}
+.greeting-line{display:flex;align-items:center;gap:14px}
+.greeting-icon{font-size:44px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.28))}
+.premium-hero h1{font-size:42px;line-height:1.05;margin:0}
+.hero-verdict{font-size:22px;font-weight:800;color:var(--good);margin:24px 0 12px}
+.hero-copy{font-size:15px;color:#b0bfd2;max-width:720px;line-height:1.6;margin:0 0 7px}
+.hero-art{position:absolute;right:58px;bottom:24px;width:170px;height:150px;opacity:.9}
+.hero-art .glow{position:absolute;inset:8px;border-radius:50%;background:radial-gradient(circle,rgba(44,230,126,.34),transparent 65%)}
+.hero-art .beam{position:absolute;width:120px;height:40px;right:-35px;top:42px;background:linear-gradient(90deg,rgba(252,231,116,.46),transparent);clip-path:polygon(0 35%,100% 0,100% 100%,0 65%)}
+.hero-art .tower{position:absolute;left:72px;bottom:10px;width:30px;height:100px;background:linear-gradient(#203142,#0b1017);clip-path:polygon(35% 0,65% 0,87% 100%,13% 100%);border:1px solid rgba(131,162,190,.25)}
+.hero-art .lamp{position:absolute;left:68px;top:35px;width:38px;height:25px;background:#ffd66e;border:4px solid #15202d;border-radius:4px}
+.hero-art .rock{position:absolute;bottom:0;left:20px;width:140px;height:38px;background:#0b1119;clip-path:polygon(0 100%,18% 45%,38% 60%,53% 5%,70% 58%,100% 100%)}
+.metric-grid-premium{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.metric-premium{
+  background:linear-gradient(145deg,#161d28,#121822);border:1px solid #293443;border-radius:16px;
+  padding:18px;min-height:142px;position:relative;overflow:hidden
+}
+.metric-premium .metric-icon{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;font-size:22px;margin-bottom:13px;background:rgba(80,150,255,.09)}
+.metric-premium.green .metric-icon{background:var(--green-glow)}
+.metric-premium.purple .metric-icon{background:var(--purple-glow)}
+.metric-premium .metric-label{color:#b6c3d4;font-size:14px}
+.metric-premium .metric-value{font-size:27px;font-weight:800;margin:6px 0}
+.metric-premium .metric-foot{font-size:12px;color:#9ba8b9}
+.metric-premium .metric-sub{font-size:12px;color:#93a2b6;border-top:1px solid #25303d;margin-top:13px;padding-top:10px}
+.section-title{font-size:22px;font-weight:800;margin:6px 0 4px}
+.decision-card{display:flex;align-items:center;gap:16px;background:linear-gradient(145deg,#151c27,#121822);border:1px solid #293443;border-radius:15px;padding:16px 18px}
+.decision-check{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#61d887;color:#102016;font-size:24px;font-weight:900;flex:0 0 auto}
+.decision-body{flex:1}.decision-body b{display:block;margin-bottom:4px}.decision-action{white-space:nowrap}
+.quick-premium{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.quick-premium button{min-height:105px;text-align:left;display:flex;align-items:center;gap:13px}
+.quick-premium .quick-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:10px;background:var(--purple-glow);font-size:24px;flex:0 0 auto}
+.quick-premium button:nth-child(2) .quick-icon{background:var(--green-glow)}
+.quick-premium button:nth-child(3) .quick-icon{background:var(--blue-glow)}
+.quick-premium button:nth-child(4) .quick-icon{background:var(--purple-glow)}
+.quick-premium b{font-size:15px}.quick-premium span{display:block;margin-top:4px}
+.rail-card{background:linear-gradient(145deg,#151c27,#111720);border:1px solid #293443;border-radius:17px;padding:18px}
+.rail-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.rail-title h3{font-size:18px}
+.radar-alert{padding:14px 0;border-top:1px solid #26313e}.radar-alert:first-of-type{border-top:0;padding-top:2px}
+.radar-alert .impact{font-weight:750;font-size:13px}.radar-alert.high .impact{color:#ff7373}.radar-alert.medium .impact{color:#ffc65d}.radar-alert.low .impact{color:var(--good)}
+.radar-alert p{margin:7px 0;color:#c1cbd8;font-size:13px;line-height:1.45}
+.radar-alert small{color:#8190a3}
+.event-card{display:grid;gap:11px}.event-row{display:flex;justify-content:space-between;gap:15px}.event-name{font-size:17px;font-weight:750}
+.service-list{display:grid;gap:11px}.service-row{display:flex;justify-content:space-between;gap:15px;font-size:13px}.service-dot{color:var(--good);margin-right:8px}.service-ok{color:var(--good)}
+.atlas-footer{
+  margin:26px -36px -42px;padding:18px 36px;background:#0e141d;border-top:1px solid #25303d;
+  display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr auto;align-items:center;gap:22px
+}
+.footer-block{padding-right:22px;border-right:1px solid #26313f;min-height:48px;display:flex;flex-direction:column;justify-content:center}
+.footer-block:last-child{border-right:0;padding-right:0}
+.footer-brand strong{font-size:18px}.footer-brand span,.footer-label{color:#9caabd;font-size:12px;margin-top:4px}
+.footer-version{color:var(--good);font-weight:750}.footer-status{color:var(--good);font-size:12px;margin-top:4px}
+.footer-update{min-width:180px}
+@media(max-width:1150px){
+  .home-layout{grid-template-columns:1fr}.home-rail{grid-template-columns:repeat(3,1fr)}
+  .atlas-footer{grid-template-columns:repeat(2,1fr);margin-left:-20px;margin-right:-20px}.footer-block{border-right:0}
+}
+@media(max-width:900px){
+  .premium-hero h1{font-size:34px}.hero-art{display:none}.metric-grid-premium,.quick-premium{grid-template-columns:repeat(2,1fr)}
+  .home-rail{grid-template-columns:1fr}.atlas-footer{margin:22px -15px -50px;padding:18px 15px;grid-template-columns:1fr}
+}
+@media(max-width:520px){.metric-grid-premium,.quick-premium{grid-template-columns:1fr}.decision-card{align-items:flex-start}.decision-action{display:none}}
+
+</style>
+  <title>ATLAS Investment Operating System 3.0</title>
+</head>
+<body>
+  <div id="toast" class="toast hidden"></div>
+
+  <section id="auth" class="auth-shell">
+    <div class="auth-card">
+      <div class="brand-mark">🏛️</div>
+      <h1>ATLAS</h1>
+      <p>Investment Operating System</p>
+      <form id="auth-form" class="stack">
+        <label>Email<input id="email" type="email" autocomplete="email" required></label>
+        <label>Palavra-passe<input id="password" type="password" autocomplete="current-password" minlength="6" required></label>
+        <button class="btn primary" type="submit">Entrar</button>
+        <button class="btn ghost" id="signup" type="button">Criar conta</button>
+      </form>
+      <div id="auth-status" class="muted small"></div>
+    </div>
+  </section>
+
+  <div id="shell" class="shell hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">🏛️</div>
+        <div><strong>ATLAS</strong><span>Investment Operating System</span></div>
+      </div>
+      <nav id="nav"></nav>
+      <div class="side-bottom">
+        <div id="sync-status" class="small muted">● A ligar…</div>
+        <button class="btn ghost full" id="install">Instalar</button>
+        <button class="btn ghost full" id="logout">Sair</button>
+        <small id="sidebar-version">Version 3.0.0 Alpha 4</small>
+      </div>
+    </aside>
+
+    <header class="mobile-header">
+      <button id="menu" class="icon-btn">☰</button>
+      <strong>ATLAS</strong>
+      <button id="sync" class="icon-btn">↻</button>
+    </header>
+
+    <main class="main">
+      <section id="home" class="page"></section>
+      <section id="dashboard" class="page hidden"></section>
+      <section id="portfolio" class="page hidden"></section>
+      <section id="radar" class="page hidden"></section>
+      <section id="calendar" class="page hidden"></section>
+      <section id="journal" class="page hidden"></section>
+      <section id="academy" class="page hidden"></section>
+      <section id="goals" class="page hidden"></section>
+      <section id="assistant" class="page hidden"></section>
+      <section id="system" class="page hidden"></section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script type="module">
+const CONFIG={
+  supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
+  supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
+  functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
+  version:'3.0.0-alpha.4'
+};
+
+const OFFICIAL_CALENDAR=[
+ {date:'2026-08-19',time:'19:00',country:'EUA',event:'Atas do FOMC — reunião de 28–29 de julho',impact:'medium',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy.htm'},
+ {date:'2026-09-10',time:'',country:'Zona Euro',event:'Decisão de política monetária do BCE',impact:'high',source:'BCE',url:'https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html'},
+ {date:'2026-09-16',time:'19:00',country:'EUA',event:'Decisão do FOMC e conferência de imprensa',impact:'high',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'},
+ {date:'2026-10-07',time:'19:00',country:'EUA',event:'Atas do FOMC — reunião de setembro',impact:'medium',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy.htm'},
+ {date:'2026-10-28',time:'19:00',country:'EUA',event:'Decisão do FOMC e conferência de imprensa',impact:'high',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'},
+ {date:'2026-10-29',time:'',country:'Zona Euro',event:'Decisão de política monetária do BCE',impact:'high',source:'BCE',url:'https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html'},
+ {date:'2026-11-18',time:'19:00',country:'EUA',event:'Atas do FOMC — reunião de outubro',impact:'medium',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy.htm'},
+ {date:'2026-12-09',time:'19:00',country:'EUA',event:'Decisão do FOMC e conferência de imprensa',impact:'high',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'},
+ {date:'2026-12-17',time:'',country:'Zona Euro',event:'Decisão de política monetária do BCE',impact:'high',source:'BCE',url:'https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html'}
+];
+function futureEvents(){
+ const now=new Date();
+ return OFFICIAL_CALENDAR.filter(e=>new Date(`${e.date}T23:59:59`)>=now).sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+
+
+const db=supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseKey);
+let session=null,deferredInstall=null;
+let pwaState={manifest:false,serviceWorker:false,installable:false,installed:window.matchMedia('(display-mode: standalone)').matches};
+let charts=[];
+let updateState={available:false,latest:null,checked:false,status:'idle'};
+const serviceState={
+  database:'operational',
+  sync:'idle',
+  ai:'unknown',
+  radar:'unknown',
+  market:'unknown',
+  updates:'idle',
+  security:'operational'
+};
+const state={
+ assets:[],operations:[],dividends:[],diary:[],knowledge:[],goals:[],snapshots:[],
+ radar:{market:'Normal',summary:'Nenhuma alteração relevante.',updated:''},
+ news:[],newsOverview:null,prices:{},messages:[]
+};
+const pages=[
+ ['home','🏠 Home'],['dashboard','📊 Dashboard'],['portfolio','💼 Carteira'],
+ ['radar','🌍 Radar'],['calendar','📅 Calendário'],['journal','📖 Diário'],
+ ['academy','📚 Academia'],['goals','🎯 Objetivos'],['assistant','🤖 Atlas IA'],['system','⚙️ Sistema']
+];
+
+const $=id=>document.getElementById(id);
+const eur=n=>new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(Number(n)||0);
+const pct=n=>`${(Number(n)||0).toFixed(1)}%`;
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const safeUrl=v=>{try{const u=new URL(v);return ['http:','https:'].includes(u.protocol)?u.href:'#'}catch{return'#'}};
+const uid=()=>session?.user?.id;
+const formObj=e=>Object.fromEntries(new FormData(e.target).entries());
+const empty=t=>`<div class="empty">${esc(t)}</div>`;
+const head=(title,sub,action='')=>`<div class="page-head"><div><h1>${title}</h1><p class="muted">${sub}</p></div>${action}</div>`;
+function toast(t){$('toast').textContent=t;$('toast').classList.remove('hidden');setTimeout(()=>$('toast').classList.add('hidden'),2800)}
+function syncStatus(t,ok=true){$('sync-status').textContent=`${ok?'●':'○'} ${t}`;$('sync-status').style.color=ok?'var(--good)':'var(--warn)'}
+function effectivePrice(a){return state.prices[a.ticker||'']?.price||Number(a.current_price)||0}
+function totalValue(){return state.assets.reduce((s,a)=>s+(+a.quantity||0)*effectivePrice(a),0)}
+function totalCost(){return state.assets.reduce((s,a)=>s+(+a.quantity||0)*(+a.average_price||0),0)}
+function totalDiv(){return state.dividends.reduce((s,d)=>s+(+d.net_value||0),0)}
+function returnPct(){const c=totalCost();return c?(totalValue()-c)/c*100:0}
+function metrics(){return `<div class="grid">
+ <div class="card metric"><div class="label">Património</div><div class="value">${eur(totalValue())}</div><div class="foot">${state.assets.length} ativos</div></div>
+ <div class="card metric"><div class="label">Investido</div><div class="value">${eur(totalCost())}</div><div class="foot">Custo agregado</div></div>
+ <div class="card metric"><div class="label">Rentabilidade</div><div class="value ${returnPct()>=0?'good':'bad'}">${pct(returnPct())}</div><div class="foot">${Object.keys(state.prices).length?'Cotações recentes':'Preços manuais'}</div></div>
+ <div class="card metric"><div class="label">Dividendos</div><div class="value">${eur(totalDiv())}</div><div class="foot">Total registado</div></div>
+ </div>`}
+
+function renderNav(){
+ $('nav').innerHTML=pages.map(([id,l])=>`<button data-page="${id}">${l}</button>`).join('');
+ $('nav').querySelectorAll('button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+ $('nav').querySelector('button')?.classList.add('active');
+}
+function showPage(id){
+ document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));
+ $(id).classList.remove('hidden');
+ document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));
+ if(innerWidth<900)document.querySelector('.sidebar').classList.remove('open');
+}
+function bindForm(id,fn){const f=$(id);if(f)f.onsubmit=fn}
+
+async function bootstrap(){
+ const {data}=await db.auth.getSession();session=data.session;
+ if(session)await openApp();else $('auth').classList.remove('hidden');
+}
+async function openApp(){
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.4','3.0.0 Alpha 4');await loadAll();
+}
+async function loadAll(){
+ serviceState.sync='loading';syncStatus('A sincronizar…',false);
+ try{
+  const r=await Promise.all([
+   db.from('assets').select('*').eq('user_id',uid()).order('created_at'),
+   db.from('operations').select('*').eq('user_id',uid()).order('date',{ascending:false}),
+   db.from('dividends').select('*').eq('user_id',uid()).order('date',{ascending:false}),
+   db.from('diary_entries').select('*').eq('user_id',uid()).order('date',{ascending:false}),
+   db.from('knowledge').select('*').eq('user_id',uid()).order('created_at'),
+   db.from('goals').select('*').eq('user_id',uid()).order('created_at'),
+   db.from('radar').select('*').eq('user_id',uid()).maybeSingle(),
+   db.from('portfolio_snapshots').select('*').eq('user_id',uid()).order('snapshot_date')
+  ]);
+  const err=r.find(x=>x.error)?.error;if(err)throw err;
+  [state.assets,state.operations,state.dividends,state.diary,state.knowledge,state.goals]=r.slice(0,6).map(x=>x.data||[]);
+  state.radar=r[6].data||state.radar;state.snapshots=r[7].data||[];
+  serviceState.sync='operational';renderAll();syncStatus('Sincronizado');setTimeout(()=>checkForUpdates(false),700);
+ }catch(e){console.error(e);serviceState.sync='error';syncStatus('Erro de sincronização',false);toast(e.message||'Erro de sincronização')}
+}
+function renderAll(){
+ for(const fn of [renderHome,renderDashboard,renderPortfolio,renderRadar,renderCalendar,renderJournal,renderAcademy,renderGoals,renderAssistant,renderSystem]){
+  try{fn()}catch(e){console.error(fn.name,e)}
+ }
+}
+
+
+function setServiceState(service,status){
+ serviceState[service]=status;
+ try{renderHome();renderSystem()}catch(error){console.debug(error)}
+}
+function statusMeta(status){
+ const map={
+  operational:{label:'Operacional',className:'good',dot:'●'},
+  loading:{label:'A atualizar',className:'warn',dot:'◌'},
+  empty:{label:'Sem dados',className:'warn',dot:'○'},
+  error:{label:'Erro',className:'bad',dot:'●'},
+  idle:{label:'Pendente',className:'warn',dot:'○'},
+  unknown:{label:'Não testado',className:'muted',dot:'○'}
+ };
+ return map[status]||map.unknown;
+}
+
+function greeting(){
+ const hour=new Date().getHours();
+ if(hour>=5 && hour<12)return {title:'☀️ Bom dia, Boss.',message:'Vamos começar o dia com clareza e disciplina.'};
+ if(hour>=12 && hour<19)return {title:'🌤️ Boa tarde, Boss.',message:'Mantém o foco no plano e filtra o ruído.'};
+ return {title:'🌙 Boa noite, Boss.',message:'É hora de analisar com calma, não de reagir por impulso.'};
+}
+function serviceStatus(){
+ return {
+  database:session?'operational':'error',
+  sync:serviceState.sync,
+  ai:serviceState.ai,
+  radar:serviceState.radar,
+  market:serviceState.market,
+  updates:serviceState.updates
+ };
+}
+function statusBadge(status,label){
+ const meta=statusMeta(status);
+ return `<span class="badge ${meta.className}">${meta.dot} ${label}: ${meta.label}</span>`;
+}
+async function checkForUpdates(showToast=true){
+ updateState.status='loading';serviceState.updates='loading';try{
+  const response=await fetch(`./version.json?ts=${Date.now()}`,{cache:'no-store'});
+  if(!response.ok)throw new Error('Não foi possível consultar a versão.');
+  const latest=await response.json();
+  updateState.latest=latest;
+  updateState.checked=true;
+  updateState.status='operational';serviceState.updates='operational';
+  updateState.available=String(latest.version)!==String(CONFIG.version);
+  renderSystem();
+  if(showToast)toast(updateState.available?`Nova versão ${latest.version} disponível.`:'O ATLAS está atualizado.');
+ }catch(error){
+  console.error(error);
+  updateState.checked=true;
+  updateState.status='error';serviceState.updates='error';
+  updateState.available=false;
+  renderSystem();
+  if(showToast)toast('Não foi possível verificar atualizações.');
+ }
+}
+async function applyUpdate(){
+ try{
+  if('serviceWorker' in navigator){
+   const registrations=await navigator.serviceWorker.getRegistrations();
+   await Promise.all(registrations.map(r=>r.update()));
+  }
+  const keys=await caches.keys();
+  await Promise.all(keys.map(k=>caches.delete(k)));
+ }catch(error){console.warn(error)}
+ location.reload(true);
+}
+
+function renderHome(){
+ const hello=greeting();
+ const nextEvent=futureEvents()[0];
+ const alerts=(state.news||[]).filter(n=>n.impact!=='low').slice(0,2);
+ const important=Number(state.newsOverview?.attention||alerts.length||0);
+ const services=[
+  ['Sincronização',serviceState.sync],
+  ['Base de Dados',session?'operational':'error'],
+  ['IA',serviceState.ai],
+  ['Radar Económico',serviceState.radar],
+  ['Mercado',serviceState.market],
+  ['Atualizações',serviceState.updates],
+  ['Segurança',session?'operational':'error']
+ ];
+ const dateText=new Intl.DateTimeFormat('pt-PT',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+ const monthDiv=state.dividends.filter(d=>String(d.date||'').slice(0,7)===new Date().toISOString().slice(0,7)).reduce((s,d)=>s+(+d.net_value||0),0);
+ const gain=totalValue()-totalCost();
+
+ $('home').innerHTML=`
+ <div class="home-layout">
+  <div class="home-main">
+   <section class="premium-hero">
+    <div class="hero-kicker">ATLAS · Investment Operating System</div>
+    <div class="greeting-line"><div class="greeting-icon">${hello.title.split(' ')[0]}</div><h1>${hello.title.replace(/^\\S+\\s/,'')}</h1></div>
+    <div class="hero-verdict">${important?'Existem pontos que merecem atenção.':'O plano continua sólido.'}</div>
+    <p class="hero-copy">${hello.message}</p>
+    <p class="hero-copy">${esc(state.newsOverview?.conclusion||state.radar.summary||'Nenhuma alteração relevante. Mantém o plano.')}</p>
+    <div class="hero-art" aria-hidden="true"><div class="glow"></div><div class="beam"></div><div class="tower"></div><div class="lamp"></div><div class="rock"></div></div>
+   </section>
+
+   <div class="metric-grid-premium">
+    <article class="metric-premium green"><div class="metric-icon">💼</div><div class="metric-label">Património</div><div class="metric-value">${eur(totalValue())}</div><div class="metric-foot">${state.assets.length} ativos</div><div class="metric-sub">Valor atual da carteira</div></article>
+    <article class="metric-premium"><div class="metric-icon">🪙</div><div class="metric-label">Investido</div><div class="metric-value">${eur(totalCost())}</div><div class="metric-foot">Custo agregado</div><div class="metric-sub">Capital aplicado</div></article>
+    <article class="metric-premium green"><div class="metric-icon">📈</div><div class="metric-label">Rentabilidade</div><div class="metric-value ${returnPct()>=0?'good':'bad'}">${pct(returnPct())}</div><div class="metric-foot">${Object.keys(state.prices).length?'Preços atualizados':'Preços manuais'}</div><div class="metric-sub ${gain>=0?'good':'bad'}">${gain>=0?'+':''}${eur(gain)}</div></article>
+    <article class="metric-premium purple"><div class="metric-icon">🎁</div><div class="metric-label">Dividendos</div><div class="metric-value">${eur(totalDiv())}</div><div class="metric-foot">Total registado</div><div class="metric-sub">${eur(monthDiv)} este mês</div></article>
+   </div>
+
+   <div class="section-title">Centro de Decisão</div>
+   <div class="decision-card">
+    <div class="decision-check">${important?'!':'✓'}</div>
+    <div class="decision-body"><b>${important?'Boss, existem acontecimentos a rever.':'Hoje não existe nenhuma ação urgente identificada.'}</b><span class="muted">${important?'Consulta o Radar antes de tomares novas decisões.':'Continua a executar o plano.'}</span></div>
+    <button class="btn decision-action" onclick="window.atlas.show('${important?'radar':'portfolio'}')">${important?'Ver Radar':'Ver plano'}</button>
+   </div>
+
+   <div class="section-title">Ações rápidas</div>
+   <div class="quick-premium">
+    <button class="card btn" onclick="window.atlas.show('portfolio')"><span class="quick-icon">＋</span><span><b>Registar operação</b><span class="muted small">Compra, reforço ou venda</span></span></button>
+    <button class="card btn" onclick="window.atlas.refreshPrices()"><span class="quick-icon">📈</span><span><b>Atualizar preços</b><span class="muted small">Cotações da carteira</span></span></button>
+    <button class="card btn" onclick="window.atlas.refreshRadar()"><span class="quick-icon">🌍</span><span><b>Atualizar Radar</b><span class="muted small">Notícias e impacto</span></span></button>
+    <button class="card btn" onclick="window.atlas.show('assistant')"><span class="quick-icon">🤖</span><span><b>ATLAS Intelligence</b><span class="muted small">Analisar os teus dados</span></span></button>
+   </div>
+  </div>
+
+  <aside class="home-rail">
+   <section class="rail-card">
+    <div class="rail-title"><h3>Radar Económico</h3><span class="${important?'warn':'good'}">${important?important+' alertas':'Sem alertas'}</span></div>
+    ${alerts.length?alerts.map(n=>`<div class="radar-alert ${n.impact||'low'}"><div class="impact">● ${impactLabel(n.impact)}</div><p>${esc(n.title||'Acontecimento económico')}</p><small>${esc(n.domain||'Fonte económica')}</small></div>`).join(''):'<div class="radar-alert low"><div class="impact">● Sem impacto relevante</div><p>Nenhuma notícia importante identificada.</p><small>Atualiza o Radar para confirmar.</small></div>'}
+    <div class="toolbar" style="margin-bottom:0"><button class="btn" onclick="window.atlas.show('radar')">Ver tudo</button></div>
+   </section>
+
+   <section class="rail-card event-card">
+    <div class="rail-title"><h3>Próximo evento</h3><span>${nextEvent?esc(nextEvent.date):'—'}</span></div>
+    ${nextEvent?`<div class="event-row"><div><div class="event-name">${esc(nextEvent.event)}</div><div class="muted small">${esc(nextEvent.country)} · Fonte: ${esc(nextEvent.source)}</div></div><span class="badge ${nextEvent.impact}">${impactLabel(nextEvent.impact)}</span></div><button class="btn" onclick="window.atlas.show('calendar')">Ver calendário</button>`:empty('Sem eventos futuros oficiais.')}
+   </section>
+
+   <section class="rail-card">
+    <div class="rail-title"><h3>ATLAS Status</h3><span class="muted small">Serviços</span></div>
+    <div class="service-list">${services.map(([label,status])=>{const meta=statusMeta(status);return `<div class="service-row"><span><span class="service-dot ${meta.className}">${meta.dot}</span>${label}</span><b class="${meta.className}">${meta.label}</b></div>`}).join('')}</div>
+   </section>
+  </aside>
+ </div>
+
+ <footer class="atlas-footer">
+  <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.4','3.0.0 Alpha 4'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
+  <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
+  <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
+ </footer>`;
+}
+function renderDashboard(){
+ $('dashboard').innerHTML=`${head('Dashboard inteligente','Património, exposição, evolução e rendimento','<button class="btn primary" id="prices">Atualizar cotações</button>')}${metrics()}
+ <div class="chart-grid"><div class="chart-card"><h3>Distribuição</h3><canvas id="allocation-chart"></canvas></div><div class="chart-card"><h3>Evolução do património</h3><canvas id="history-chart"></canvas></div><div class="chart-card"><h3>Dividendos por ativo</h3><canvas id="dividend-chart"></canvas></div><div class="chart-card"><h3>Desvio face ao objetivo</h3><canvas id="target-chart"></canvas></div></div>
+ <h2>Pesquisa rápida</h2><input id="search" class="search" placeholder="Pesquisar ativos, Diário, Academia ou Objetivos"><div id="results" class="results"></div>`;
+ $('prices').onclick=refreshMarketData;$('search').oninput=e=>runSearch(e.target.value);setTimeout(drawCharts,0);
+}
+function destroyCharts(){charts.forEach(c=>c.destroy());charts=[]}
+function drawCharts(){
+ if(typeof Chart==='undefined')return;destroyCharts();
+ const labels=state.assets.map(a=>a.name),values=state.assets.map(a=>(+a.quantity||0)*effectivePrice(a));
+ const divMap={};state.dividends.forEach(d=>divMap[d.asset_name]=(divMap[d.asset_name]||0)+(+d.net_value||0));
+ const weights=values.map(v=>totalValue()?v/totalValue()*100:0),targets=state.assets.map(a=>+a.target_weight||0);
+ const common={plugins:{legend:{labels:{color:'#f5f7fa'}}},scales:{x:{ticks:{color:'#9aa6b6'}},y:{ticks:{color:'#9aa6b6'}}}};
+ const a=$('allocation-chart'),h=$('history-chart'),d=$('dividend-chart'),t=$('target-chart');
+ if(a)charts.push(new Chart(a,{type:'doughnut',data:{labels,datasets:[{data:values}]},options:{plugins:{legend:{labels:{color:'#f5f7fa'}}}}}));
+ if(h)charts.push(new Chart(h,{type:'line',data:{labels:state.snapshots.map(x=>x.snapshot_date),datasets:[{label:'Património (€)',data:state.snapshots.map(x=>x.total_value)}]},options:common}));
+ if(d)charts.push(new Chart(d,{type:'bar',data:{labels:Object.keys(divMap),datasets:[{label:'Dividendos (€)',data:Object.values(divMap)}]},options:common}));
+ if(t)charts.push(new Chart(t,{type:'bar',data:{labels,datasets:[{label:'Peso atual %',data:weights},{label:'Objetivo %',data:targets}]},options:common}));
+}
+function runSearch(term){
+ const q=String(term||'').trim().toLowerCase(),box=$('results');if(!q){box.innerHTML='';return}
+ const rows=[
+  ...state.assets.map(x=>({type:'Ativo',title:x.name,text:`${x.ticker||''} ${x.category||''}`,page:'portfolio'})),
+  ...state.diary.map(x=>({type:'Diário',title:x.title,text:x.entry_text||'',page:'journal'})),
+  ...state.knowledge.map(x=>({type:'Academia',title:x.topic,text:`${x.summary||''} ${x.application||''}`,page:'academy'})),
+  ...state.goals.map(x=>({type:'Objetivo',title:x.name,text:`${x.current_value||0}/${x.target_value||0}`,page:'goals'}))
+ ].filter(x=>(x.title+' '+x.text).toLowerCase().includes(q)).slice(0,12);
+ box.innerHTML=rows.length?rows.map(x=>`<div class="result" data-page="${x.page}"><b>${esc(x.type)} · ${esc(x.title)}</b><div class="muted small">${esc(x.text).slice(0,160)}</div></div>`).join(''):empty('Sem resultados.');
+ box.querySelectorAll('.result').forEach(x=>x.onclick=()=>showPage(x.dataset.page));
+}
+
+function assetForm(){return `<form id="asset-form" class="form hidden"><label>Ativo<input name="name" required></label><label>Ticker Finnhub<input name="ticker"></label><label>Categoria<select name="category"><option>ETF</option><option>Ouro</option><option>Ação</option><option>Liquidez</option></select></label><label>Quantidade<input name="quantity" type="number" step="any" value="0"></label><label>Preço médio<input name="average_price" type="number" step="any" value="0"></label><label>Preço manual<input name="current_price" type="number" step="any" value="0"></label><label>Objetivo %<input name="target_weight" type="number" step="any" value="0"></label><label>Convicção 1–5<input name="conviction" type="number" min="1" max="5" value="3"></label><div class="full"><button class="btn primary">Guardar ativo</button></div></form>`}
+function opForm(){return `<form id="op-form" class="form hidden"><label>Data<input name="date" type="date" required></label><label>Ativo<select name="asset_name">${state.assets.map(a=>`<option>${esc(a.name)}</option>`).join('')}</select></label><label>Tipo<select name="type"><option>Compra</option><option>Reforço</option><option>Venda</option></select></label><label>Valor<input name="value" type="number" step="any" required></label><label class="full">Notas<textarea name="notes"></textarea></label><div class="full"><button class="btn primary">Guardar operação</button></div></form>`}
+function divForm(){return `<form id="div-form" class="form hidden"><label>Data<input name="date" type="date" required></label><label>Ativo<select name="asset_name">${state.assets.map(a=>`<option>${esc(a.name)}</option>`).join('')}</select></label><label>Valor líquido<input name="net_value" type="number" step="any" required></label><label class="full">Notas<textarea name="notes"></textarea></label><div class="full"><button class="btn primary">Guardar dividendo</button></div></form>`}
+function renderPortfolio(){
+ const tv=totalValue();
+ $('portfolio').innerHTML=`${head('Carteira completa','Posições, operações e dividendos')}<div class="toolbar"><button class="btn primary" id="add-asset">Adicionar ativo</button><button class="btn" id="add-op">Registar operação</button><button class="btn" id="add-div">Registar dividendo</button></div>${assetForm()}${opForm()}${divForm()}
+ <h2>Ativos</h2>${state.assets.length?`<div class="asset-grid">${state.assets.map(a=>{const value=(+a.quantity||0)*effectivePrice(a),weight=tv?value/tv*100:0,ratio=a.target_weight?Math.min(100,weight/a.target_weight*100):0;return `<article class="asset"><div class="asset-top"><div><div class="asset-name">${esc(a.name)}</div><div class="muted small">${esc(a.ticker||'')}</div></div><span class="tag">${esc(a.category||'Ativo')}</span></div><div class="progress"><span style="width:${ratio}%"></span></div><div class="stats4"><div class="muted">Valor<b>${eur(value)}</b></div><div class="muted">Peso<b>${pct(weight)}</b></div><div class="muted">Objetivo<b>${pct(a.target_weight)}</b></div><div class="muted">Preço<b>${eur(effectivePrice(a))}</b></div></div><div class="toolbar"><button class="btn" onclick="window.atlas.editAsset('${a.id}')">Editar</button><button class="btn danger" onclick="window.atlas.remove('assets','${a.id}')">Eliminar</button></div></article>`}).join('')}</div>`:empty('Ainda não existem ativos.')}
+ <h2>Operações</h2>${state.operations.length?`<table><thead><tr><th>Data</th><th>Ativo</th><th>Tipo</th><th>Valor</th><th>Notas</th><th></th></tr></thead><tbody>${state.operations.map(o=>`<tr><td>${esc(o.date)}</td><td>${esc(o.asset_name||'')}</td><td>${esc(o.type||'')}</td><td>${eur(o.value)}</td><td>${esc(o.notes||'')}</td><td><button class="btn danger" onclick="window.atlas.remove('operations','${o.id}')">Eliminar</button></td></tr>`).join('')}</tbody></table>`:empty('Sem operações.')}
+ <h2>Dividendos</h2>${state.dividends.length?`<table><thead><tr><th>Data</th><th>Ativo</th><th>Valor</th><th>Notas</th><th></th></tr></thead><tbody>${state.dividends.map(d=>`<tr><td>${esc(d.date)}</td><td>${esc(d.asset_name||'')}</td><td>${eur(d.net_value)}</td><td>${esc(d.notes||'')}</td><td><button class="btn danger" onclick="window.atlas.remove('dividends','${d.id}')">Eliminar</button></td></tr>`).join('')}</tbody></table>`:empty('Sem dividendos.')}`;
+ $('add-asset').onclick=()=>toggle('asset-form');$('add-op').onclick=()=>toggle('op-form');$('add-div').onclick=()=>toggle('div-form');
+ bindForm('asset-form',addAsset);bindForm('op-form',addOperation);bindForm('div-form',addDividend);
+}
+function toggle(id){$(id)?.classList.toggle('hidden')}
+async function insert(table,obj){obj.user_id=uid();const {error}=await db.from(table).insert(obj);if(error)throw error;await loadAll()}
+async function addAsset(e){e.preventDefault();try{const o=formObj(e);['quantity','average_price','current_price','target_weight','conviction'].forEach(k=>o[k]=+o[k]);await insert('assets',o);toast('Ativo guardado')}catch(x){toast(x.message)}}
+async function addOperation(e){e.preventDefault();try{const o=formObj(e);o.value=+o.value;await insert('operations',o);toast('Operação guardada')}catch(x){toast(x.message)}}
+async function addDividend(e){e.preventDefault();try{const o=formObj(e);o.net_value=+o.net_value;await insert('dividends',o);toast('Dividendo guardado')}catch(x){toast(x.message)}}
+async function editAsset(id){const a=state.assets.find(x=>x.id===id);if(!a)return;const quantity=prompt('Quantidade',a.quantity);if(quantity===null)return;const avg=prompt('Preço médio',a.average_price);if(avg===null)return;const current=prompt('Preço manual',a.current_price);if(current===null)return;const target=prompt('Objetivo %',a.target_weight);if(target===null)return;const {error}=await db.from('assets').update({quantity:+quantity,average_price:+avg,current_price:+current,target_weight:+target}).eq('id',id);if(error)return toast(error.message);await loadAll()}
+async function removeRow(table,id){if(!confirm('Eliminar este registo?'))return;const {error}=await db.from(table).delete().eq('id',id);if(error)return toast(error.message);await loadAll()}
+
+function impactLabel(x){return x==='high'?'Elevado':x==='medium'?'Atenção':'Reduzido'}
+function renderRadar(){
+ const news=state.news.length?`<div class="news-list">${state.news.map(n=>`<article class="news"><div class="news-top"><div><div class="muted small">${esc(n.topic||'Economia')} · ${esc(n.domain||'')}</div><h3><a href="${safeUrl(n.url)}" target="_blank">${esc(n.title)}</a></h3></div><span class="badge ${n.impact||'low'}">${impactLabel(n.impact)}</span></div><div class="muted small">${esc(n.reason||'')}</div></article>`).join('')}</div>`:empty('Ainda não atualizaste o Radar.');
+ $('radar').innerHTML=`${head('Radar económico','Notícias das últimas 48 horas, impacto e incerteza','<button class="btn primary" id="radar-refresh">Atualizar Radar</button>')}<div class="note">${esc(state.newsOverview?.conclusion||state.radar.summary)}</div><h2>Fontes e acontecimentos</h2>${news}<div class="muted small">A classificação é indicativa. O ATLAS não substitui aconselhamento financeiro.</div>`;
+ $('radar-refresh').onclick=refreshRadar;
+}
+async function refreshRadar(){
+ const b=$('radar-refresh');
+ serviceState.radar='loading';
+ if(b){b.disabled=true;b.innerHTML='<span class="spinner"></span>A analisar…'}
+ renderHome();renderSystem();
+ try{
+  const {data,error}=await db.functions.invoke(CONFIG.functions.radar,{body:{tickers:state.assets.map(a=>a.ticker).filter(Boolean)}});
+  if(error)throw error;
+  state.news=data?.articles||[];
+  state.newsOverview=data?.overview||null;
+  serviceState.radar=state.news.length||state.newsOverview?'operational':'empty';
+  renderRadar();renderHome();renderSystem();
+  toast(state.news.length?'Radar atualizado':'Radar atualizado sem notícias relevantes');
+ }catch(e){
+  console.error(e);
+  serviceState.radar='error';
+  renderHome();renderSystem();
+  toast('Radar indisponível. Confirma economic-radar e os Logs.');
+ }finally{
+  const btn=$('radar-refresh');
+  if(btn){btn.disabled=false;btn.textContent='Atualizar Radar'}
+ }
+}
+
+function renderCalendar(){
+ const events=futureEvents();
+ $('calendar').innerHTML=`${head('Calendário económico 2026','Apenas datas oficiais da Fed e do BCE')} ${events.length?`<div class="calendar-list">${events.map(e=>`<div class="calendar-event"><div><b>${esc(e.date)}</b><div class="muted small">${esc(e.time||'')}</div></div><div><a href="${safeUrl(e.url)}" target="_blank" style="color:inherit;text-decoration:none"><b>${esc(e.event)}</b></a><div class="muted small">${esc(e.country)} · Fonte: ${esc(e.source)}</div></div><span class="badge ${e.impact}">${impactLabel(e.impact)}</span></div>`).join('')}</div>`:empty('Não existem mais eventos oficiais de 2026.')}`;
+}
+
+function journalForm(){return `<form id="journal-form" class="form hidden"><label>Data<input name="date" type="date" required></label><label>Tipo<select name="type"><option>Compra</option><option>Venda</option><option>Reflexão</option><option>Revisão</option></select></label><label>Ativo<select name="asset_name"><option>Geral</option>${state.assets.map(a=>`<option>${esc(a.name)}</option>`).join('')}</select></label><label>Confiança 0–10<input name="confidence" type="number" min="0" max="10" value="5"></label><label class="full">Título<input name="title" required></label><label class="full">Reflexão<textarea name="entry_text" required></textarea></label><div class="full"><button class="btn primary">Guardar</button></div></form>`}
+function renderJournal(){$('journal').innerHTML=`${head('Diário','Decisões, emoções e aprendizagem','<button id="new-journal" class="btn primary">Nova entrada</button>')}${journalForm()}<div class="timeline">${state.diary.length?state.diary.map(d=>`<article class="entry"><div class="entry-top"><div class="muted small">${esc(d.date)} · ${esc(d.type||'')} · ${esc(d.asset_name||'')}</div><button class="btn danger" onclick="window.atlas.remove('diary_entries','${d.id}')">Eliminar</button></div><h3>${esc(d.title)}</h3><p>${esc(d.entry_text||'')}</p><div class="muted small">Confiança: ${d.confidence||0}/10</div></article>`).join(''):empty('Sem entradas.')}</div>`;$('new-journal').onclick=()=>toggle('journal-form');bindForm('journal-form',addJournal)}
+async function addJournal(e){e.preventDefault();try{const o=formObj(e);o.confidence=+o.confidence;await insert('diary_entries',o);toast('Entrada guardada')}catch(x){toast(x.message)}}
+
+function knowledgeForm(){return `<form id="knowledge-form" class="form hidden"><label>Tema<input name="topic" required></label><label>Estado<select name="status"><option>Por estudar</option><option>Em estudo</option><option>Concluído</option></select></label><label class="full">Resumo<textarea name="summary"></textarea></label><label class="full">Aplicação prática<textarea name="application"></textarea></label><div class="full"><button class="btn primary">Guardar</button></div></form>`}
+function renderAcademy(){$('academy').innerHTML=`${head('Academia','Conhecimento com aplicação prática','<button id="new-knowledge" class="btn primary">Adicionar tema</button>')}${knowledgeForm()}<div class="grid two">${state.knowledge.length?state.knowledge.map(k=>`<article class="card"><div class="entry-top"><div><h3>${esc(k.topic)}</h3><div class="muted small">${esc(k.status||'')}</div></div><button class="btn danger" onclick="window.atlas.remove('knowledge','${k.id}')">Eliminar</button></div><p>${esc(k.summary||'')}</p>${k.application?`<div class="note"><b>Aplicação</b><br>${esc(k.application)}</div>`:''}</article>`).join(''):empty('Sem temas.')}</div>`;$('new-knowledge').onclick=()=>toggle('knowledge-form');bindForm('knowledge-form',addKnowledge)}
+async function addKnowledge(e){e.preventDefault();try{await insert('knowledge',formObj(e));toast('Tema guardado')}catch(x){toast(x.message)}}
+
+function goalForm(){return `<form id="goal-form" class="form hidden"><label>Objetivo<input name="name" required></label><label>Unidade<input name="unit"></label><label>Atual<input name="current_value" type="number" step="any" value="0"></label><label>Meta<input name="target_value" type="number" step="any" value="0"></label><div class="full"><button class="btn primary">Guardar</button></div></form>`}
+function renderGoals(){$('goals').innerHTML=`${head('Objetivos','Progresso financeiro e de processo','<button id="new-goal" class="btn primary">Adicionar objetivo</button>')}${goalForm()}<div class="grid two">${state.goals.length?state.goals.map(g=>{const p=g.target_value?Math.min(100,g.current_value/g.target_value*100):0;return `<article class="card"><div class="entry-top"><h3>${esc(g.name)}</h3><button class="btn danger" onclick="window.atlas.remove('goals','${g.id}')">Eliminar</button></div><div style="font-size:25px;font-weight:750;margin-top:12px">${g.current_value||0} / ${g.target_value||0} ${esc(g.unit||'')}</div><div class="progress"><span style="width:${p}%"></span></div><div class="muted small">${pct(p)} concluído</div></article>`}).join(''):empty('Sem objetivos.')}</div>`;$('new-goal').onclick=()=>toggle('goal-form');bindForm('goal-form',addGoal)}
+async function addGoal(e){e.preventDefault();try{const o=formObj(e);o.current_value=+o.current_value;o.target_value=+o.target_value;await insert('goals',o);toast('Objetivo guardado')}catch(x){toast(x.message)}}
+
+function renderAssistant(){
+ $('assistant').innerHTML=`${head('ATLAS Intelligence','Análise fundamentada nos teus dados, com incerteza explícita')}<div class="chat"><div id="messages" class="messages">${state.messages.length?state.messages.map(m=>`<div class="message ${m.role}">${esc(m.text)}</div>`).join(''):'<div class="message ai">Posso analisar a carteira, exposição, risco, dividendos, decisões, objetivos, notícias e calendário. Não prometo previsões infalíveis; explico cenários, evidência e confiança.</div>'}</div><div class="composer"><textarea id="question" placeholder="Ex.: Faz uma análise completa da minha carteira e diz o que merece atenção."></textarea><button id="ask" class="btn primary">Analisar</button></div></div>`;
+ $('ask').onclick=askAI;
+}
+async function askAI(){
+ const q=$('question').value.trim();if(!q)return;
+ state.messages.push({role:'user',text:q});renderAssistant();
+ state.messages.push({role:'ai',text:'A cruzar carteira, risco, Radar, Diário e objetivos…'});renderAssistant();
+ serviceState.ai='loading';renderHome();renderSystem();
+ try{
+  const payload={question:q,portfolio:state.assets.map(a=>({...a,live_price:effectivePrice(a)})),operations:state.operations.slice(0,50),dividends:state.dividends,diary:state.diary.slice(0,30),goals:state.goals,radar:state.newsOverview||state.radar,news:state.news.slice(0,12),calendar:futureEvents().slice(0,10),snapshots:state.snapshots.slice(-30)};
+  const {data,error}=await db.functions.invoke(CONFIG.functions.ai,{body:payload});
+  if(error)throw error;
+  serviceState.ai='operational';
+  state.messages[state.messages.length-1]={role:'ai',text:data?.answer||'Sem resposta.'};
+  renderAssistant();renderHome();renderSystem();
+ }catch(e){
+  console.error(e);
+  serviceState.ai='error';
+  state.messages[state.messages.length-1]={role:'ai',text:'A IA está indisponível. Confirma ai-assistant, OPENAI_API_KEY e os Logs.'};
+  renderAssistant();renderHome();renderSystem();
+ }
+}
+
+function renderSystem(){
+ const status=serviceStatus();
+ const latest=updateState.latest?.version||'—';
+ $('system').innerHTML=`${head('Sistema','Estado dos serviços, versão e atualizações')}
+ <div class="grid two">
+  <div class="card"><h3>ATLAS Status</h3><div class="toolbar">
+   ${statusBadge(status.database,'Base de dados')}
+   ${statusBadge(status.sync,'Sincronização')}
+   ${statusBadge(status.ai,'IA')}
+   ${statusBadge(status.radar,'Radar')}
+   ${statusBadge(status.market,'Mercado')}
+  </div><p class="muted small">Um serviço configurado pode ainda estar temporariamente indisponível. Os erros detalhados aparecem na própria área.</p></div>
+  <div class="card"><h3>Conta</h3><p class="muted">${esc(session?.user?.email||'')}</p><button class="btn ghost" onclick="window.atlas.logout()">Sair</button></div>
+  <div class="card"><h3>Sincronização</h3><p class="muted">Os dados ficam guardados no Supabase.</p><button class="btn primary" onclick="window.atlas.sync()">Sincronizar agora</button></div>
+  <div class="card"><h3>Instalação</h3><p class="muted">A aplicação pode ser instalada a partir do endereço HTTPS.</p><button class="btn" onclick="window.atlas.install()">Instalar aplicação</button></div>
+  <div class="card"><h3>ATLAS Updates</h3>
+   <p class="muted">Versão instalada: <b>${esc(CONFIG.version)}</b><br>Versão publicada: <b>${esc(latest)}</b></p>
+   ${updateState.available?'<div class="note warn">Existe uma nova versão publicada.</div>':'<div class="muted small">Nenhuma atualização pendente identificada.</div>'}
+   <div class="toolbar"><button class="btn" onclick="window.atlas.checkUpdates()">Procurar atualizações</button>${updateState.available?'<button class="btn primary" onclick="window.atlas.applyUpdate()">Atualizar agora</button>':''}</div>
+  </div>
+  <div class="card"><h3>Identidade</h3><p><b>ATLAS</b><br><span class="muted">Investment Operating System</span></p><p class="muted small">Clareza para decidir. Disciplina para investir.</p></div>
+ </div>`;
+}
+async function refreshMarketData(){
+ serviceState.market='loading';renderHome();renderSystem();
+ try{
+  const symbols=state.assets.map(a=>a.ticker).filter(Boolean);
+  if(!symbols.length){
+   serviceState.market='empty';renderHome();renderSystem();
+   return toast('Adiciona tickers aos ativos para obter cotações.');
+  }
+  const {data,error}=await db.functions.invoke(CONFIG.functions.market,{body:{symbols}});
+  if(error)throw error;
+  state.prices=data?.quotes||{};
+  serviceState.market=Object.keys(state.prices).length?'operational':'empty';
+  await saveSnapshot();
+  renderAll();
+  toast(Object.keys(state.prices).length?'Cotações atualizadas':'Sem cotações disponíveis');
+ }catch(e){
+  console.error(e);
+  serviceState.market='error';
+  renderHome();renderSystem();
+  toast('Cotações indisponíveis. Confirma market-data e FINNHUB_API_KEY.');
+ }
+}
+async function saveSnapshot(){
+ const date=new Date().toISOString().slice(0,10);
+ await db.from('portfolio_snapshots').upsert({user_id:uid(),snapshot_date:date,total_value:totalValue(),invested_value:totalCost()},{onConflict:'user_id,snapshot_date'});
+ const {data}=await db.from('portfolio_snapshots').select('*').eq('user_id',uid()).order('snapshot_date');state.snapshots=data||[];
+}
+
+async function inspectPWA(){
+ try{
+  const manifestLink=document.querySelector('link[rel="manifest"]');
+  if(manifestLink){
+   const response=await fetch(manifestLink.href,{cache:'no-store'});
+   pwaState.manifest=response.ok;
+  }
+ }catch(error){
+  console.warn('Manifest:',error);
+  pwaState.manifest=false;
+ }
+
+ try{
+  if('serviceWorker' in navigator){
+   const registration=await navigator.serviceWorker.getRegistration('/');
+   pwaState.serviceWorker=Boolean(registration);
+  }
+ }catch(error){
+  console.warn('Service Worker:',error);
+  pwaState.serviceWorker=false;
+ }
+
+ pwaState.installed=window.matchMedia('(display-mode: standalone)').matches||Boolean(navigator.standalone);
+ return pwaState;
+}
+
+function pwaMessage(){
+ if(pwaState.installed)return 'O ATLAS já está instalado neste dispositivo.';
+ if(!window.isSecureContext)return 'A instalação exige uma ligação HTTPS.';
+ if(!pwaState.manifest)return 'O manifesto da aplicação não foi carregado. Atualiza a página e tenta novamente.';
+ if(!pwaState.serviceWorker)return 'O serviço offline ainda não ficou ativo. Atualiza a página e tenta novamente.';
+ return 'No Chrome, abre o menu ⋮ e escolhe “Instalar ATLAS”. No Safari do Mac, usa Ficheiro → Adicionar à Dock.';
+}
+
+async function requestNotifications(){
+ if(!('Notification'in window))return toast('Notificações não suportadas.');
+ const p=await Notification.requestPermission();if(p==='granted'){new Notification('ATLAS',{body:'Notificações locais ativadas.'});toast('Notificações ativadas')}else toast('Permissão recusada')
+}
+function installApp(){if(deferredInstall){deferredInstall.prompt();deferredInstall=null}else toast('Publica em HTTPS e usa o menu do navegador para instalar.')}
+async function logout(){await db.auth.signOut();location.reload()}
+
+window.atlas={show:showPage,refreshPrices:refreshMarketData,refreshRadar,editAsset,remove:removeRow,sync:loadAll,install:installApp,notify:requestNotifications,logout,checkUpdates:()=>checkForUpdates(true),applyUpdate};
+
+$('auth-form').onsubmit=async e=>{e.preventDefault();$('auth-status').textContent='A entrar…';const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)return $('auth-status').textContent=error.message;session=data.session;await openApp()};
+$('signup').onclick=async()=>{const {error}=await db.auth.signUp({email:$('email').value.trim(),password:$('password').value});$('auth-status').textContent=error?error.message:'Conta criada. Confirma o email se for solicitado.'};
+$('logout').onclick=logout;$('install').onclick=installApp;$('sync').onclick=loadAll;$('menu').onclick=()=>document.querySelector('.sidebar').classList.toggle('open');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;pwaState.installable=true;});
+window.addEventListener('appinstalled',()=>{pwaState.installed=true;deferredInstall=null;toast('ATLAS instalado com sucesso.');});
+if('serviceWorker' in navigator){
+ window.addEventListener('load',async()=>{
+  try{
+   await navigator.serviceWorker.register('/service-worker.js',{scope:'/'});
+   await navigator.serviceWorker.ready;
+  }catch(error){
+   console.error('Service Worker:',error);
+  }
+  await inspectPWA();
+ });
+}
+bootstrap();
+</script>
+</body>
+</html>
