@@ -254,6 +254,45 @@ body{background:
   .asset-calculation-panel{position:static}
 }
 
+
+.benchmark-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap
+}
+.benchmark-toolbar h3{margin:0}
+.benchmark-select{
+  min-height:40px;
+  padding:8px 38px 8px 11px;
+  border-radius:10px;
+  border:1px solid var(--line,#2b3647);
+  background:var(--bg,#090d13);
+  color:var(--text,#fff);
+  font:inherit
+}
+.benchmark-result{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  margin-top:12px;
+  padding:12px 14px;
+  border:1px solid rgba(148,163,184,.16);
+  border-radius:12px;
+  background:rgba(255,255,255,.025)
+}
+.benchmark-result span{color:var(--muted,#9eb0c8);font-size:13px}
+.benchmark-result strong{font-size:16px}
+.benchmark-help{
+  margin-top:9px;
+  color:var(--muted,#9eb0c8);
+  font-size:11px;
+  line-height:1.45
+}
+
 </style>
   <title>ATLAS Investment Operating System 3.0</title>
 </head>
@@ -286,7 +325,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 10</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 11</small>
       </div>
     </aside>
 
@@ -317,7 +356,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.10'
+  version:'3.0.0-alpha.11'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -402,7 +441,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.10','3.0.0 Alpha 10');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.11','3.0.0 Alpha 11');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -572,7 +611,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.10','3.0.0 Alpha 10'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.11','3.0.0 Alpha 11'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -580,22 +619,174 @@ function renderHome(){
 }
 function renderDashboard(){
  $('dashboard').innerHTML=`${head('Dashboard inteligente','Património, exposição, evolução e rendimento','<button class="btn primary" id="prices">Atualizar cotações</button>')}${metrics()}
- <div class="chart-grid"><div class="chart-card"><h3>Distribuição</h3><canvas id="allocation-chart"></canvas></div><div class="chart-card"><h3>Evolução do património</h3><canvas id="history-chart"></canvas></div><div class="chart-card"><h3>Dividendos por ativo</h3><canvas id="dividend-chart"></canvas></div><div class="chart-card"><h3>Desvio face ao objetivo</h3><canvas id="target-chart"></canvas></div></div>
+ <div class="chart-grid"><div class="chart-card"><h3>Distribuição</h3><canvas id="allocation-chart"></canvas></div><div class="chart-card"><h3>Evolução do património</h3><canvas id="history-chart"></canvas></div><div class="chart-card"><h3>Dividendos por ativo</h3><canvas id="dividend-chart"></canvas></div><div class="chart-card">
+  <div class="benchmark-toolbar">
+    <h3>Carteira vs benchmark</h3>
+    <select id="benchmark-selector" class="benchmark-select" aria-label="Escolher benchmark">
+      <option value="sp500">S&P 500</option>
+      <option value="world">MSCI World</option>
+      <option value="nasdaq">Nasdaq-100</option>
+      <option value="berkshire">Warren Buffett · Berkshire Hathaway</option>
+    </select>
+  </div>
+  <canvas id="benchmark-chart"></canvas>
+  <div class="benchmark-result">
+    <span id="benchmark-comparison-label">Diferença face ao S&P 500</span>
+    <strong id="benchmark-comparison-value">A carregar…</strong>
+  </div>
+  <div class="benchmark-help">
+    As duas linhas começam em 100 na primeira data comum. O histórico da carteira usa os snapshots reais guardados pelo ATLAS.
+  </div>
+</div></div>
  <h2>Pesquisa rápida</h2><input id="search" class="search" placeholder="Pesquisar ativos, Diário, Academia ou Objetivos"><div id="results" class="results"></div>`;
  $('prices').onclick=refreshMarketData;$('search').oninput=e=>runSearch(e.target.value);setTimeout(drawCharts,0);
 }
 function destroyCharts(){charts.forEach(c=>c.destroy());charts=[]}
+
+let selectedBenchmark=localStorage.getItem('atlas-benchmark')||'sp500';
+let benchmarkSeriesCache={};
+
+const BENCHMARK_META={
+  sp500:{label:'S&P 500'},
+  world:{label:'MSCI World'},
+  nasdaq:{label:'Nasdaq-100'},
+  berkshire:{label:'Warren Buffett · Berkshire Hathaway'}
+};
+
+function normalizeBenchmarkRows(rows,dateKey,valueKey){
+  const clean=(rows||[])
+    .map(row=>({date:String(row[dateKey]||'').slice(0,10),raw:Number(row[valueKey]||0)}))
+    .filter(row=>row.date&&Number.isFinite(row.raw)&&row.raw>0)
+    .sort((a,b)=>a.date.localeCompare(b.date));
+
+  if(!clean.length)return[];
+  const first=clean[0].raw;
+  return clean.map(row=>({date:row.date,value:(row.raw/first)*100}));
+}
+
+function commonBenchmarkData(portfolio,benchmark){
+  const portfolioMap=new Map(portfolio.map(x=>[x.date,x.value]));
+  const benchmarkMap=new Map(benchmark.map(x=>[x.date,x.value]));
+  const dates=[...portfolioMap.keys()].filter(date=>benchmarkMap.has(date)).sort();
+
+  if(!dates.length)return{labels:[],portfolio:[],benchmark:[]};
+
+  const p0=portfolioMap.get(dates[0]);
+  const b0=benchmarkMap.get(dates[0]);
+
+  return{
+    labels:dates,
+    portfolio:dates.map(date=>(portfolioMap.get(date)/p0)*100),
+    benchmark:dates.map(date=>(benchmarkMap.get(date)/b0)*100)
+  };
+}
+
+async function fetchBenchmarkSeries(){
+  if(Object.keys(benchmarkSeriesCache).length)return benchmarkSeriesCache;
+
+  const result=await db.functions.invoke('benchmark-data',{
+    body:{range:'MAX'}
+  });
+
+  if(result.error)throw result.error;
+  benchmarkSeriesCache=result.data?.series||{};
+  return benchmarkSeriesCache;
+}
+
+async function drawManualBenchmark(){
+  const canvas=$('benchmark-chart');
+  if(!canvas||typeof Chart==='undefined')return;
+
+  const selector=$('benchmark-selector');
+  if(selector){
+    selector.value=selectedBenchmark;
+    selector.onchange=async()=>{
+      selectedBenchmark=selector.value;
+      localStorage.setItem('atlas-benchmark',selectedBenchmark);
+      await drawManualBenchmark();
+    };
+  }
+
+  const comparison=$('benchmark-comparison-value');
+  const label=$('benchmark-comparison-label');
+  const meta=BENCHMARK_META[selectedBenchmark]||BENCHMARK_META.sp500;
+  if(label)label.textContent=`Diferença face a ${meta.label}`;
+  if(comparison){comparison.textContent='A carregar…';comparison.className=''}
+
+  try{
+    const series=await fetchBenchmarkSeries();
+    const portfolio=normalizeBenchmarkRows(state.snapshots,'snapshot_date','total_value');
+    const benchmark=(series[selectedBenchmark]||[])
+      .map(x=>({date:String(x.date||'').slice(0,10),value:Number(x.value||0)}))
+      .filter(x=>x.date&&x.value>0);
+
+    const aligned=commonBenchmarkData(portfolio,benchmark);
+
+    const previous=charts.find(chart=>chart.canvas===canvas);
+    if(previous){
+      previous.destroy();
+      charts=charts.filter(chart=>chart!==previous);
+    }
+
+    if(aligned.labels.length<2){
+      charts.push(new Chart(canvas,{
+        type:'line',
+        data:{labels:[],datasets:[
+          {label:'A tua carteira',data:[]},
+          {label:meta.label,data:[]}
+        ]},
+        options:{plugins:{legend:{labels:{color:'#f5f7fa'}}}}
+      }));
+      if(comparison)comparison.textContent='Ainda sem histórico comum suficiente';
+      return;
+    }
+
+    charts.push(new Chart(canvas,{
+      type:'line',
+      data:{
+        labels:aligned.labels,
+        datasets:[
+          {label:'A tua carteira',data:aligned.portfolio,borderWidth:3,pointRadius:0,spanGaps:true},
+          {label:meta.label,data:aligned.benchmark,borderWidth:2,pointRadius:0,spanGaps:true}
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:true,
+        interaction:{mode:'index',intersect:false},
+        plugins:{legend:{labels:{color:'#f5f7fa'}}},
+        scales:{
+          x:{ticks:{color:'#9aa6b6',maxTicksLimit:7}},
+          y:{ticks:{color:'#9aa6b6'},title:{display:true,text:'Base 100',color:'#9aa6b6'}}
+        }
+      }
+    }));
+
+    const portfolioLast=aligned.portfolio.at(-1);
+    const benchmarkLast=aligned.benchmark.at(-1);
+    const diff=portfolioLast-benchmarkLast;
+
+    if(comparison){
+      comparison.textContent=`${diff>=0?'+':''}${diff.toFixed(2)} pontos percentuais`;
+      comparison.className=diff>0?'good':diff<0?'bad':'';
+    }
+  }catch(error){
+    console.error('Benchmark:',error);
+    if(comparison)comparison.textContent='Benchmark temporariamente indisponível';
+  }
+}
+
 function drawCharts(){
  if(typeof Chart==='undefined')return;destroyCharts();
  const labels=state.assets.map(a=>a.name),values=state.assets.map(a=>(+a.quantity||0)*effectivePrice(a));
  const divMap={};state.dividends.forEach(d=>divMap[d.asset_name]=(divMap[d.asset_name]||0)+(+d.net_value||0));
- const weights=values.map(v=>totalValue()?v/totalValue()*100:0),targets=state.assets.map(a=>+a.target_weight||0);
+ 
  const common={plugins:{legend:{labels:{color:'#f5f7fa'}}},scales:{x:{ticks:{color:'#9aa6b6'}},y:{ticks:{color:'#9aa6b6'}}}};
- const a=$('allocation-chart'),h=$('history-chart'),d=$('dividend-chart'),t=$('target-chart');
+ const a=$('allocation-chart'),h=$('history-chart'),d=$('dividend-chart');
  if(a)charts.push(new Chart(a,{type:'doughnut',data:{labels,datasets:[{data:values}]},options:{plugins:{legend:{labels:{color:'#f5f7fa'}}}}}));
  if(h)charts.push(new Chart(h,{type:'line',data:{labels:state.snapshots.map(x=>x.snapshot_date),datasets:[{label:'Património (€)',data:state.snapshots.map(x=>x.total_value)}]},options:common}));
  if(d)charts.push(new Chart(d,{type:'bar',data:{labels:Object.keys(divMap),datasets:[{label:'Dividendos (€)',data:Object.values(divMap)}]},options:common}));
- if(t)charts.push(new Chart(t,{type:'bar',data:{labels,datasets:[{label:'Peso atual %',data:weights},{label:'Objetivo %',data:targets}]},options:common}));
+ drawManualBenchmark();
 }
 function runSearch(term){
  const q=String(term||'').trim().toLowerCase(),box=$('results');if(!q){box.innerHTML='';return}

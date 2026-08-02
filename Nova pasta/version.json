@@ -1,12 +1,11 @@
 {
-  "version": "3.0.0-alpha.10",
-  "name": "ATLAS 3.0 Alpha 10 — Portfolio Calculations",
+  "version": "3.0.0-alpha.11",
+  "name": "ATLAS 3.0 Alpha 11 — Manual Benchmark Selector",
   "released_at": "2026-08-02",
   "notes": [
-    "Editor com Nome, Ticker, Número de posições, Preço médio e Valor atual",
-    "Ícones nos campos",
-    "Resumo em tempo real de Valor investido, Lucro e Rentabilidade",
-    "Valores monetários formatados com duas casas decimais",
-    "Valor atual convertido automaticamente em preço atual por posição"
+    "Seleção manual entre S&P 500, MSCI World, Nasdaq-100 e Berkshire Hathaway",
+    "A carteira permanece sempre visível",
+    "Comparação normalizada para base 100",
+    "O benchmark escolhido fica guardado no navegador"
   ]
 }
