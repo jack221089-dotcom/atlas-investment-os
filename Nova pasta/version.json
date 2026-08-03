@@ -1,11 +1,11 @@
 {
-  "version": "3.0.0-alpha.14",
-  "name": "ATLAS 3.0 Alpha 14 — Unified Portfolio Calculation",
+  "version": "3.0.0-alpha.15",
+  "name": "ATLAS 3.0 Alpha 15 — Per-Asset Diagnostics",
   "released_at": "2026-08-02",
   "notes": [
-    "Uma única função calcula ativos, valor investido, valor atual, lucro e rentabilidade",
-    "Proteção contra utilização direta de preços em USD ou pence como euros",
-    "Dashboard, Carteira, gráficos, snapshots e IA usam os mesmos cálculos",
-    "Cotações sem conversão EUR mantêm o preço manual"
+    "Botão Diagnóstico no Dashboard",
+    "Auditoria por ativo com preços, fonte e cálculos",
+    "Totais unificados da carteira",
+    "Alertas para preço manual e proteção cambial"
   ]
 }

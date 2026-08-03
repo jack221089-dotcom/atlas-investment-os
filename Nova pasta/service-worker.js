@@ -1,4 +1,4 @@
-const CACHE = 'atlas-v3-alpha14-unified-calculation';
+const CACHE = 'atlas-v3-alpha15-asset-diagnostics';
 const APP_SHELL = [
   '/',
   '/index.html',

@@ -313,6 +313,21 @@ body{background:
   color:#f8c15d;font-size:12px;font-weight:700
 }
 
+
+.asset-diagnostic-table{width:100%;border-collapse:collapse;min-width:980px}
+.asset-diagnostic-table th,.asset-diagnostic-table td{padding:10px 12px;border-bottom:1px solid rgba(148,163,184,.14);text-align:right;vertical-align:top;white-space:nowrap}
+.asset-diagnostic-table th{color:var(--muted,#9eb0c8);font-size:12px;position:sticky;top:0;background:var(--panel,#151c27);z-index:1}
+.asset-diagnostic-table th:first-child,.asset-diagnostic-table td:first-child{text-align:left;white-space:normal;min-width:180px}
+.asset-diagnostic-table-wrap{overflow:auto;max-height:60vh;border:1px solid var(--line,#2b3647);border-radius:14px}
+.asset-diagnostic-source{display:inline-flex;padding:5px 8px;border-radius:999px;border:1px solid rgba(148,163,184,.2);font-size:11px}
+.asset-diagnostic-source.warn{color:#f8c15d;border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.08)}
+.asset-diagnostic-total{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.asset-diagnostic-total .metric{padding:13px;border:1px solid var(--line,#2b3647);border-radius:12px;background:rgba(255,255,255,.025)}
+.asset-diagnostic-total .metric span{display:block;color:var(--muted,#9eb0c8);font-size:12px}
+.asset-diagnostic-total .metric strong{display:block;margin-top:5px;font-size:17px}
+.asset-diagnostic-note{margin-top:14px;color:var(--muted,#9eb0c8);font-size:12px;line-height:1.5}
+@media(max-width:720px){.asset-diagnostic-total{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
   <title>ATLAS Investment Operating System 3.0</title>
 </head>
@@ -345,7 +360,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 14</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 15</small>
       </div>
     </aside>
 
@@ -376,7 +391,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.14'
+  version:'3.0.0-alpha.15'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -590,7 +605,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.14','3.0.0 Alpha 14');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.15','3.0.0 Alpha 15');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -686,6 +701,81 @@ async function applyUpdate(){
  location.reload(true);
 }
 
+
+function diagnosticSourceLabel(source){
+  const labels={
+    'live-converted':'API convertida para EUR',
+    'live-eur':'API em EUR',
+    'live-compatible':'API compatível',
+    'manual-currency-protection':'Preço manual — proteção cambial',
+    'manual':'Preço manual',
+    'none':'Sem preço'
+  };
+  return labels[source]||source||'Desconhecida';
+}
+function diagnosticSourceClass(source){
+  return ['manual-currency-protection','manual','none'].includes(source)
+    ?'asset-diagnostic-source warn'
+    :'asset-diagnostic-source';
+}
+function showPortfolioDiagnostics(){
+  const metrics=calculatePortfolioMetrics();
+  const modal=document.createElement('div');
+  modal.className='edit-modal-backdrop';
+  modal.innerHTML=`
+    <section class="edit-modal" style="width:min(1180px,100%)" role="dialog" aria-modal="true">
+      <div class="edit-modal-head">
+        <div><div class="muted small">Auditoria dos cálculos</div><h2>Diagnóstico por ativo</h2></div>
+        <button type="button" class="edit-modal-close" aria-label="Fechar">×</button>
+      </div>
+      <div class="edit-modal-body">
+        <div class="asset-diagnostic-total">
+          <div class="metric"><span>Valor investido</span><strong>${eur(metrics.investedValue)}</strong></div>
+          <div class="metric"><span>Valor atual</span><strong>${eur(metrics.currentValue)}</strong></div>
+          <div class="metric"><span>Lucro</span><strong class="${metrics.profit>=0?'good':'bad'}">${metrics.profit>=0?'+':''}${eur(metrics.profit)}</strong></div>
+          <div class="metric"><span>Rentabilidade</span><strong class="${metrics.returnPercentage>=0?'good':'bad'}">${pct(metrics.returnPercentage)}</strong></div>
+        </div>
+        <div class="asset-diagnostic-table-wrap">
+          <table class="asset-diagnostic-table">
+            <thead><tr>
+              <th>Ativo</th><th>Qtd.</th><th>Preço médio</th><th>Preço usado</th><th>Fonte</th>
+              <th>Investido</th><th>Valor atual</th><th>Lucro</th><th>Rentab.</th><th>Peso</th>
+            </tr></thead>
+            <tbody>
+              ${metrics.assets.map(item=>`
+                <tr>
+                  <td>
+                    <strong>${esc(item.asset?.name||item.asset?.ticker||'Ativo')}</strong>
+                    <div class="muted small">${esc(item.asset?.ticker||'')}</div>
+                    ${item.nativeCurrency?`<div class="muted small">Recebido: ${esc(item.nativeCurrency)} ${Number(item.nativePrice||0).toLocaleString('pt-PT')}</div>`:''}
+                  </td>
+                  <td>${Number(item.quantity||0).toLocaleString('pt-PT',{maximumFractionDigits:8})}</td>
+                  <td>${eur(item.averagePrice)}</td>
+                  <td>${eur(item.currentPrice)}</td>
+                  <td><span class="${diagnosticSourceClass(item.priceSource)}">${diagnosticSourceLabel(item.priceSource)}</span></td>
+                  <td>${eur(item.investedValue)}</td>
+                  <td>${eur(item.currentValue)}</td>
+                  <td class="${item.profit>=0?'good':'bad'}">${item.profit>=0?'+':''}${eur(item.profit)}</td>
+                  <td class="${item.returnPercentage>=0?'good':'bad'}">${pct(item.returnPercentage)}</td>
+                  <td>${pct(item.weight)}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div class="asset-diagnostic-note">
+          Compara o <b>Valor atual</b> de cada linha com a Trading 212. A diferença por ativo mostra imediatamente onde está o desvio.
+          “Preço manual — proteção cambial” significa que a API devolveu uma cotação noutra moeda e o ATLAS manteve o valor manual em euros.
+        </div>
+      </div>
+      <div class="edit-modal-actions"><button type="button" class="btn primary" data-close-diagnostic>Fechar</button></div>
+    </section>`;
+  document.body.appendChild(modal);
+  const close=()=>modal.remove();
+  modal.querySelector('.edit-modal-close')?.addEventListener('click',close);
+  modal.querySelector('[data-close-diagnostic]')?.addEventListener('click',close);
+  modal.addEventListener('click',event=>{if(event.target===modal)close()});
+}
+
 function renderHome(){
  const hello=greeting();
  const nextEvent=futureEvents()[0];
@@ -761,14 +851,14 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.14','3.0.0 Alpha 14'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.15','3.0.0 Alpha 15'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
  </footer>`;
 }
 function renderDashboard(){
- $('dashboard').innerHTML=`${head('Dashboard inteligente','Património, exposição, evolução e rendimento','<button class="btn primary" id="prices">Atualizar cotações</button>')}${metrics()}
+ $('dashboard').innerHTML=`${head('Dashboard inteligente','Património, exposição, evolução e rendimento','<button class="btn" id="portfolio-diagnostic-button">Diagnóstico</button><button class="btn primary" id="prices">Atualizar cotações</button>')}${metrics()}
  <div class="chart-grid"><div class="chart-card"><h3>Distribuição</h3><canvas id="allocation-chart"></canvas></div><div class="chart-card"><h3>Evolução do património</h3><canvas id="history-chart"></canvas></div><div class="chart-card"><h3>Dividendos por ativo</h3><canvas id="dividend-chart"></canvas></div><div class="chart-card">
   <div class="benchmark-toolbar">
     <div>
