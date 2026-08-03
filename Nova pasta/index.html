@@ -313,6 +313,93 @@ body{background:
   color:#f8c15d;font-size:12px;font-weight:700
 }
 
+
+.diagnostic-modal{
+  width:min(1050px,100%);
+}
+.diagnostic-summary{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:18px;
+}
+.diagnostic-metric{
+  padding:14px;
+  border:1px solid var(--line,#2b3647);
+  border-radius:13px;
+  background:rgba(255,255,255,.025);
+}
+.diagnostic-metric span{
+  display:block;
+  color:var(--muted,#9eb0c8);
+  font-size:12px;
+  margin-bottom:6px;
+}
+.diagnostic-metric strong{font-size:18px}
+.diagnostic-reference{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin:0 0 18px;
+  padding:15px;
+  border:1px dashed var(--line,#2b3647);
+  border-radius:14px;
+}
+.diagnostic-reference label{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  color:var(--muted,#9eb0c8);
+  font-size:12px;
+}
+.diagnostic-reference input{
+  min-height:44px;
+  padding:10px 12px;
+  border:1px solid var(--line,#2b3647);
+  border-radius:11px;
+  background:var(--bg,#090d13);
+  color:var(--text,#fff);
+  font:inherit;
+}
+.diagnostic-message{
+  margin-bottom:16px;
+  padding:13px 14px;
+  border-radius:12px;
+  border:1px solid rgba(122,167,255,.25);
+  background:rgba(122,167,255,.07);
+  line-height:1.5;
+}
+.diagnostic-table-wrap{overflow:auto}
+.diagnostic-table{min-width:880px}
+.diagnostic-table th,.diagnostic-table td{white-space:nowrap}
+.diagnostic-note{
+  margin-top:16px;
+  color:var(--muted,#9eb0c8);
+  font-size:12px;
+  line-height:1.55;
+}
+.asset-financial-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-top:12px;
+}
+.asset-financial-grid div{
+  color:var(--muted,#9eb0c8);
+  font-size:12px;
+}
+.asset-financial-grid b{
+  display:block;
+  margin-top:5px;
+  color:var(--text,#fff);
+  font-size:14px;
+}
+@media(max-width:780px){
+  .diagnostic-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .diagnostic-reference{grid-template-columns:1fr}
+  .asset-financial-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
 </style>
   <title>ATLAS Investment Operating System 3.0</title>
 </head>
@@ -345,7 +432,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 13</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 14</small>
       </div>
     </aside>
 
@@ -376,7 +463,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.13'
+  version:'3.0.0-alpha.14'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -436,10 +523,182 @@ function totalValue(){return state.assets.reduce((s,a)=>s+(+a.quantity||0)*effec
 function totalCost(){return state.assets.reduce((s,a)=>s+(+a.quantity||0)*(+a.average_price||0),0)}
 function totalDiv(){return state.dividends.reduce((s,d)=>s+(+d.net_value||0),0)}
 function returnPct(){const c=totalCost();return c?(totalValue()-c)/c*100:0}
+
+function assetInvested(a){
+  return (Number(a.quantity)||0)*(Number(a.average_price)||0);
+}
+function assetCurrentValue(a){
+  return (Number(a.quantity)||0)*effectivePrice(a);
+}
+function assetProfit(a){
+  return assetCurrentValue(a)-assetInvested(a);
+}
+function assetReturnPct(a){
+  const invested=assetInvested(a);
+  return invested?(assetProfit(a)/invested)*100:0;
+}
+function totalProfit(){
+  return totalValue()-totalCost();
+}
+function tradingReference(){
+  return {
+    deposits:parseAtlasNumber(localStorage.getItem('atlas-trading-deposits')||0),
+    rate:parseAtlasNumber(localStorage.getItem('atlas-trading-rate')||0)
+  };
+}
+function closePortfolioDiagnostic(){
+  document.getElementById('portfolio-diagnostic-modal')?.remove();
+}
+function renderDiagnosticDifference(){
+  const modal=document.getElementById('portfolio-diagnostic-modal');
+  if(!modal)return;
+
+  const deposits=parseAtlasNumber(modal.querySelector('[name="reference_deposits"]')?.value);
+  const brokerRate=parseAtlasNumber(modal.querySelector('[name="reference_rate"]')?.value);
+  const difference=totalCost()-deposits;
+  const simple=returnPct();
+
+  const differenceEl=modal.querySelector('[data-diagnostic="deposit-difference"]');
+  const brokerEl=modal.querySelector('[data-diagnostic="broker-rate-difference"]');
+
+  if(differenceEl){
+    differenceEl.textContent=deposits>0
+      ?`${difference>=0?'+':''}${formatAtlasMoney(difference)} face aos depósitos líquidos`
+      :'Introduz os depósitos líquidos para comparar';
+    differenceEl.className=difference>0.01?'bad':difference<-0.01?'warn':'good';
+  }
+
+  if(brokerEl){
+    const rateDifference=simple-brokerRate;
+    brokerEl.textContent=brokerRate
+      ?`${rateDifference>=0?'+':''}${rateDifference.toFixed(2)} pp face à taxa da corretora`
+      :'A taxa da corretora é opcional';
+    brokerEl.className=brokerRate&&Math.abs(rateDifference)>0.01?'warn':'';
+  }
+}
+function openPortfolioDiagnostic(){
+  closePortfolioDiagnostic();
+
+  const reference=tradingReference();
+  const modal=document.createElement('div');
+  modal.id='portfolio-diagnostic-modal';
+  modal.className='edit-modal-backdrop';
+
+  const rows=state.assets.map(a=>{
+    const invested=assetInvested(a);
+    const current=assetCurrentValue(a);
+    const profit=current-invested;
+    const rate=invested?(profit/invested)*100:0;
+
+    return `<tr>
+      <td><b>${esc(a.name||a.ticker||'Ativo')}</b><div class="muted small">${esc(a.ticker||'')}</div></td>
+      <td>${new Intl.NumberFormat('pt-PT',{maximumFractionDigits:8}).format(Number(a.quantity)||0)}</td>
+      <td>${eur(Number(a.average_price)||0)}</td>
+      <td>${eur(effectivePrice(a))}</td>
+      <td>${eur(invested)}</td>
+      <td>${eur(current)}</td>
+      <td class="${profit>=0?'good':'bad'}">${profit>=0?'+':''}${eur(profit)}</td>
+      <td class="${rate>=0?'good':'bad'}">${pct(rate)}</td>
+    </tr>`;
+  }).join('');
+
+  modal.innerHTML=`
+    <section class="edit-modal diagnostic-modal" role="dialog" aria-modal="true">
+      <div class="edit-modal-head">
+        <div>
+          <div class="muted small">Verificação dos cálculos</div>
+          <h2>🧮 Diagnóstico da Carteira</h2>
+        </div>
+        <button type="button" class="edit-modal-close" aria-label="Fechar">×</button>
+      </div>
+
+      <div class="edit-modal-body">
+        <div class="diagnostic-summary">
+          <div class="diagnostic-metric"><span>Valor atual</span><strong>${eur(totalValue())}</strong></div>
+          <div class="diagnostic-metric"><span>Custo das posições</span><strong>${eur(totalCost())}</strong></div>
+          <div class="diagnostic-metric"><span>Lucro não realizado</span><strong class="${totalProfit()>=0?'good':'bad'}">${totalProfit()>=0?'+':''}${eur(totalProfit())}</strong></div>
+          <div class="diagnostic-metric"><span>Rentabilidade simples</span><strong class="${returnPct()>=0?'good':'bad'}">${pct(returnPct())}</strong></div>
+        </div>
+
+        <div class="diagnostic-reference">
+          <label>Depósitos líquidos na corretora
+            <input name="reference_deposits" inputmode="decimal" value="${reference.deposits||''}" placeholder="Ex.: 4305,80">
+            <strong data-diagnostic="deposit-difference"></strong>
+          </label>
+          <label>Taxa mostrada pela corretora (%)
+            <input name="reference_rate" inputmode="decimal" value="${reference.rate||''}" placeholder="Ex.: 24,9">
+            <strong data-diagnostic="broker-rate-difference"></strong>
+          </label>
+        </div>
+
+        <div class="diagnostic-message">
+          O ATLAS calcula a <b>rentabilidade simples das posições abertas</b>:
+          lucro não realizado ÷ custo atual das posições. Os “depósitos líquidos” e a
+          “taxa de remuneração” da Trading 212 podem incluir vendas, levantamentos,
+          datas dos depósitos, câmbio e ganhos realizados.
+        </div>
+
+        <div class="diagnostic-table-wrap">
+          <table class="diagnostic-table">
+            <thead>
+              <tr>
+                <th>Ativo</th><th>Posições</th><th>Preço médio</th><th>Preço atual</th>
+                <th>Investido</th><th>Valor atual</th><th>Lucro</th><th>Rentabilidade</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+            <tfoot>
+              <tr>
+                <th colspan="4">TOTAL</th>
+                <th>${eur(totalCost())}</th>
+                <th>${eur(totalValue())}</th>
+                <th class="${totalProfit()>=0?'good':'bad'}">${totalProfit()>=0?'+':''}${eur(totalProfit())}</th>
+                <th class="${returnPct()>=0?'good':'bad'}">${pct(returnPct())}</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="diagnostic-note">
+          <b>Rentabilidade ponderada no tempo (TWR):</b> indisponível enquanto o ATLAS
+          não tiver as datas e montantes de todos os depósitos, compras, vendas e levantamentos.
+          Por isso, a taxa da Trading 212 não deve ser apresentada como se fosse igual à rentabilidade simples.
+        </div>
+      </div>
+
+      <div class="edit-modal-actions">
+        <button type="button" class="btn" data-close>Fechar</button>
+        <button type="button" class="btn primary" data-save-reference>Guardar referência</button>
+      </div>
+    </section>`;
+
+  document.body.appendChild(modal);
+
+  const close=()=>closePortfolioDiagnostic();
+  modal.querySelector('.edit-modal-close').onclick=close;
+  modal.querySelector('[data-close]').onclick=close;
+  modal.addEventListener('click',event=>{if(event.target===modal)close()});
+
+  modal.querySelectorAll('input').forEach(input=>{
+    input.addEventListener('input',renderDiagnosticDifference);
+  });
+
+  modal.querySelector('[data-save-reference]').onclick=()=>{
+    const deposits=modal.querySelector('[name="reference_deposits"]').value;
+    const rate=modal.querySelector('[name="reference_rate"]').value;
+    localStorage.setItem('atlas-trading-deposits',String(parseAtlasNumber(deposits)));
+    localStorage.setItem('atlas-trading-rate',String(parseAtlasNumber(rate)));
+    toast('Referência da corretora guardada neste navegador');
+    renderDiagnosticDifference();
+  };
+
+  renderDiagnosticDifference();
+}
+
 function metrics(){return `<div class="grid">
  <div class="card metric"><div class="label">Património</div><div class="value">${eur(totalValue())}</div><div class="foot">${state.assets.length} ativos</div></div>
- <div class="card metric"><div class="label">Investido</div><div class="value">${eur(totalCost())}</div><div class="foot">Custo agregado</div></div>
- <div class="card metric"><div class="label">Rentabilidade</div><div class="value ${returnPct()>=0?'good':'bad'}">${pct(returnPct())}</div><div class="foot">${Object.keys(state.prices).length?'Cotações recentes':'Preços manuais'}</div></div>
+ <div class="card metric"><div class="label">Custo das posições</div><div class="value">${eur(totalCost())}</div><div class="foot">Quantidade × preço médio</div></div>
+ <div class="card metric"><div class="label">Rentabilidade simples</div><div class="value ${returnPct()>=0?'good':'bad'}">${pct(returnPct())}</div><div class="foot">${Object.keys(state.prices).length?'Cotações recentes':'Preços manuais'}</div></div>
  <div class="card metric"><div class="label">Dividendos</div><div class="value">${eur(totalDiv())}</div><div class="foot">Total registado</div></div>
  </div>`}
 
@@ -461,7 +720,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.13','3.0.0 Alpha 13');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.14','3.0.0 Alpha 14');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -631,14 +890,14 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.13','3.0.0 Alpha 13'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.14','3.0.0 Alpha 14'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
  </footer>`;
 }
 function renderDashboard(){
- $('dashboard').innerHTML=`${head('Dashboard inteligente','Património, exposição, evolução e rendimento','<button class="btn primary" id="prices">Atualizar cotações</button>')}${metrics()}
+ $('dashboard').innerHTML=`${head('Dashboard inteligente','Património, exposição, evolução e rendimento','<div class="toolbar"><button class="btn" id="portfolio-diagnostic">Diagnóstico</button><button class="btn primary" id="prices">Atualizar cotações</button></div>')}${metrics()}
  <div class="chart-grid"><div class="chart-card"><h3>Distribuição</h3><canvas id="allocation-chart"></canvas></div><div class="chart-card"><h3>Evolução do património</h3><canvas id="history-chart"></canvas></div><div class="chart-card"><h3>Dividendos por ativo</h3><canvas id="dividend-chart"></canvas></div><div class="chart-card">
   <div class="benchmark-toolbar">
     <div>
@@ -667,7 +926,7 @@ function renderDashboard(){
   </div>
 </div></div>
  <h2>Pesquisa rápida</h2><input id="search" class="search" placeholder="Pesquisar ativos, Diário, Academia ou Objetivos"><div id="results" class="results"></div>`;
- $('prices').onclick=refreshMarketData;$('search').oninput=e=>runSearch(e.target.value);setTimeout(drawCharts,0);
+ $('prices').onclick=refreshMarketData;$('portfolio-diagnostic').onclick=openPortfolioDiagnostic;$('search').oninput=e=>runSearch(e.target.value);setTimeout(drawCharts,0);
 }
 function destroyCharts(){charts.forEach(c=>c.destroy());charts=[]}
 
@@ -1057,7 +1316,16 @@ function divForm(){return `<form id="div-form" class="form hidden"><label>Data<i
 function renderPortfolio(){
  const tv=totalValue();
  $('portfolio').innerHTML=`${head('Carteira completa','Posições, operações e dividendos')}<div class="toolbar"><button class="btn primary" id="add-asset">Adicionar ativo</button><button class="btn" id="add-op">Registar operação</button><button class="btn" id="add-div">Registar dividendo</button></div>${assetForm()}${opForm()}${divForm()}
- <h2>Ativos</h2>${state.assets.length?`<div class="asset-grid">${state.assets.map(a=>{const value=(+a.quantity||0)*effectivePrice(a),weight=tv?value/tv*100:0,ratio=a.target_weight?Math.min(100,weight/a.target_weight*100):0;return `<article class="asset"><div class="asset-top"><div><div class="asset-name">${esc(a.name)}</div><div class="muted small">${esc(a.ticker||'')}</div></div><span class="tag">${esc(a.category||'Ativo')}</span></div><div class="progress"><span style="width:${ratio}%"></span></div><div class="stats4"><div class="muted">Valor<b>${eur(value)}</b></div><div class="muted">Peso<b>${pct(weight)}</b></div><div class="muted">Objetivo<b>${pct(a.target_weight)}</b></div><div class="muted">Preço<b>${eur(effectivePrice(a))}</b></div></div><div class="toolbar"><button class="btn" onclick="window.atlas.editAsset('${a.id}')">Editar</button><button class="btn danger" onclick="window.atlas.remove('assets','${a.id}')">Eliminar</button></div></article>`}).join('')}</div>`:empty('Ainda não existem ativos.')}
+ <h2>Ativos</h2>${state.assets.length?`<div class="asset-grid">${state.assets.map(a=>{const value=(+a.quantity||0)*effectivePrice(a),weight=tv?value/tv*100:0,ratio=a.target_weight?Math.min(100,weight/a.target_weight*100):0;return `<article class="asset"><div class="asset-top"><div><div class="asset-name">${esc(a.name)}</div><div class="muted small">${esc(a.ticker||'')}</div></div><span class="tag">${esc(a.category||'Ativo')}</span></div><div class="progress"><span style="width:${ratio}%"></span></div><div class="asset-financial-grid">
+  <div>Valor atual<b>${eur(value)}</b></div>
+  <div>Investido<b>${eur(assetInvested(a))}</b></div>
+  <div>Lucro<b class="${assetProfit(a)>=0?'good':'bad'}">${assetProfit(a)>=0?'+':''}${eur(assetProfit(a))}</b></div>
+  <div>Rentabilidade<b class="${assetReturnPct(a)>=0?'good':'bad'}">${pct(assetReturnPct(a))}</b></div>
+  <div>Posições<b>${new Intl.NumberFormat('pt-PT',{maximumFractionDigits:8}).format(Number(a.quantity)||0)}</b></div>
+  <div>Preço médio<b>${eur(Number(a.average_price)||0)}</b></div>
+  <div>Preço atual<b>${eur(effectivePrice(a))}</b></div>
+  <div>Peso<b>${pct(weight)}</b></div>
+</div><div class="toolbar"><button class="btn" onclick="window.atlas.editAsset('${a.id}')">Editar</button><button class="btn danger" onclick="window.atlas.remove('assets','${a.id}')">Eliminar</button></div></article>`}).join('')}</div>`:empty('Ainda não existem ativos.')}
  <h2>Operações</h2>${state.operations.length?`<table><thead><tr><th>Data</th><th>Ativo</th><th>Tipo</th><th>Valor</th><th>Notas</th><th></th></tr></thead><tbody>${state.operations.map(o=>`<tr><td>${esc(o.date)}</td><td>${esc(o.asset_name||'')}</td><td>${esc(o.type||'')}</td><td>${eur(o.value)}</td><td>${esc(o.notes||'')}</td><td><button class="btn danger" onclick="window.atlas.remove('operations','${o.id}')">Eliminar</button></td></tr>`).join('')}</tbody></table>`:empty('Sem operações.')}
  <h2>Dividendos</h2>${state.dividends.length?`<table><thead><tr><th>Data</th><th>Ativo</th><th>Valor</th><th>Notas</th><th></th></tr></thead><tbody>${state.dividends.map(d=>`<tr><td>${esc(d.date)}</td><td>${esc(d.asset_name||'')}</td><td>${eur(d.net_value)}</td><td>${esc(d.notes||'')}</td><td><button class="btn danger" onclick="window.atlas.remove('dividends','${d.id}')">Eliminar</button></td></tr>`).join('')}</tbody></table>`:empty('Sem dividendos.')}`;
  $('add-asset').onclick=()=>toggle('asset-form');$('add-op').onclick=()=>toggle('op-form');$('add-div').onclick=()=>toggle('div-form');

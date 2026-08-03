@@ -1,11 +1,11 @@
 {
-  "version": "3.0.0-alpha.13",
-  "name": "ATLAS 3.0 Alpha 13 — Timeline Fix",
+  "version": "3.0.0-alpha.14",
+  "name": "ATLAS 3.0 Alpha 14 — Portfolio Diagnostics",
   "released_at": "2026-08-02",
   "notes": [
-    "Correção mínima da timeline Carteira vs benchmark",
-    "Pedido fresco à função benchmark-data",
-    "Histórico estimado desde 2022",
-    "Sem alterações aos restantes módulos"
+    "Diagnóstico detalhado por ativo",
+    "Comparação opcional com depósitos líquidos e taxa da Trading 212",
+    "Distinção entre valor atual, custo, lucro e rentabilidade simples",
+    "Cartões de ativos com cálculos transparentes"
   ]
 }
