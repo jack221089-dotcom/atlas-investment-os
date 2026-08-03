@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#090b10">
   <meta name="description" content="ATLAS Investment Operating System 3.0">
-  <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials">
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
-  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="manifest" href="./manifest.webmanifest" crossorigin="use-credentials">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
   <style>
 :root{
  --bg:#090b10;--side:#07090d;--panel:#131821;--panel2:#1a202b;--text:#f5f7fa;
@@ -360,7 +363,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 18</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 19</small>
       </div>
     </aside>
 
@@ -391,7 +394,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.18'
+  version:'3.0.0-alpha.19'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -577,7 +580,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.18','3.0.0 Alpha 18');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.19','3.0.0 Alpha 19');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -686,7 +689,7 @@ function statusBadge(status,label){
 }
 async function checkForUpdates(showToast=true){
  updateState.status='loading';serviceState.updates='loading';try{
-  const response=await fetch(`./version.json?ts=${Date.now()}`,{cache:'no-store'});
+  const response=await fetch(new URL(`version.json?ts=${Date.now()}`,document.baseURI),{cache:'no-store'});
   if(!response.ok)throw new Error('Não foi possível consultar a versão.');
   const latest=await response.json();
   updateState.latest=latest;
@@ -707,13 +710,27 @@ async function checkForUpdates(showToast=true){
 async function applyUpdate(){
  try{
   if('serviceWorker' in navigator){
-   const registrations=await navigator.serviceWorker.getRegistrations();
-   await Promise.all(registrations.map(r=>r.update()));
+   const registration=await navigator.serviceWorker.getRegistration('./');
+
+   if(registration?.waiting){
+    registration.waiting.postMessage('SKIP_WAITING');
+    return;
+   }
+
+   await registration?.update();
   }
+
   const keys=await caches.keys();
-  await Promise.all(keys.map(k=>caches.delete(k)));
- }catch(error){console.warn(error)}
- location.reload(true);
+  await Promise.all(
+    keys
+      .filter(key=>!key.includes('alpha19'))
+      .map(key=>caches.delete(key))
+  );
+ }catch(error){
+  console.warn('Atualização ATLAS:',error);
+ }
+
+ location.reload();
 }
 
 
@@ -867,7 +884,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.18','3.0.0 Alpha 18'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.19','3.0.0 Alpha 19'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -1756,7 +1773,7 @@ async function inspectPWA(){
 
  try{
   if('serviceWorker' in navigator){
-   const registration=await navigator.serviceWorker.getRegistration('/');
+   const registration=await navigator.serviceWorker.getRegistration('./');
    pwaState.serviceWorker=Boolean(registration);
   }
  }catch(error){
@@ -1791,14 +1808,67 @@ $('logout').onclick=logout;$('install').onclick=installApp;$('sync').onclick=loa
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;pwaState.installable=true;});
 window.addEventListener('appinstalled',()=>{pwaState.installed=true;deferredInstall=null;toast('ATLAS instalado com sucesso.');});
 if('serviceWorker' in navigator){
+ let reloadingForWorker=false;
+
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{
+  if(reloadingForWorker)return;
+  reloadingForWorker=true;
+  location.reload();
+ });
+
  window.addEventListener('load',async()=>{
   try{
-   await navigator.serviceWorker.register('/service-worker.js',{scope:'/'});
+   const registration=await navigator.serviceWorker.register(
+    './service-worker.js',
+    {scope:'./',updateViaCache:'none'}
+   );
+
    await navigator.serviceWorker.ready;
+   pwaState.serviceWorker=true;
+
+   const announceWaitingWorker=()=>{
+    if(!registration.waiting)return;
+    updateState.available=true;
+    updateState.status='operational';
+    serviceState.updates='operational';
+    renderHome();
+    renderSystem();
+    toast('Nova versão disponível. Abre Sistema para atualizar.');
+   };
+
+   announceWaitingWorker();
+
+   registration.addEventListener('updatefound',()=>{
+    const worker=registration.installing;
+    if(!worker)return;
+
+    worker.addEventListener('statechange',()=>{
+     if(
+      worker.state==='installed' &&
+      navigator.serviceWorker.controller
+     ){
+      announceWaitingWorker();
+     }
+    });
+   });
+
+   // Verifica atualizações ao abrir, de 5 em 5 minutos e ao regressar ao separador.
+   await registration.update().catch(()=>{});
+
+   setInterval(()=>{
+    registration.update().catch(()=>{});
+   },5*60*1000);
+
+   document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'){
+     registration.update().catch(()=>{});
+     checkForUpdates(false);
+    }
+   });
   }catch(error){
-   console.error('Service Worker:',error);
+   console.warn('Service Worker:',error);
+   pwaState.serviceWorker=false;
   }
-  await inspectPWA();
  });
 }
 bootstrap();
