@@ -1,11 +1,11 @@
 {
-  "version": "3.0.0-alpha.14",
-  "name": "ATLAS 3.0 Alpha 14 — Portfolio Diagnostics",
+  "version": "3.0.0-alpha.15",
+  "name": "ATLAS 3.0 Alpha 15 — Account Performance",
   "released_at": "2026-08-02",
   "notes": [
-    "Diagnóstico detalhado por ativo",
-    "Comparação opcional com depósitos líquidos e taxa da Trading 212",
-    "Distinção entre valor atual, custo, lucro e rentabilidade simples",
-    "Cartões de ativos com cálculos transparentes"
+    "Separação entre posições abertas e conta global da corretora",
+    "Referência manual para valor da conta, depósitos líquidos, rendimento total e taxa da Trading 212",
+    "Rentabilidade simples das posições mantida matematicamente correta",
+    "Explicação das diferenças entre retorno simples e taxa da corretora"
   ]
 }

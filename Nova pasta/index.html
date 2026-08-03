@@ -400,6 +400,76 @@ body{background:
   .asset-financial-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
+
+.account-reference-card{
+  margin-top:18px;
+  padding:16px;
+  border:1px solid var(--line,#2b3647);
+  border-radius:15px;
+  background:rgba(255,255,255,.025)
+}
+.account-reference-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-bottom:14px
+}
+.account-reference-head h3{margin:0}
+.account-reference-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px
+}
+.account-reference-grid label{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  color:var(--muted,#9eb0c8);
+  font-size:12px
+}
+.account-reference-grid input{
+  min-height:44px;
+  padding:10px 12px;
+  border:1px solid var(--line,#2b3647);
+  border-radius:11px;
+  background:var(--bg,#090d13);
+  color:var(--text,#fff);
+  font:inherit
+}
+.account-reference-results{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin-top:14px
+}
+.account-reference-results div{
+  padding:13px;
+  border:1px solid rgba(148,163,184,.16);
+  border-radius:12px;
+  background:rgba(255,255,255,.02)
+}
+.account-reference-results span{
+  display:block;
+  color:var(--muted,#9eb0c8);
+  font-size:12px;
+  margin-bottom:6px
+}
+.account-reference-results strong{font-size:17px}
+.metric-explainer{
+  margin-top:12px;
+  color:var(--muted,#9eb0c8);
+  font-size:12px;
+  line-height:1.55
+}
+@media(max-width:900px){
+  .account-reference-grid,.account-reference-results{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .account-reference-grid,.account-reference-results{grid-template-columns:1fr}
+}
+
 </style>
   <title>ATLAS Investment Operating System 3.0</title>
 </head>
@@ -432,7 +502,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 14</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 15</small>
       </div>
     </aside>
 
@@ -463,7 +533,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.14'
+  version:'3.0.0-alpha.15'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -695,6 +765,67 @@ function openPortfolioDiagnostic(){
   renderDiagnosticDifference();
 }
 
+
+function accountReference(){
+  return {
+    accountValue:parseAtlasNumber(localStorage.getItem('atlas-account-value')||0),
+    netDeposits:parseAtlasNumber(localStorage.getItem('atlas-net-deposits')||0),
+    totalReturn:parseAtlasNumber(localStorage.getItem('atlas-total-return')||0),
+    brokerRate:parseAtlasNumber(localStorage.getItem('atlas-broker-rate')||0)
+  };
+}
+function saveAccountReference(form){
+  const data=new FormData(form);
+  localStorage.setItem('atlas-account-value',String(parseAtlasNumber(data.get('account_value'))));
+  localStorage.setItem('atlas-net-deposits',String(parseAtlasNumber(data.get('net_deposits'))));
+  localStorage.setItem('atlas-total-return',String(parseAtlasNumber(data.get('total_return'))));
+  localStorage.setItem('atlas-broker-rate',String(parseAtlasNumber(data.get('broker_rate'))));
+  toast('Referência da corretora guardada');
+  renderDashboard();
+}
+function accountReferenceMarkup(){
+  const ref=accountReference();
+  const accountProfit=ref.accountValue-ref.netDeposits;
+  const simpleAccountReturn=ref.netDeposits>0?(accountProfit/ref.netDeposits)*100:0;
+  const assetGap=ref.accountValue-totalValue();
+
+  return `<section class="account-reference-card">
+    <div class="account-reference-head">
+      <div>
+        <h3>🏦 Referência da corretora</h3>
+        <div class="muted small">Valores globais mostrados pela Trading 212.</div>
+      </div>
+    </div>
+    <form id="account-reference-form">
+      <div class="account-reference-grid">
+        <label>Valor da conta
+          <input name="account_value" inputmode="decimal" value="${ref.accountValue||''}" placeholder="Ex.: 5129,02">
+        </label>
+        <label>Depósitos líquidos
+          <input name="net_deposits" inputmode="decimal" value="${ref.netDeposits||''}" placeholder="Ex.: 4305,80">
+        </label>
+        <label>Rendimento total
+          <input name="total_return" inputmode="decimal" value="${ref.totalReturn||''}" placeholder="Ex.: 823,22">
+        </label>
+        <label>Taxa de remuneração (%)
+          <input name="broker_rate" inputmode="decimal" value="${ref.brokerRate||''}" placeholder="Ex.: 24,9">
+        </label>
+      </div>
+      <div class="account-reference-results">
+        <div><span>Lucro implícito da conta</span><strong class="${accountProfit>=0?'good':'bad'}">${accountProfit>=0?'+':''}${eur(accountProfit)}</strong></div>
+        <div><span>Retorno simples da conta</span><strong class="${simpleAccountReturn>=0?'good':'bad'}">${pct(simpleAccountReturn)}</strong></div>
+        <div><span>Diferença conta vs ativos</span><strong class="${Math.abs(assetGap)<0.01?'good':'warn'}">${assetGap>=0?'+':''}${eur(assetGap)}</strong></div>
+        <div><span>Taxa da corretora</span><strong>${ref.brokerRate?pct(ref.brokerRate):'—'}</strong></div>
+      </div>
+      <div class="metric-explainer">
+        O ATLAS calcula a rentabilidade simples das posições abertas. A Trading 212 pode mostrar uma taxa ponderada pelas datas dos depósitos,
+        vendas, levantamentos, câmbio e ganhos realizados. Por isso, as duas percentagens podem ser diferentes sem existir erro matemático.
+      </div>
+      <div style="margin-top:14px"><button class="btn primary" type="submit">Guardar referência</button></div>
+    </form>
+  </section>`;
+}
+
 function metrics(){return `<div class="grid">
  <div class="card metric"><div class="label">Património</div><div class="value">${eur(totalValue())}</div><div class="foot">${state.assets.length} ativos</div></div>
  <div class="card metric"><div class="label">Custo das posições</div><div class="value">${eur(totalCost())}</div><div class="foot">Quantidade × preço médio</div></div>
@@ -720,7 +851,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.14','3.0.0 Alpha 14');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.15','3.0.0 Alpha 15');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -890,7 +1021,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.14','3.0.0 Alpha 14'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.15','3.0.0 Alpha 15'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -898,7 +1029,7 @@ function renderHome(){
 }
 function renderDashboard(){
  $('dashboard').innerHTML=`${head('Dashboard inteligente','Património, exposição, evolução e rendimento','<div class="toolbar"><button class="btn" id="portfolio-diagnostic">Diagnóstico</button><button class="btn primary" id="prices">Atualizar cotações</button></div>')}${metrics()}
- <div class="chart-grid"><div class="chart-card"><h3>Distribuição</h3><canvas id="allocation-chart"></canvas></div><div class="chart-card"><h3>Evolução do património</h3><canvas id="history-chart"></canvas></div><div class="chart-card"><h3>Dividendos por ativo</h3><canvas id="dividend-chart"></canvas></div><div class="chart-card">
+ ${accountReferenceMarkup()}<div class="chart-grid"><div class="chart-card"><h3>Distribuição</h3><canvas id="allocation-chart"></canvas></div><div class="chart-card"><h3>Evolução do património</h3><canvas id="history-chart"></canvas></div><div class="chart-card"><h3>Dividendos por ativo</h3><canvas id="dividend-chart"></canvas></div><div class="chart-card">
   <div class="benchmark-toolbar">
     <div>
       <h3>Carteira vs benchmark</h3>
@@ -926,7 +1057,7 @@ function renderDashboard(){
   </div>
 </div></div>
  <h2>Pesquisa rápida</h2><input id="search" class="search" placeholder="Pesquisar ativos, Diário, Academia ou Objetivos"><div id="results" class="results"></div>`;
- $('prices').onclick=refreshMarketData;$('portfolio-diagnostic').onclick=openPortfolioDiagnostic;$('search').oninput=e=>runSearch(e.target.value);setTimeout(drawCharts,0);
+ $('prices').onclick=refreshMarketData;$('portfolio-diagnostic').onclick=openPortfolioDiagnostic;$('search').oninput=e=>runSearch(e.target.value);$('account-reference-form')?.addEventListener('submit',e=>{e.preventDefault();saveAccountReference(e.currentTarget)});setTimeout(drawCharts,0);
 }
 function destroyCharts(){charts.forEach(c=>c.destroy());charts=[]}
 
