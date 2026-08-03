@@ -1,4 +1,4 @@
-const CACHE = 'atlas-v3-alpha16-transactions-ledger';
+const CACHE = 'atlas-v3-alpha14-unified-calculation';
 const APP_SHELL = [
   '/',
   '/index.html',

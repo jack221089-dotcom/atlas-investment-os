@@ -1,12 +1,11 @@
 {
-  "version": "3.0.0-alpha.16",
-  "name": "ATLAS 3.0 Alpha 16 — Transactions Ledger",
+  "version": "3.0.0-alpha.14",
+  "name": "ATLAS 3.0 Alpha 14 — Unified Portfolio Calculation",
   "released_at": "2026-08-02",
   "notes": [
-    "Registo oficial de compras e vendas",
-    "Cálculo automático de posições e preço médio",
-    "Lucro realizado por vendas",
-    "Nova página Operações",
-    "Remoção da dependência manual da referência da corretora"
+    "Uma única função calcula ativos, valor investido, valor atual, lucro e rentabilidade",
+    "Proteção contra utilização direta de preços em USD ou pence como euros",
+    "Dashboard, Carteira, gráficos, snapshots e IA usam os mesmos cálculos",
+    "Cotações sem conversão EUR mantêm o preço manual"
   ]
 }
