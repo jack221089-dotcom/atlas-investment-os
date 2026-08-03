@@ -1,11 +1,12 @@
 {
-  "version": "3.0.0-alpha.15",
-  "name": "ATLAS 3.0 Alpha 15 — Account Performance",
+  "version": "3.0.0-alpha.16",
+  "name": "ATLAS 3.0 Alpha 16 — Transactions Ledger",
   "released_at": "2026-08-02",
   "notes": [
-    "Separação entre posições abertas e conta global da corretora",
-    "Referência manual para valor da conta, depósitos líquidos, rendimento total e taxa da Trading 212",
-    "Rentabilidade simples das posições mantida matematicamente correta",
-    "Explicação das diferenças entre retorno simples e taxa da corretora"
+    "Registo oficial de compras e vendas",
+    "Cálculo automático de posições e preço médio",
+    "Lucro realizado por vendas",
+    "Nova página Operações",
+    "Remoção da dependência manual da referência da corretora"
   ]
 }

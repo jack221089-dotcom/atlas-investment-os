@@ -1,4 +1,4 @@
-const CACHE = 'atlas-v3-alpha15-account-performance';
+const CACHE = 'atlas-v3-alpha16-transactions-ledger';
 const APP_SHELL = [
   '/',
   '/index.html',

@@ -470,6 +470,44 @@ body{background:
   .account-reference-grid,.account-reference-results{grid-template-columns:1fr}
 }
 
+
+.transaction-toolbar{
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0
+}
+.transaction-summary{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0
+}
+.transaction-summary div{
+  padding:13px;border:1px solid var(--line,#2b3647);border-radius:12px;background:rgba(255,255,255,.025)
+}
+.transaction-summary span{display:block;color:var(--muted,#9eb0c8);font-size:12px;margin-bottom:5px}
+.transaction-summary strong{font-size:17px}
+.transaction-table-wrap{overflow:auto}
+.transaction-table{min-width:900px}
+.transaction-table th,.transaction-table td{white-space:nowrap}
+.transaction-type{
+  display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700
+}
+.transaction-type.buy{background:rgba(34,197,94,.12);color:#5ee58a}
+.transaction-type.sell{background:rgba(239,68,68,.12);color:#ff8b8b}
+.transaction-form-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px
+}
+.transaction-form-grid label{
+  display:flex;flex-direction:column;gap:7px;color:var(--muted,#9eb0c8);font-size:12px
+}
+.transaction-form-grid input,.transaction-form-grid select{
+  min-height:44px;padding:10px 12px;border:1px solid var(--line,#2b3647);
+  border-radius:11px;background:var(--bg,#090d13);color:var(--text,#fff);font:inherit
+}
+.transaction-empty{
+  padding:20px;border:1px dashed var(--line,#2b3647);border-radius:13px;color:var(--muted,#9eb0c8)
+}
+@media(max-width:760px){
+  .transaction-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .transaction-form-grid{grid-template-columns:1fr}
+}
+
 </style>
   <title>ATLAS Investment Operating System 3.0</title>
 </head>
@@ -502,7 +540,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 15</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 16</small>
       </div>
     </aside>
 
@@ -533,7 +571,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.15'
+  version:'3.0.0-alpha.16'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -826,6 +864,196 @@ function accountReferenceMarkup(){
   </section>`;
 }
 
+
+function loadTransactions(){
+  try{
+    const raw=localStorage.getItem('atlas-transactions');
+    return raw?JSON.parse(raw):[];
+  }catch{return[]}
+}
+function saveTransactions(rows){
+  localStorage.setItem('atlas-transactions',JSON.stringify(rows));
+}
+function transactionId(){
+  return crypto?.randomUUID?.()||`${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+function transactionsForTicker(ticker){
+  const t=String(ticker||'').toUpperCase();
+  return loadTransactions().filter(x=>String(x.ticker||'').toUpperCase()===t);
+}
+function positionFromTransactions(ticker){
+  const rows=transactionsForTicker(ticker).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  let quantity=0,cost=0,realized=0;
+
+  for(const row of rows){
+    const q=Number(row.quantity)||0;
+    const price=Number(row.price)||0;
+    const fee=Number(row.fee)||0;
+    if(row.type==='buy'){
+      quantity+=q;
+      cost+=(q*price)+fee;
+    }else{
+      const avg=quantity>0?cost/quantity:0;
+      const sold=Math.min(q,quantity);
+      realized+=(sold*price-fee)-(sold*avg);
+      quantity-=sold;
+      cost-=sold*avg;
+      if(quantity<1e-10){quantity=0;cost=0}
+    }
+  }
+  return {
+    quantity,
+    cost,
+    average_price:quantity>0?cost/quantity:0,
+    realized
+  };
+}
+function syncAssetsFromTransactions(){
+  let changed=false;
+  for(const asset of state.assets){
+    const rows=transactionsForTicker(asset.ticker);
+    if(!rows.length)continue;
+    const p=positionFromTransactions(asset.ticker);
+    asset.quantity=p.quantity;
+    asset.average_price=p.average_price;
+    changed=true;
+  }
+  return changed;
+}
+function allTransactionTickers(){
+  return [...new Set(loadTransactions().map(x=>String(x.ticker||'').toUpperCase()).filter(Boolean))];
+}
+function transactionTotals(){
+  const tx=loadTransactions();
+  const buys=tx.filter(x=>x.type==='buy').reduce((s,x)=>s+(Number(x.quantity)||0)*(Number(x.price)||0)+(Number(x.fee)||0),0);
+  const sells=tx.filter(x=>x.type==='sell').reduce((s,x)=>s+(Number(x.quantity)||0)*(Number(x.price)||0)-(Number(x.fee)||0),0);
+  const realized=allTransactionTickers().reduce((s,t)=>s+positionFromTransactions(t).realized,0);
+  return {buys,sells,realized,count:tx.length};
+}
+function closeTransactionModal(){
+  document.getElementById('transaction-modal')?.remove();
+}
+function openTransactionModal(prefillTicker=''){
+  closeTransactionModal();
+  const modal=document.createElement('div');
+  modal.id='transaction-modal';
+  modal.className='edit-modal-backdrop';
+  modal.innerHTML=`
+    <section class="edit-modal" role="dialog" aria-modal="true">
+      <div class="edit-modal-head">
+        <div><div class="muted small">Nova operação</div><h2>🧾 Registar compra ou venda</h2></div>
+        <button class="edit-modal-close" type="button">×</button>
+      </div>
+      <form id="transaction-form">
+        <div class="edit-modal-body">
+          <div class="transaction-form-grid">
+            <label>Tipo
+              <select name="type"><option value="buy">Compra</option><option value="sell">Venda</option></select>
+            </label>
+            <label>Data
+              <input name="date" type="date" value="${new Date().toISOString().slice(0,10)}" required>
+            </label>
+            <label>Ticker
+              <input name="ticker" value="${esc(prefillTicker)}" placeholder="Ex.: SXR8" required>
+            </label>
+            <label>Quantidade
+              <input name="quantity" type="number" step="any" min="0" required>
+            </label>
+            <label>Preço por unidade
+              <input name="price" type="number" step="any" min="0" required>
+            </label>
+            <label>Comissão
+              <input name="fee" type="number" step="any" min="0" value="0">
+            </label>
+            <label style="grid-column:1/-1">Notas
+              <input name="notes" placeholder="Opcional">
+            </label>
+          </div>
+        </div>
+        <div class="edit-modal-actions">
+          <button type="button" class="btn" data-close>Cancelar</button>
+          <button type="submit" class="btn primary">Guardar operação</button>
+        </div>
+      </form>
+    </section>`;
+
+  document.body.appendChild(modal);
+  const close=()=>closeTransactionModal();
+  modal.querySelector('.edit-modal-close').onclick=close;
+  modal.querySelector('[data-close]').onclick=close;
+  modal.addEventListener('click',e=>{if(e.target===modal)close()});
+
+  modal.querySelector('#transaction-form').onsubmit=async e=>{
+    e.preventDefault();
+    const fd=new FormData(e.currentTarget);
+    const row={
+      id:transactionId(),
+      type:String(fd.get('type')),
+      date:String(fd.get('date')),
+      ticker:String(fd.get('ticker')||'').trim().toUpperCase(),
+      quantity:parseAtlasNumber(fd.get('quantity')),
+      price:parseAtlasNumber(fd.get('price')),
+      fee:parseAtlasNumber(fd.get('fee')),
+      notes:String(fd.get('notes')||'').trim()
+    };
+    if(!row.ticker||row.quantity<=0||row.price<0)return toast('Confirma ticker, quantidade e preço.');
+
+    const rows=loadTransactions();
+    if(row.type==='sell'){
+      const available=positionFromTransactions(row.ticker).quantity;
+      if(row.quantity>available+1e-9)return toast(`Venda superior à posição disponível (${available}).`);
+    }
+    rows.push(row);
+    saveTransactions(rows);
+    close();
+    toast('Operação guardada');
+    renderTransactions();
+  };
+}
+function deleteTransaction(id){
+  const rows=loadTransactions().filter(x=>x.id!==id);
+  saveTransactions(rows);
+  renderTransactions();
+}
+function transactionsMarkup(){
+  const rows=loadTransactions().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const totals=transactionTotals();
+  return `
+    <section>
+      ${head('Operações','Compras e vendas que formam o histórico oficial do ATLAS','<button class="btn primary" id="add-transaction">Nova operação</button>')}
+      <div class="transaction-summary">
+        <div><span>Total de compras</span><strong>${eur(totals.buys)}</strong></div>
+        <div><span>Total de vendas</span><strong>${eur(totals.sells)}</strong></div>
+        <div><span>Lucro realizado</span><strong class="${totals.realized>=0?'good':'bad'}">${totals.realized>=0?'+':''}${eur(totals.realized)}</strong></div>
+        <div><span>Operações registadas</span><strong>${totals.count}</strong></div>
+      </div>
+      ${rows.length?`
+      <div class="transaction-table-wrap">
+        <table class="transaction-table">
+          <thead><tr><th>Data</th><th>Tipo</th><th>Ticker</th><th>Quantidade</th><th>Preço</th><th>Comissão</th><th>Total</th><th>Notas</th><th></th></tr></thead>
+          <tbody>${rows.map(row=>{
+            const total=(Number(row.quantity)||0)*(Number(row.price)||0)+(row.type==='buy'?(Number(row.fee)||0):-(Number(row.fee)||0));
+            return `<tr>
+              <td>${esc(row.date)}</td>
+              <td><span class="transaction-type ${row.type}">${row.type==='buy'?'Compra':'Venda'}</span></td>
+              <td><b>${esc(row.ticker)}</b></td>
+              <td>${new Intl.NumberFormat('pt-PT',{maximumFractionDigits:8}).format(Number(row.quantity)||0)}</td>
+              <td>${eur(Number(row.price)||0)}</td>
+              <td>${eur(Number(row.fee)||0)}</td>
+              <td>${eur(total)}</td>
+              <td>${esc(row.notes||'')}</td>
+              <td><button class="btn danger" onclick="deleteTransaction('${row.id}')">Eliminar</button></td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>`:`<div class="transaction-empty">Ainda não existem operações. Regista a primeira compra para o ATLAS começar a calcular automaticamente.</div>`}
+    </section>`;
+}
+function renderTransactions(){
+  app.innerHTML=transactionsMarkup();
+  $('add-transaction').onclick=()=>openTransactionModal();
+}
+
 function metrics(){return `<div class="grid">
  <div class="card metric"><div class="label">Património</div><div class="value">${eur(totalValue())}</div><div class="foot">${state.assets.length} ativos</div></div>
  <div class="card metric"><div class="label">Custo das posições</div><div class="value">${eur(totalCost())}</div><div class="foot">Quantidade × preço médio</div></div>
@@ -851,7 +1079,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.15','3.0.0 Alpha 15');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.16','3.0.0 Alpha 16');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -1021,7 +1249,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.15','3.0.0 Alpha 15'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.16','3.0.0 Alpha 16'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -1029,7 +1257,7 @@ function renderHome(){
 }
 function renderDashboard(){
  $('dashboard').innerHTML=`${head('Dashboard inteligente','Património, exposição, evolução e rendimento','<div class="toolbar"><button class="btn" id="portfolio-diagnostic">Diagnóstico</button><button class="btn primary" id="prices">Atualizar cotações</button></div>')}${metrics()}
- ${accountReferenceMarkup()}<div class="chart-grid"><div class="chart-card"><h3>Distribuição</h3><canvas id="allocation-chart"></canvas></div><div class="chart-card"><h3>Evolução do património</h3><canvas id="history-chart"></canvas></div><div class="chart-card"><h3>Dividendos por ativo</h3><canvas id="dividend-chart"></canvas></div><div class="chart-card">
+ <div class="chart-grid"><div class="chart-card"><h3>Distribuição</h3><canvas id="allocation-chart"></canvas></div><div class="chart-card"><h3>Evolução do património</h3><canvas id="history-chart"></canvas></div><div class="chart-card"><h3>Dividendos por ativo</h3><canvas id="dividend-chart"></canvas></div><div class="chart-card">
   <div class="benchmark-toolbar">
     <div>
       <h3>Carteira vs benchmark</h3>
