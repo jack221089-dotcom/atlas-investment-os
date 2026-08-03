@@ -1,0 +1,1877 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090b10">
+  <meta name="description" content="ATLAS Investment Operating System 3.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="manifest" href="./manifest.webmanifest" crossorigin="use-credentials">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <style>
+:root{
+ --bg:#090b10;--side:#07090d;--panel:#131821;--panel2:#1a202b;--text:#f5f7fa;
+ --muted:#9aa6b6;--line:#29313e;--accent:#f4f6f8;--good:#62ca7b;--warn:#e9bd5a;
+ --bad:#e37474;--blue:#7cb7ff;--radius:16px
+}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}.hidden{display:none!important}.small{font-size:12px}.muted{color:var(--muted)}
+.shell{display:grid;grid-template-columns:245px 1fr;min-height:100vh}.sidebar{background:var(--side);border-right:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;z-index:30}
+.brand{display:flex;align-items:center;gap:12px;padding:2px 8px 24px}.brand-mark{font-size:28px}.brand strong{font-size:19px;display:block}.brand span{font-size:10px;color:var(--muted)}
+nav{display:grid;gap:4px}nav button{background:transparent;color:var(--muted);border:0;text-align:left;padding:11px 12px;border-radius:11px;cursor:pointer}
+nav button:hover,nav button.active{background:var(--panel);color:var(--text)}.side-bottom{margin-top:auto;display:grid;gap:9px;padding:8px}
+.main{padding:42px 36px;max-width:1320px;width:100%;margin:auto}.mobile-header{display:none}
+h1{font-size:36px;letter-spacing:-1px;margin:0 0 7px}h2{font-size:22px;margin:34px 0 15px}h3{margin:0}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px}
+.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.metric .label{font-size:12px;color:var(--muted)}.metric .value{font-size:26px;font-weight:750;margin:7px 0}.metric .foot{font-size:11px;color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:11px;cursor:pointer}.btn.primary{background:var(--accent);color:#111;border-color:var(--accent);font-weight:750}.btn.ghost{background:transparent}.btn.danger{color:#ffd9d9}.btn.full{width:100%}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:17px 0}.good{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+.form label{font-size:12px;color:var(--muted)}.form input,.form select,.form textarea{display:block;width:100%;margin-top:5px;background:#0d1118;color:var(--text);border:1px solid var(--line);padding:10px;border-radius:9px}.form textarea{min-height:90px}.form .full{grid-column:1/-1}
+.note{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:15px}.empty{background:var(--panel);border:1px dashed var(--line);border-radius:14px;color:var(--muted);padding:22px}
+.hero{display:grid;grid-template-columns:1.4fr .8fr;gap:14px}.hero-main{background:linear-gradient(145deg,#171d27,#0f131a);border:1px solid var(--line);border-radius:22px;padding:26px}.hero-main h1{font-size:42px}.hero-main .headline{font-size:23px;font-weight:750;margin:18px 0 8px}.hero-side{display:grid;gap:12px}.status{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:17px;display:flex;justify-content:space-between;gap:12px}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.quick button{text-align:left;min-height:85px}
+.asset-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.asset{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}.asset-top{display:flex;justify-content:space-between;gap:12px}.asset-name{font-size:20px;font-weight:760}.tag{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:5px 8px;color:var(--muted)}
+.stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stats4 b{display:block;margin-top:4px}.progress{height:8px;background:#0d1016;border-radius:99px;overflow:hidden;margin:13px 0}.progress span{display:block;height:100%;background:var(--accent)}
+.chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.chart-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;min-height:320px}.chart-card canvas{max-height:270px}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{font-size:11px;color:var(--muted)}tr:last-child td{border-bottom:0}
+.news-list,.timeline,.calendar-list{display:grid;gap:11px}.news,.entry,.calendar-event{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px}.news-top,.entry-top{display:flex;justify-content:space-between;gap:12px}.news h3{font-size:16px;margin:8px 0}.news a{color:var(--text);text-decoration:none}.news a:hover{text-decoration:underline}
+.badge{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:5px 8px;white-space:nowrap}.badge.low{color:var(--good)}.badge.medium{color:var(--warn)}.badge.high{color:var(--bad)}
+.calendar-event{display:grid;grid-template-columns:130px 1fr auto;gap:14px;align-items:center}.search{width:100%;background:#0d1118;color:var(--text);border:1px solid var(--line);padding:12px;border-radius:11px}.results{display:grid;gap:8px;margin-top:10px}.result{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}
+.chat{display:grid;grid-template-rows:1fr auto;min-height:65vh}.messages{display:grid;gap:12px;align-content:start}.message{max-width:850px;border-radius:16px;padding:14px 16px;line-height:1.55;white-space:pre-wrap}.message.user{background:var(--panel2);margin-left:auto}.message.ai{background:var(--panel);border:1px solid var(--line)}.composer{display:flex;gap:10px;position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 25%);padding-top:30px}.composer textarea{flex:1;background:#0d1118;color:var(--text);border:1px solid var(--line);border-radius:13px;padding:12px;min-height:52px;resize:vertical}
+.auth-shell{min-height:100vh;display:grid;place-items:center;padding:20px}.auth-card{width:min(420px,100%);background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:28px}.auth-card p{color:var(--muted);margin-top:-5px}.stack{display:grid;gap:12px;margin-top:22px}.stack label{font-size:12px;color:var(--muted)}.stack input{display:block;width:100%;margin-top:5px;background:#0d1118;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px}
+.toast{position:fixed;right:18px;bottom:18px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 15px;z-index:100}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--text);border-radius:50%;animation:spin .8s linear infinite;margin-right:7px;vertical-align:-2px}@keyframes spin{to{transform:rotate(360deg)}}.icon-btn{border:0;background:transparent;color:var(--text);font-size:20px}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.sidebar{position:fixed;left:-260px;width:245px;transition:.2s}.sidebar.open{left:0}.mobile-header{display:flex;position:sticky;top:0;z-index:25;justify-content:space-between;background:rgba(7,9,13,.95);backdrop-filter:blur(12px);padding:13px 16px;border-bottom:1px solid var(--line)}.main{padding:23px 15px 50px}.hero,.chart-grid{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.quick{grid-template-columns:repeat(2,1fr)}.asset-grid{grid-template-columns:1fr}.form{grid-template-columns:1fr}.form .full{grid-column:1}.calendar-event{grid-template-columns:1fr}}
+@media(max-width:520px){.grid,.quick{grid-template-columns:1fr}.hero-main h1{font-size:32px}.stats4{grid-template-columns:repeat(2,1fr)}}
+
+/* ATLAS 3.0 Alpha 2 — premium home */
+:root{
+  --green-glow:rgba(74,222,128,.18);
+  --blue-glow:rgba(96,165,250,.16);
+  --purple-glow:rgba(192,132,252,.15);
+}
+body{background:
+ radial-gradient(circle at 70% -20%,rgba(44,82,130,.12),transparent 32%),
+ radial-gradient(circle at 92% 15%,rgba(24,150,92,.06),transparent 24%),
+ var(--bg)}
+.sidebar{box-shadow:14px 0 40px rgba(0,0,0,.18)}
+.brand span{font-size:11px;letter-spacing:.01em}
+.main{max-width:1450px}
+.home-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,.65fr);gap:18px}
+.home-main,.home-rail{display:grid;gap:16px;align-content:start}
+.premium-hero{
+  position:relative;overflow:hidden;min-height:278px;
+  background:linear-gradient(135deg,#141b26 0%,#10161f 55%,#0e171b 100%);
+  border:1px solid #2a3443;border-radius:22px;padding:28px;
+  box-shadow:0 22px 55px rgba(0,0,0,.2)
+}
+.premium-hero:before{
+  content:"";position:absolute;width:330px;height:330px;border-radius:50%;
+  right:-90px;top:-115px;background:radial-gradient(circle,rgba(53,217,132,.18),transparent 68%)
+}
+.hero-kicker{color:#a9bad0;font-size:14px;margin-bottom:28px}
+.greeting-line{display:flex;align-items:center;gap:14px}
+.greeting-icon{font-size:44px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.28))}
+.premium-hero h1{font-size:42px;line-height:1.05;margin:0}
+.hero-verdict{font-size:22px;font-weight:800;color:var(--good);margin:24px 0 12px}
+.hero-copy{font-size:15px;color:#b0bfd2;max-width:720px;line-height:1.6;margin:0 0 7px}
+.hero-art{position:absolute;right:58px;bottom:24px;width:170px;height:150px;opacity:.9}
+.hero-art .glow{position:absolute;inset:8px;border-radius:50%;background:radial-gradient(circle,rgba(44,230,126,.34),transparent 65%)}
+.hero-art .beam{position:absolute;width:120px;height:40px;right:-35px;top:42px;background:linear-gradient(90deg,rgba(252,231,116,.46),transparent);clip-path:polygon(0 35%,100% 0,100% 100%,0 65%)}
+.hero-art .tower{position:absolute;left:72px;bottom:10px;width:30px;height:100px;background:linear-gradient(#203142,#0b1017);clip-path:polygon(35% 0,65% 0,87% 100%,13% 100%);border:1px solid rgba(131,162,190,.25)}
+.hero-art .lamp{position:absolute;left:68px;top:35px;width:38px;height:25px;background:#ffd66e;border:4px solid #15202d;border-radius:4px}
+.hero-art .rock{position:absolute;bottom:0;left:20px;width:140px;height:38px;background:#0b1119;clip-path:polygon(0 100%,18% 45%,38% 60%,53% 5%,70% 58%,100% 100%)}
+.metric-grid-premium{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.metric-premium{
+  background:linear-gradient(145deg,#161d28,#121822);border:1px solid #293443;border-radius:16px;
+  padding:18px;min-height:142px;position:relative;overflow:hidden
+}
+.metric-premium .metric-icon{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;font-size:22px;margin-bottom:13px;background:rgba(80,150,255,.09)}
+.metric-premium.green .metric-icon{background:var(--green-glow)}
+.metric-premium.purple .metric-icon{background:var(--purple-glow)}
+.metric-premium .metric-label{color:#b6c3d4;font-size:14px}
+.metric-premium .metric-value{font-size:27px;font-weight:800;margin:6px 0}
+.metric-premium .metric-foot{font-size:12px;color:#9ba8b9}
+.metric-premium .metric-sub{font-size:12px;color:#93a2b6;border-top:1px solid #25303d;margin-top:13px;padding-top:10px}
+.section-title{font-size:22px;font-weight:800;margin:6px 0 4px}
+.decision-card{display:flex;align-items:center;gap:16px;background:linear-gradient(145deg,#151c27,#121822);border:1px solid #293443;border-radius:15px;padding:16px 18px}
+.decision-check{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#61d887;color:#102016;font-size:24px;font-weight:900;flex:0 0 auto}
+.decision-body{flex:1}.decision-body b{display:block;margin-bottom:4px}.decision-action{white-space:nowrap}
+.quick-premium{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.quick-premium button{min-height:105px;text-align:left;display:flex;align-items:center;gap:13px}
+.quick-premium .quick-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:10px;background:var(--purple-glow);font-size:24px;flex:0 0 auto}
+.quick-premium button:nth-child(2) .quick-icon{background:var(--green-glow)}
+.quick-premium button:nth-child(3) .quick-icon{background:var(--blue-glow)}
+.quick-premium button:nth-child(4) .quick-icon{background:var(--purple-glow)}
+.quick-premium b{font-size:15px}.quick-premium span{display:block;margin-top:4px}
+.rail-card{background:linear-gradient(145deg,#151c27,#111720);border:1px solid #293443;border-radius:17px;padding:18px}
+.rail-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.rail-title h3{font-size:18px}
+.radar-alert{padding:14px 0;border-top:1px solid #26313e}.radar-alert:first-of-type{border-top:0;padding-top:2px}
+.radar-alert .impact{font-weight:750;font-size:13px}.radar-alert.high .impact{color:#ff7373}.radar-alert.medium .impact{color:#ffc65d}.radar-alert.low .impact{color:var(--good)}
+.radar-alert p{margin:7px 0;color:#c1cbd8;font-size:13px;line-height:1.45}
+.radar-alert small{color:#8190a3}
+.event-card{display:grid;gap:11px}.event-row{display:flex;justify-content:space-between;gap:15px}.event-name{font-size:17px;font-weight:750}
+.service-list{display:grid;gap:11px}.service-row{display:flex;justify-content:space-between;gap:15px;font-size:13px}.service-dot{color:var(--good);margin-right:8px}.service-ok{color:var(--good)}
+.atlas-footer{
+  margin:26px -36px -42px;padding:18px 36px;background:#0e141d;border-top:1px solid #25303d;
+  display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr auto;align-items:center;gap:22px
+}
+.footer-block{padding-right:22px;border-right:1px solid #26313f;min-height:48px;display:flex;flex-direction:column;justify-content:center}
+.footer-block:last-child{border-right:0;padding-right:0}
+.footer-brand strong{font-size:18px}.footer-brand span,.footer-label{color:#9caabd;font-size:12px;margin-top:4px}
+.footer-version{color:var(--good);font-weight:750}.footer-status{color:var(--good);font-size:12px;margin-top:4px}
+.footer-update{min-width:180px}
+@media(max-width:1150px){
+  .home-layout{grid-template-columns:1fr}.home-rail{grid-template-columns:repeat(3,1fr)}
+  .atlas-footer{grid-template-columns:repeat(2,1fr);margin-left:-20px;margin-right:-20px}.footer-block{border-right:0}
+}
+@media(max-width:900px){
+  .premium-hero h1{font-size:34px}.hero-art{display:none}.metric-grid-premium,.quick-premium{grid-template-columns:repeat(2,1fr)}
+  .home-rail{grid-template-columns:1fr}.atlas-footer{margin:22px -15px -50px;padding:18px 15px;grid-template-columns:1fr}
+}
+@media(max-width:520px){.metric-grid-premium,.quick-premium{grid-template-columns:1fr}.decision-card{align-items:flex-start}.decision-action{display:none}}
+
+
+/* ATLAS Intelligence Center — Alpha 6 */
+.intelligence-hero{display:grid;grid-template-columns:minmax(260px,.72fr) 1.28fr;gap:22px;background:linear-gradient(145deg,#151d29,#10161f);border:1px solid #2b3748;border-radius:20px;padding:24px;margin-bottom:18px;box-shadow:0 18px 50px rgba(0,0,0,.18)}
+.eyebrow{font-size:12px;letter-spacing:.16em;color:#9bacbf;font-weight:800}.score-line{display:flex;align-items:flex-end;margin-top:8px}.score-number{font-size:72px;line-height:.9;font-weight:850}.score-max{font-size:23px;color:#8290a3;margin:0 0 8px 5px}.score-label{font-size:18px;font-weight:800;margin-top:10px}.score-components{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.sm-component{display:flex;justify-content:space-between;align-items:center;background:#0e141d;border:1px solid #273342;border-radius:12px;padding:13px}.intel-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0 24px}.intel-card{background:linear-gradient(145deg,#151c27,#111720);border:1px solid #293443;border-radius:17px;padding:18px}.intel-title{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.intel-title h2{margin:0;font-size:19px}.smart-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}.smart-summary>div{background:#0d131c;border:1px solid #26313e;border-radius:11px;padding:11px}.smart-summary span{display:block;font-size:11px;color:#8f9daf}.smart-summary b{display:block;margin-top:5px}.smart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.signal-card{background:#0e141d;border:1px solid #273342;border-radius:13px;padding:13px}.signal-head{display:flex;justify-content:space-between;gap:10px}.signal-value{font-size:21px;font-weight:800;margin:13px 0 5px}.source-link{display:inline-block;margin-top:10px;color:#b99ae8;font-size:12px}.module-empty{background:#0e141d;border:1px dashed #2c3848;border-radius:13px;padding:16px;color:#aeb9c8}.module-empty p{margin:7px 0 0;line-height:1.5}.disclaimer{font-size:11px;color:#8190a3;margin-top:13px;border-top:1px solid #26313e;padding-top:11px}
+@media(max-width:950px){.intelligence-hero,.intel-tabs{grid-template-columns:1fr}.smart-summary{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:580px){.score-components,.smart-grid{grid-template-columns:1fr}.score-number{font-size:58px}}
+
+
+.tracked-panel{margin:14px 0 18px}.tracked-row{display:flex;gap:10px;margin:12px 0}.tracked-row input{flex:1;min-width:180px}.tracked-groups{display:grid;grid-template-columns:1fr 1fr;gap:16px}.tracked-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}.tracked-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border);border-radius:999px;background:var(--panel2);font-weight:700}.tracked-chip small{font-size:10px;color:var(--muted);font-weight:500}.tracked-chip button{border:0;background:transparent;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:0}.tracked-chip.auto{border-style:dashed}@media(max-width:760px){.tracked-groups{grid-template-columns:1fr}.tracked-row{flex-direction:column}}
+
+.edit-modal-backdrop{
+  position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+  padding:24px;background:rgba(3,7,13,.78);backdrop-filter:blur(8px)
+}
+.edit-modal-backdrop.hidden{display:none}
+.edit-modal{
+  width:min(720px,100%);max-height:calc(100vh - 48px);overflow:auto;
+  background:var(--panel,#151c27);border:1px solid var(--line,#2b3647);
+  border-radius:20px;box-shadow:0 30px 90px rgba(0,0,0,.55)
+}
+.edit-modal-head{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:20px 22px;border-bottom:1px solid var(--line,#2b3647)
+}
+.edit-modal-head h2{margin:0;font-size:22px}
+.edit-modal-close{
+  width:40px;height:40px;border-radius:12px;border:1px solid var(--line,#2b3647);
+  background:transparent;color:var(--text,#fff);font-size:22px;cursor:pointer
+}
+.edit-modal-body{padding:22px}
+.edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.edit-grid label{display:flex;flex-direction:column;gap:8px;color:var(--muted,#9eb0c8);font-size:13px}
+.edit-grid input,.edit-grid select{
+  width:100%;min-height:46px;padding:11px 12px;border-radius:12px;
+  border:1px solid var(--line,#2b3647);background:var(--bg,#090d13);
+  color:var(--text,#fff);font:inherit
+}
+.edit-grid input:focus,.edit-grid select:focus{
+  outline:none;border-color:#7aa7ff;box-shadow:0 0 0 3px rgba(122,167,255,.14)
+}
+.edit-modal-actions{
+  display:flex;justify-content:flex-end;gap:12px;padding:18px 22px;
+  border-top:1px solid var(--line,#2b3647)
+}
+@media(max-width:640px){
+  .edit-modal-backdrop{padding:10px;align-items:flex-end}
+  .edit-modal{max-height:92vh;border-radius:18px 18px 0 0}
+  .edit-grid{grid-template-columns:1fr}
+}
+
+
+.asset-editor-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.45fr) minmax(240px,.75fr);
+  gap:18px;
+  align-items:start
+}
+.asset-editor-fields{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px
+}
+.asset-field{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  color:var(--muted,#9eb0c8);
+  font-size:13px
+}
+.asset-field.full{grid-column:1/-1}
+.asset-field-label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:700;
+  color:var(--text,#eef4ff)
+}
+.asset-field-icon{
+  width:30px;height:30px;
+  display:grid;place-items:center;
+  border-radius:9px;
+  background:rgba(122,167,255,.10);
+  font-size:16px
+}
+.asset-field input{
+  width:100%;min-height:48px;padding:11px 12px;
+  border-radius:12px;border:1px solid var(--line,#2b3647);
+  background:var(--bg,#090d13);color:var(--text,#fff);font:inherit
+}
+.asset-field input:focus{
+  outline:none;border-color:#7aa7ff;
+  box-shadow:0 0 0 3px rgba(122,167,255,.14)
+}
+.asset-calculation-panel{
+  position:sticky;top:12px;
+  background:linear-gradient(145deg,#121a25,#0e151f);
+  border:1px solid var(--line,#2b3647);
+  border-radius:16px;padding:16px
+}
+.asset-calculation-panel h3{margin:0 0 14px;font-size:16px}
+.asset-calculation-list{display:grid;gap:11px}
+.asset-calculation-item{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:12px;border:1px solid rgba(148,163,184,.15);
+  border-radius:12px;background:rgba(255,255,255,.025)
+}
+.asset-calculation-name{
+  display:flex;align-items:center;gap:9px;color:var(--muted,#9eb0c8);
+  font-size:13px
+}
+.asset-calculation-value{font-size:16px;font-weight:800;text-align:right}
+.asset-calculation-note{
+  margin-top:13px;color:var(--muted,#9eb0c8);
+  font-size:11px;line-height:1.45
+}
+@media(max-width:760px){
+  .asset-editor-layout{grid-template-columns:1fr}
+  .asset-editor-fields{grid-template-columns:1fr}
+  .asset-calculation-panel{position:static}
+}
+
+
+.benchmark-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap
+}
+.benchmark-toolbar h3{margin:0}
+.benchmark-select{
+  min-height:40px;
+  padding:8px 38px 8px 11px;
+  border-radius:10px;
+  border:1px solid var(--line,#2b3647);
+  background:var(--bg,#090d13);
+  color:var(--text,#fff);
+  font:inherit
+}
+.benchmark-result{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  margin-top:12px;
+  padding:12px 14px;
+  border:1px solid rgba(148,163,184,.16);
+  border-radius:12px;
+  background:rgba(255,255,255,.025)
+}
+.benchmark-result span{color:var(--muted,#9eb0c8);font-size:13px}
+.benchmark-result strong{font-size:16px}
+.benchmark-help{
+  margin-top:9px;
+  color:var(--muted,#9eb0c8);
+  font-size:11px;
+  line-height:1.45
+}
+
+
+.history-mode-group{
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:10px
+}
+.history-mode-group button{
+  border:1px solid var(--line,#2b3647);
+  background:transparent;color:var(--text,#fff);
+  border-radius:10px;padding:7px 11px;cursor:pointer
+}
+.history-mode-group button.active{
+  background:#eef4ff;color:#07101d
+}
+.history-estimate-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  margin-top:10px;padding:7px 10px;border-radius:999px;
+  border:1px solid rgba(245,158,11,.35);
+  background:rgba(245,158,11,.08);
+  color:#f8c15d;font-size:12px;font-weight:700
+}
+
+
+.asset-diagnostic-table{width:100%;border-collapse:collapse;min-width:980px}
+.asset-diagnostic-table th,.asset-diagnostic-table td{padding:10px 12px;border-bottom:1px solid rgba(148,163,184,.14);text-align:right;vertical-align:top;white-space:nowrap}
+.asset-diagnostic-table th{color:var(--muted,#9eb0c8);font-size:12px;position:sticky;top:0;background:var(--panel,#151c27);z-index:1}
+.asset-diagnostic-table th:first-child,.asset-diagnostic-table td:first-child{text-align:left;white-space:normal;min-width:180px}
+.asset-diagnostic-table-wrap{overflow:auto;max-height:60vh;border:1px solid var(--line,#2b3647);border-radius:14px}
+.asset-diagnostic-source{display:inline-flex;padding:5px 8px;border-radius:999px;border:1px solid rgba(148,163,184,.2);font-size:11px}
+.asset-diagnostic-source.warn{color:#f8c15d;border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.08)}
+.asset-diagnostic-total{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.asset-diagnostic-total .metric{padding:13px;border:1px solid var(--line,#2b3647);border-radius:12px;background:rgba(255,255,255,.025)}
+.asset-diagnostic-total .metric span{display:block;color:var(--muted,#9eb0c8);font-size:12px}
+.asset-diagnostic-total .metric strong{display:block;margin-top:5px;font-size:17px}
+.asset-diagnostic-note{margin-top:14px;color:var(--muted,#9eb0c8);font-size:12px;line-height:1.5}
+@media(max-width:720px){.asset-diagnostic-total{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+</style>
+  <title>ATLAS Investment Operating System 3.0</title>
+</head>
+<body>
+  <div id="toast" class="toast hidden"></div>
+
+  <section id="auth" class="auth-shell">
+    <div class="auth-card">
+      <div class="brand-mark">🏛️</div>
+      <h1>ATLAS</h1>
+      <p>Investment Operating System</p>
+      <form id="auth-form" class="stack">
+        <label>Email<input id="email" type="email" autocomplete="email" required></label>
+        <label>Palavra-passe<input id="password" type="password" autocomplete="current-password" minlength="6" required></label>
+        <button class="btn primary" type="submit">Entrar</button>
+        <button class="btn ghost" id="signup" type="button">Criar conta</button>
+      </form>
+      <div id="auth-status" class="muted small"></div>
+    </div>
+  </section>
+
+  <div id="shell" class="shell hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">🏛️</div>
+        <div><strong>ATLAS</strong><span>Investment Operating System</span></div>
+      </div>
+      <nav id="nav"></nav>
+      <div class="side-bottom">
+        <div id="sync-status" class="small muted">● A ligar…</div>
+        <button class="btn ghost full" id="install">Instalar</button>
+        <button class="btn ghost full" id="logout">Sair</button>
+        <small id="sidebar-version">Version 3.0.0 Alpha 19</small>
+      </div>
+    </aside>
+
+    <header class="mobile-header">
+      <button id="menu" class="icon-btn">☰</button>
+      <strong>ATLAS</strong>
+      <button id="sync" class="icon-btn">↻</button>
+    </header>
+
+    <main class="main">
+      <section id="home" class="page"></section>
+      <section id="dashboard" class="page hidden"></section>
+      <section id="portfolio" class="page hidden"></section>
+      <section id="radar" class="page hidden"></section>
+      <section id="calendar" class="page hidden"></section>
+      <section id="journal" class="page hidden"></section>
+      <section id="academy" class="page hidden"></section>
+      <section id="goals" class="page hidden"></section>
+      <section id="assistant" class="page hidden"></section>
+      <section id="system" class="page hidden"></section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script type="module">
+const CONFIG={
+  supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
+  supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
+  functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
+  version:'3.0.0-alpha.19'
+};
+
+const OFFICIAL_CALENDAR=[
+ {date:'2026-08-19',time:'19:00',country:'EUA',event:'Atas do FOMC — reunião de 28–29 de julho',impact:'medium',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy.htm'},
+ {date:'2026-09-10',time:'',country:'Zona Euro',event:'Decisão de política monetária do BCE',impact:'high',source:'BCE',url:'https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html'},
+ {date:'2026-09-16',time:'19:00',country:'EUA',event:'Decisão do FOMC e conferência de imprensa',impact:'high',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'},
+ {date:'2026-10-07',time:'19:00',country:'EUA',event:'Atas do FOMC — reunião de setembro',impact:'medium',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy.htm'},
+ {date:'2026-10-28',time:'19:00',country:'EUA',event:'Decisão do FOMC e conferência de imprensa',impact:'high',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'},
+ {date:'2026-10-29',time:'',country:'Zona Euro',event:'Decisão de política monetária do BCE',impact:'high',source:'BCE',url:'https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html'},
+ {date:'2026-11-18',time:'19:00',country:'EUA',event:'Atas do FOMC — reunião de outubro',impact:'medium',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy.htm'},
+ {date:'2026-12-09',time:'19:00',country:'EUA',event:'Decisão do FOMC e conferência de imprensa',impact:'high',source:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'},
+ {date:'2026-12-17',time:'',country:'Zona Euro',event:'Decisão de política monetária do BCE',impact:'high',source:'BCE',url:'https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html'}
+];
+function futureEvents(){
+ const now=new Date();
+ return OFFICIAL_CALENDAR.filter(e=>new Date(`${e.date}T23:59:59`)>=now).sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+const db=supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseKey);
+let session=null,deferredInstall=null;
+let pwaState={manifest:false,serviceWorker:false,installable:false,installed:window.matchMedia('(display-mode: standalone)').matches};
+let charts=[];
+let updateState={available:false,latest:null,checked:false,status:'idle'};
+const serviceState={
+  database:'operational',
+  sync:'idle',
+  ai:'unknown',
+  radar:'unknown',
+  market:'unknown',
+  updates:'idle',
+  security:'operational'
+};
+const state={
+ assets:[],operations:[],dividends:[],diary:[],knowledge:[],goals:[],snapshots:[],marketHistory:[],
+ radar:{market:'Normal',summary:'Nenhuma alteração relevante.',updated:''},
+ news:[],newsOverview:null,radarData:null,prices:{},messages:[]
+};
+const pages=[
+ ['home','🏠 Home'],['dashboard','📊 Dashboard'],['portfolio','💼 Carteira'],
+ ['radar','🌍 Radar'],['calendar','📅 Calendário'],['journal','📖 Diário'],
+ ['academy','📚 Academia'],['goals','🎯 Objetivos'],['assistant','🤖 Atlas IA'],['system','⚙️ Sistema']
+];
+
+const $=id=>document.getElementById(id);
+const eur=n=>new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(Number(n)||0);
+const pct=n=>`${(Number(n)||0).toFixed(1)}%`;
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const safeUrl=v=>{try{const u=new URL(v);return ['http:','https:'].includes(u.protocol)?u.href:'#'}catch{return'#'}};
+const uid=()=>session?.user?.id;
+const formObj=e=>Object.fromEntries(new FormData(e.target).entries());
+const empty=t=>`<div class="empty">${esc(t)}</div>`;
+const head=(title,sub,action='')=>`<div class="page-head"><div><h1>${title}</h1><p class="muted">${sub}</p></div>${action}</div>`;
+function toast(t){$('toast').textContent=t;$('toast').classList.remove('hidden');setTimeout(()=>$('toast').classList.add('hidden'),2800)}
+function syncStatus(t,ok=true){$('sync-status').textContent=`${ok?'●':'○'} ${t}`;$('sync-status').style.color=ok?'var(--good)':'var(--warn)'}
+function quoteCurrency(quote){
+  return String(
+    quote?.currency||
+    quote?.quote_currency||
+    quote?.currency_code||
+    ''
+  ).trim().toUpperCase();
+}
+
+function resolveAssetPriceEUR(asset){
+  const price=Number(asset?.current_price)||0;
+  return{price,source:'saved-current-price',currency:'EUR'};
+}
+
+function freshQuotePriceEUR(asset,quote){
+  const savedPrice=Number(asset?.current_price)||0;
+  const converted=Number(
+    quote?.price_eur ??
+    quote?.converted_price_eur ??
+    quote?.eur_price
+  );
+  if(Number.isFinite(converted)&&converted>0)return converted;
+
+  const price=Number(quote?.price);
+  const currency=quoteCurrency(quote);
+  if(Number.isFinite(price)&&price>0&&currency==='EUR')return price;
+
+  if(Number.isFinite(price)&&price>0&&!currency&&savedPrice>0){
+    const difference=Math.abs(price-savedPrice)/savedPrice;
+    if(difference<=0.20)return price;
+  }
+
+  return null;
+}
+
+function calculatePortfolioMetrics(){
+  const assets=(state.assets||[]).map(asset=>{
+    const quantity=Number(asset?.quantity)||0;
+    const averagePrice=Number(asset?.average_price)||0;
+    const priceInfo=resolveAssetPriceEUR(asset);
+    const currentPrice=Number(priceInfo.price)||0;
+    const investedValue=quantity*averagePrice;
+    const currentValue=quantity*currentPrice;
+    const profit=currentValue-investedValue;
+    const returnPercentage=investedValue>0?(profit/investedValue)*100:0;
+
+    return{
+      asset,
+      quantity,
+      averagePrice,
+      currentPrice,
+      investedValue,
+      currentValue,
+      profit,
+      returnPercentage,
+      priceSource:priceInfo.source,
+      nativeCurrency:priceInfo.nativeCurrency||null,
+      nativePrice:priceInfo.nativePrice??null
+    };
+  });
+
+  const investedValue=assets.reduce((sum,item)=>sum+item.investedValue,0);
+  const currentValue=assets.reduce((sum,item)=>sum+item.currentValue,0);
+  const profit=currentValue-investedValue;
+  const returnPercentage=investedValue>0?(profit/investedValue)*100:0;
+  const dividends=(state.dividends||[]).reduce(
+    (sum,dividend)=>sum+(Number(dividend?.net_value)||0),
+    0
+  );
+
+  assets.forEach(item=>{
+    item.weight=currentValue>0?(item.currentValue/currentValue)*100:0;
+  });
+
+  return{
+    assets,
+    investedValue,
+    currentValue,
+    profit,
+    returnPercentage,
+    dividends
+  };
+}
+
+function assetMetrics(asset){
+  return calculatePortfolioMetrics().assets.find(
+    item=>item.asset===asset||item.asset?.id===asset?.id
+  )||{
+    asset,
+    quantity:0,
+    averagePrice:0,
+    currentPrice:0,
+    investedValue:0,
+    currentValue:0,
+    profit:0,
+    returnPercentage:0,
+    weight:0,
+    priceSource:'none'
+  };
+}
+
+function effectivePrice(asset){return assetMetrics(asset).currentPrice}
+function totalValue(){return calculatePortfolioMetrics().currentValue}
+function totalCost(){return calculatePortfolioMetrics().investedValue}
+function totalDiv(){return calculatePortfolioMetrics().dividends}
+function returnPct(){return calculatePortfolioMetrics().returnPercentage}
+function metrics(){return `<div class="grid">
+ <div class="card metric"><div class="label">Património</div><div class="value">${eur(totalValue())}</div><div class="foot">${state.assets.length} ativos</div></div>
+ <div class="card metric"><div class="label">Investido</div><div class="value">${eur(totalCost())}</div><div class="foot">Custo agregado</div></div>
+ <div class="card metric"><div class="label">Rentabilidade</div><div class="value ${returnPct()>=0?'good':'bad'}">${pct(returnPct())}</div><div class="foot">${Object.keys(state.prices).length?'Cotações recentes':'Preços manuais'}</div></div>
+ <div class="card metric"><div class="label">Dividendos</div><div class="value">${eur(totalDiv())}</div><div class="foot">Total registado</div></div>
+ </div>`}
+
+function renderNav(){
+ $('nav').innerHTML=pages.map(([id,l])=>`<button data-page="${id}">${l}</button>`).join('');
+ $('nav').querySelectorAll('button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+ $('nav').querySelector('button')?.classList.add('active');
+}
+function showPage(id){
+ document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));
+ $(id).classList.remove('hidden');
+ document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));
+ if(innerWidth<900)document.querySelector('.sidebar').classList.remove('open');
+}
+function bindForm(id,fn){const f=$(id);if(f)f.onsubmit=fn}
+
+async function bootstrap(){
+ const {data}=await db.auth.getSession();session=data.session;
+ if(session)await openApp();else $('auth').classList.remove('hidden');
+}
+async function openApp(){
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.19','3.0.0 Alpha 19');await loadAll();
+}
+async function loadAll(){
+ serviceState.sync='loading';syncStatus('A sincronizar…',false);
+ try{
+  const r=await Promise.all([
+   db.from('assets').select('*').eq('user_id',uid()).order('created_at'),
+   db.from('operations').select('*').eq('user_id',uid()).order('date',{ascending:false}),
+   db.from('dividends').select('*').eq('user_id',uid()).order('date',{ascending:false}),
+   db.from('diary_entries').select('*').eq('user_id',uid()).order('date',{ascending:false}),
+   db.from('knowledge').select('*').eq('user_id',uid()).order('created_at'),
+   db.from('goals').select('*').eq('user_id',uid()).order('created_at'),
+   db.from('radar').select('*').eq('user_id',uid()).maybeSingle(),
+   db.from('portfolio_snapshots').select('*').eq('user_id',uid()).order('snapshot_date')
+  ]);
+  const err=r.find(x=>x.error)?.error;if(err)throw err;
+  [state.assets,state.operations,state.dividends,state.diary,state.knowledge,state.goals]=r.slice(0,6).map(x=>x.data||[]);
+  state.radar=r[6].data||state.radar;state.snapshots=r[7].data||[];
+  await loadMarketHistory();
+  serviceState.sync='operational';renderAll();syncStatus('Sincronizado');setTimeout(()=>checkForUpdates(false),700);
+ }catch(e){console.error(e);serviceState.sync='error';syncStatus('Erro de sincronização',false);toast(e.message||'Erro de sincronização')}
+}
+
+async function loadMarketHistory(){
+  try{
+    const since=new Date(Date.now()-24*60*60*1000).toISOString();
+    const {data,error}=await db
+      .from('portfolio_price_history')
+      .select('*')
+      .eq('user_id',uid())
+      .gte('captured_at',since)
+      .order('captured_at',{ascending:true});
+    if(error)throw error;
+    state.marketHistory=data||[];
+  }catch(error){
+    console.warn('Histórico intradiário indisponível:',error.message);
+    state.marketHistory=[];
+  }
+}
+
+async function saveMarketHistory(){
+  try{
+    const metrics=calculatePortfolioMetrics();
+    const prices=Object.fromEntries(
+      metrics.assets.map(item=>[
+        String(item.asset?.ticker||'').toUpperCase(),
+        {price:item.currentPrice,value:item.currentValue}
+      ])
+    );
+
+    await db.from('portfolio_price_history').insert({
+      user_id:uid(),
+      captured_at:new Date().toISOString(),
+      total_value:metrics.currentValue,
+      invested_value:metrics.investedValue,
+      prices
+    });
+
+    await loadMarketHistory();
+  }catch(error){
+    console.warn('Histórico intradiário não guardado:',error.message);
+  }
+}
+
+function renderAll(){
+ for(const fn of [renderHome,renderDashboard,renderPortfolio,renderRadar,renderCalendar,renderJournal,renderAcademy,renderGoals,renderAssistant,renderSystem]){
+  try{fn()}catch(e){console.error(fn.name,e)}
+ }
+}
+
+
+function setServiceState(service,status){
+ serviceState[service]=status;
+ try{renderHome();renderSystem()}catch(error){console.debug(error)}
+}
+function statusMeta(status){
+ const map={
+  operational:{label:'Operacional',className:'good',dot:'●'},
+  loading:{label:'A atualizar',className:'warn',dot:'◌'},
+  empty:{label:'Sem dados',className:'warn',dot:'○'},
+  error:{label:'Erro',className:'bad',dot:'●'},
+  idle:{label:'Pendente',className:'warn',dot:'○'},
+  unknown:{label:'Não testado',className:'muted',dot:'○'}
+ };
+ return map[status]||map.unknown;
+}
+
+function greeting(){
+ const hour=new Date().getHours();
+ if(hour>=5 && hour<12)return {title:'☀️ Bom dia, Boss.',message:'Vamos começar o dia com clareza e disciplina.'};
+ if(hour>=12 && hour<19)return {title:'🌤️ Boa tarde, Boss.',message:'Mantém o foco no plano e filtra o ruído.'};
+ return {title:'🌙 Boa noite, Boss.',message:'É hora de analisar com calma, não de reagir por impulso.'};
+}
+function serviceStatus(){
+ return {
+  database:session?'operational':'error',
+  sync:serviceState.sync,
+  ai:serviceState.ai,
+  radar:serviceState.radar,
+  market:serviceState.market,
+  updates:serviceState.updates
+ };
+}
+function statusBadge(status,label){
+ const meta=statusMeta(status);
+ return `<span class="badge ${meta.className}">${meta.dot} ${label}: ${meta.label}</span>`;
+}
+async function checkForUpdates(showToast=true){
+ updateState.status='loading';serviceState.updates='loading';try{
+  const response=await fetch(new URL(`version.json?ts=${Date.now()}`,document.baseURI),{cache:'no-store'});
+  if(!response.ok)throw new Error('Não foi possível consultar a versão.');
+  const latest=await response.json();
+  updateState.latest=latest;
+  updateState.checked=true;
+  updateState.status='operational';serviceState.updates='operational';
+  updateState.available=String(latest.version)!==String(CONFIG.version);
+  renderSystem();
+  if(showToast)toast(updateState.available?`Nova versão ${latest.version} disponível.`:'O ATLAS está atualizado.');
+ }catch(error){
+  console.error(error);
+  updateState.checked=true;
+  updateState.status='error';serviceState.updates='error';
+  updateState.available=false;
+  renderSystem();
+  if(showToast)toast('Não foi possível verificar atualizações.');
+ }
+}
+async function applyUpdate(){
+ try{
+  if('serviceWorker' in navigator){
+   const registration=await navigator.serviceWorker.getRegistration('./');
+
+   if(registration?.waiting){
+    registration.waiting.postMessage('SKIP_WAITING');
+    return;
+   }
+
+   await registration?.update();
+  }
+
+  const keys=await caches.keys();
+  await Promise.all(
+    keys
+      .filter(key=>!key.includes('alpha19'))
+      .map(key=>caches.delete(key))
+  );
+ }catch(error){
+  console.warn('Atualização ATLAS:',error);
+ }
+
+ location.reload();
+}
+
+
+function diagnosticSourceLabel(source){
+  const labels={
+    'live-converted':'API convertida para EUR',
+    'live-eur':'API em EUR',
+    'live-compatible':'API compatível',
+    'manual-currency-protection':'Preço manual — proteção cambial',
+    'manual':'Preço manual',
+    'saved-current-price':'Preço atual guardado',
+    'none':'Sem preço'
+  };
+  return labels[source]||source||'Desconhecida';
+}
+function diagnosticSourceClass(source){
+  return ['manual-currency-protection','manual','none'].includes(source)
+    ?'asset-diagnostic-source warn'
+    :'asset-diagnostic-source';
+}
+function showPortfolioDiagnostics(){
+  const metrics=calculatePortfolioMetrics();
+  const modal=document.createElement('div');
+  modal.className='edit-modal-backdrop';
+  modal.innerHTML=`
+    <section class="edit-modal" style="width:min(1180px,100%)" role="dialog" aria-modal="true">
+      <div class="edit-modal-head">
+        <div><div class="muted small">Auditoria dos cálculos</div><h2>Diagnóstico por ativo</h2></div>
+        <button type="button" class="edit-modal-close" aria-label="Fechar">×</button>
+      </div>
+      <div class="edit-modal-body">
+        <div class="asset-diagnostic-total">
+          <div class="metric"><span>Valor investido</span><strong>${eur(metrics.investedValue)}</strong></div>
+          <div class="metric"><span>Valor atual</span><strong>${eur(metrics.currentValue)}</strong></div>
+          <div class="metric"><span>Lucro</span><strong class="${metrics.profit>=0?'good':'bad'}">${metrics.profit>=0?'+':''}${eur(metrics.profit)}</strong></div>
+          <div class="metric"><span>Rentabilidade</span><strong class="${metrics.returnPercentage>=0?'good':'bad'}">${pct(metrics.returnPercentage)}</strong></div>
+        </div>
+        <div class="asset-diagnostic-table-wrap">
+          <table class="asset-diagnostic-table">
+            <thead><tr>
+              <th>Ativo</th><th>Qtd.</th><th>Preço médio</th><th>Preço usado</th><th>Fonte</th>
+              <th>Investido</th><th>Valor atual</th><th>Lucro</th><th>Rentab.</th><th>Peso</th>
+            </tr></thead>
+            <tbody>
+              ${metrics.assets.map(item=>`
+                <tr>
+                  <td>
+                    <strong>${esc(item.asset?.name||item.asset?.ticker||'Ativo')}</strong>
+                    <div class="muted small">${esc(item.asset?.ticker||'')}</div>
+                    ${item.nativeCurrency?`<div class="muted small">Recebido: ${esc(item.nativeCurrency)} ${Number(item.nativePrice||0).toLocaleString('pt-PT')}</div>`:''}
+                  </td>
+                  <td>${Number(item.quantity||0).toLocaleString('pt-PT',{maximumFractionDigits:8})}</td>
+                  <td>${eur(item.averagePrice)}</td>
+                  <td>${eur(item.currentPrice)}</td>
+                  <td><span class="${diagnosticSourceClass(item.priceSource)}">${diagnosticSourceLabel(item.priceSource)}</span></td>
+                  <td>${eur(item.investedValue)}</td>
+                  <td>${eur(item.currentValue)}</td>
+                  <td class="${item.profit>=0?'good':'bad'}">${item.profit>=0?'+':''}${eur(item.profit)}</td>
+                  <td class="${item.returnPercentage>=0?'good':'bad'}">${pct(item.returnPercentage)}</td>
+                  <td>${pct(item.weight)}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div class="asset-diagnostic-note">
+          Compara o <b>Valor atual</b> de cada linha com a Trading 212. A diferença por ativo mostra imediatamente onde está o desvio.
+          “Preço manual — proteção cambial” significa que a API devolveu uma cotação noutra moeda e o ATLAS manteve o valor manual em euros.
+        </div>
+      </div>
+      <div class="edit-modal-actions"><button type="button" class="btn primary" data-close-diagnostic>Fechar</button></div>
+    </section>`;
+  document.body.appendChild(modal);
+  const close=()=>modal.remove();
+  modal.querySelector('.edit-modal-close')?.addEventListener('click',close);
+  modal.querySelector('[data-close-diagnostic]')?.addEventListener('click',close);
+  modal.addEventListener('click',event=>{if(event.target===modal)close()});
+}
+
+function renderHome(){
+ const hello=greeting();
+ const nextEvent=futureEvents()[0];
+ const alerts=(state.news||[]).filter(n=>n.impact!=='low').slice(0,2);
+ const important=Number(state.newsOverview?.attention||alerts.length||0);
+ const services=[
+  ['Sincronização',serviceState.sync],
+  ['Base de Dados',session?'operational':'error'],
+  ['IA',serviceState.ai],
+  ['Radar Económico',serviceState.radar],
+  ['Mercado',serviceState.market],
+  ['Atualizações',serviceState.updates],
+  ['Segurança',session?'operational':'error']
+ ];
+ const dateText=new Intl.DateTimeFormat('pt-PT',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+ const monthDiv=state.dividends.filter(d=>String(d.date||'').slice(0,7)===new Date().toISOString().slice(0,7)).reduce((s,d)=>s+(+d.net_value||0),0);
+ const portfolioMetrics=calculatePortfolioMetrics();
+ const gain=portfolioMetrics.profit;
+
+ $('home').innerHTML=`
+ <div class="home-layout">
+  <div class="home-main">
+   <section class="premium-hero">
+    <div class="hero-kicker">ATLAS · Investment Operating System</div>
+    <div class="greeting-line"><div class="greeting-icon">${hello.title.split(' ')[0]}</div><h1>${hello.title.replace(/^\\S+\\s/,'')}</h1></div>
+    <div class="hero-verdict">${important?'Existem pontos que merecem atenção.':'O plano continua sólido.'}</div>
+    <p class="hero-copy">${hello.message}</p>
+    <p class="hero-copy">${esc(state.newsOverview?.conclusion||state.radar.summary||'Nenhuma alteração relevante. Mantém o plano.')}</p>
+    <div class="hero-art" aria-hidden="true"><div class="glow"></div><div class="beam"></div><div class="tower"></div><div class="lamp"></div><div class="rock"></div></div>
+   </section>
+
+   <div class="metric-grid-premium">
+    <article class="metric-premium green"><div class="metric-icon">💼</div><div class="metric-label">Património</div><div class="metric-value">${eur(portfolioMetrics.currentValue)}</div><div class="metric-foot">${state.assets.length} ativos</div><div class="metric-sub">Valor atual da carteira</div></article>
+    <article class="metric-premium"><div class="metric-icon">🪙</div><div class="metric-label">Investido</div><div class="metric-value">${eur(portfolioMetrics.investedValue)}</div><div class="metric-foot">Custo agregado</div><div class="metric-sub">Capital aplicado</div></article>
+    <article class="metric-premium green"><div class="metric-icon">📈</div><div class="metric-label">Rentabilidade</div><div class="metric-value ${portfolioMetrics.returnPercentage>=0?'good':'bad'}">${pct(portfolioMetrics.returnPercentage)}</div><div class="metric-foot">${Object.keys(state.prices).length?'Preços atualizados':'Preços manuais'}</div><div class="metric-sub ${gain>=0?'good':'bad'}">${gain>=0?'+':''}${eur(gain)}</div></article>
+    <article class="metric-premium purple"><div class="metric-icon">🎁</div><div class="metric-label">Dividendos</div><div class="metric-value">${eur(totalDiv())}</div><div class="metric-foot">Total registado</div><div class="metric-sub">${eur(monthDiv)} este mês</div></article>
+   </div>
+
+   <div class="section-title">Centro de Decisão</div>
+   <div class="decision-card">
+    <div class="decision-check">${important?'!':'✓'}</div>
+    <div class="decision-body"><b>${important?'Boss, existem acontecimentos a rever.':'Hoje não existe nenhuma ação urgente identificada.'}</b><span class="muted">${important?'Consulta o Radar antes de tomares novas decisões.':'Continua a executar o plano.'}</span></div>
+    <button class="btn decision-action" onclick="window.atlas.show('${important?'radar':'portfolio'}')">${important?'Ver Radar':'Ver plano'}</button>
+   </div>
+
+   <div class="section-title">Ações rápidas</div>
+   <div class="quick-premium">
+    <button class="card btn" onclick="window.atlas.show('portfolio')"><span class="quick-icon">＋</span><span><b>Registar operação</b><span class="muted small">Compra, reforço ou venda</span></span></button>
+    <button class="card btn" onclick="window.atlas.refreshPrices()"><span class="quick-icon">📈</span><span><b>Atualizar preços</b><span class="muted small">Cotações da carteira</span></span></button>
+    <button class="card btn" onclick="window.atlas.refreshRadar()"><span class="quick-icon">🌍</span><span><b>Atualizar Radar</b><span class="muted small">Notícias e impacto</span></span></button>
+    <button class="card btn" onclick="window.atlas.show('assistant')"><span class="quick-icon">🤖</span><span><b>ATLAS Intelligence</b><span class="muted small">Analisar os teus dados</span></span></button>
+   </div>
+  </div>
+
+  <aside class="home-rail">
+   <section class="rail-card">
+    <div class="rail-title"><h3>Radar Económico</h3><span class="${important?'warn':'good'}">${important?important+' alertas':'Sem alertas'}</span></div>
+    ${alerts.length?alerts.map(n=>`<div class="radar-alert ${n.impact||'low'}"><div class="impact">● ${impactLabel(n.impact)}</div><p>${esc(n.title||'Acontecimento económico')}</p><small>${esc(n.domain||'Fonte económica')}</small></div>`).join(''):'<div class="radar-alert low"><div class="impact">● Sem impacto relevante</div><p>Nenhuma notícia importante identificada.</p><small>Atualiza o Radar para confirmar.</small></div>'}
+    <div class="toolbar" style="margin-bottom:0"><button class="btn" onclick="window.atlas.show('radar')">Ver tudo</button></div>
+   </section>
+
+   <section class="rail-card event-card">
+    <div class="rail-title"><h3>Próximo evento</h3><span>${nextEvent?esc(nextEvent.date):'—'}</span></div>
+    ${nextEvent?`<div class="event-row"><div><div class="event-name">${esc(nextEvent.event)}</div><div class="muted small">${esc(nextEvent.country)} · Fonte: ${esc(nextEvent.source)}</div></div><span class="badge ${nextEvent.impact}">${impactLabel(nextEvent.impact)}</span></div><button class="btn" onclick="window.atlas.show('calendar')">Ver calendário</button>`:empty('Sem eventos futuros oficiais.')}
+   </section>
+
+   <section class="rail-card">
+    <div class="rail-title"><h3>ATLAS Status</h3><span class="muted small">Serviços</span></div>
+    <div class="service-list">${services.map(([label,status])=>{const meta=statusMeta(status);return `<div class="service-row"><span><span class="service-dot ${meta.className}">${meta.dot}</span>${label}</span><b class="${meta.className}">${meta.label}</b></div>`}).join('')}</div>
+   </section>
+  </aside>
+ </div>
+
+ <footer class="atlas-footer">
+  <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.19','3.0.0 Alpha 19'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
+  <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
+  <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
+ </footer>`;
+}
+function renderDashboard(){
+ $('dashboard').innerHTML=`${head('Dashboard inteligente','Património, exposição, evolução e rendimento','<button class="btn" id="portfolio-diagnostic-button">Diagnóstico</button><button class="btn primary" id="prices">Atualizar cotações</button>')}${metrics()}
+ <div class="chart-grid"><div class="chart-card"><h3>Distribuição</h3><canvas id="allocation-chart"></canvas></div><div class="chart-card"><h3>Evolução do património</h3><canvas id="history-chart"></canvas></div><div class="chart-card"><h3>Dividendos por ativo</h3><canvas id="dividend-chart"></canvas></div><div class="chart-card">
+  <div class="benchmark-toolbar">
+    <div>
+      <h3>Carteira vs benchmark</h3>
+      <div class="history-mode-group">
+        <button type="button" data-history-mode="estimated">Estimado</button>
+        <button type="button" data-history-mode="real">Real</button>
+        <button type="button" data-history-mode="auto">Automático</button>
+      </div>
+      <div id="history-estimate-badge" class="history-estimate-badge hidden">⚠️ Histórico estimado desde 2022</div>
+    </div>
+    <select id="benchmark-selector" class="benchmark-select" aria-label="Escolher benchmark">
+      <option value="sp500">S&P 500</option>
+      <option value="world">MSCI World</option>
+      <option value="nasdaq">Nasdaq-100</option>
+      <option value="berkshire">Warren Buffett · Berkshire Hathaway</option>
+    </select>
+  </div>
+  <canvas id="benchmark-chart"></canvas>
+  <div class="benchmark-result">
+    <span id="benchmark-comparison-label">Diferença face ao S&P 500</span>
+    <strong id="benchmark-comparison-value">A carregar…</strong>
+  </div>
+  <div class="benchmark-help">
+    As duas linhas começam em 100 na primeira data comum. O histórico da carteira usa os snapshots reais guardados pelo ATLAS.
+  </div>
+</div></div>
+ <h2>Pesquisa rápida</h2><input id="search" class="search" placeholder="Pesquisar ativos, Diário, Academia ou Objetivos"><div id="results" class="results"></div>`;
+ $('prices').onclick=refreshMarketData;$('search').oninput=e=>runSearch(e.target.value);setTimeout(drawCharts,0);
+}
+function destroyCharts(){charts.forEach(c=>c.destroy());charts=[]}
+
+let selectedBenchmark=localStorage.getItem('atlas-benchmark')||'sp500';
+let historyMode=localStorage.getItem('atlas-history-mode')||'auto';
+let benchmarkSeriesCache={};
+
+const BENCHMARK_META={
+  sp500:{label:'S&P 500'},
+  world:{label:'MSCI World'},
+  nasdaq:{label:'Nasdaq-100'},
+  berkshire:{label:'Warren Buffett · Berkshire Hathaway'}
+};
+
+function normalizeBenchmarkRows(rows,dateKey,valueKey){
+  const clean=(rows||[])
+    .map(row=>({date:String(row[dateKey]||'').slice(0,10),raw:Number(row[valueKey]||0)}))
+    .filter(row=>row.date&&Number.isFinite(row.raw)&&row.raw>0)
+    .sort((a,b)=>a.date.localeCompare(b.date));
+
+  if(!clean.length)return[];
+  const first=clean[0].raw;
+  return clean.map(row=>({date:row.date,value:(row.raw/first)*100}));
+}
+
+function commonBenchmarkData(portfolio,benchmark){
+  const portfolioMap=new Map(portfolio.map(x=>[x.date,x.value]));
+  const benchmarkMap=new Map(benchmark.map(x=>[x.date,x.value]));
+  const dates=[...portfolioMap.keys()].filter(date=>benchmarkMap.has(date)).sort();
+
+  if(!dates.length)return{labels:[],portfolio:[],benchmark:[]};
+
+  const p0=portfolioMap.get(dates[0]);
+  const b0=benchmarkMap.get(dates[0]);
+
+  return{
+    labels:dates,
+    portfolio:dates.map(date=>(portfolioMap.get(date)/p0)*100),
+    benchmark:dates.map(date=>(benchmarkMap.get(date)/b0)*100)
+  };
+}
+
+async function fetchBenchmarkSeries(){
+  const result=await db.functions.invoke('benchmark-data',{
+    body:{requested_at:new Date().toISOString()}
+  });
+
+  if(result?.error)throw result.error;
+
+  const payload=result?.data||{};
+  const series=payload?.series||{};
+
+  benchmarkSeriesCache=series;
+  return series;
+}
+
+
+function currentPortfolioReturnPercent(){
+  const invested=state.assets.reduce((sum,a)=>sum+(Number(a.quantity||0)*Number(a.average_price||0)),0);
+  const current=state.assets.reduce((sum,a)=>sum+(Number(a.quantity||0)*Number(a.current_price||0)),0);
+  return invested>0?((current-invested)/invested)*100:0;
+}
+
+function estimatePortfolioFromBenchmark(benchmarkRows){
+  const rows=(benchmarkRows||[])
+    .map(row=>({
+      date:String(row?.date||'').slice(0,10),
+      value:Number(row?.value)
+    }))
+    .filter(row=>row.date>='2022-01-01'&&Number.isFinite(row.value)&&row.value>0)
+    .sort((a,b)=>a.date.localeCompare(b.date));
+
+  if(rows.length<2)return[];
+
+  const targetReturn=currentPortfolioReturnPercent();
+  const targetEnd=100+targetReturn;
+
+  const first=rows[0].value;
+  const last=rows[rows.length-1].value;
+  const marketMove=last-first;
+
+  return rows.map((row,index)=>{
+    const progress=index/(rows.length-1);
+    const marketShape=Math.abs(marketMove)>0.000001
+      ? (row.value-first)/marketMove
+      : progress;
+
+    // Mantém as oscilações do benchmark e garante o valor final da carteira.
+    const value=100+(targetEnd-100)*marketShape;
+
+    return{
+      date:row.date,
+      value:index===rows.length-1?targetEnd:value
+    };
+  });
+}
+
+function resolvedHistoryMode(realPortfolio){
+  if(historyMode==='real')return 'real';
+  if(historyMode==='estimated')return 'estimated';
+  return realPortfolio.length>=10?'real':'estimated';
+}
+
+function bindHistoryModeControls(){
+  document.querySelectorAll('[data-history-mode]').forEach(button=>{
+    button.classList.toggle('active',button.dataset.historyMode===historyMode);
+    button.onclick=async()=>{
+      historyMode=button.dataset.historyMode;
+      localStorage.setItem('atlas-history-mode',historyMode);
+      document.querySelectorAll('[data-history-mode]').forEach(x=>x.classList.toggle('active',x===button));
+      await drawManualBenchmark();
+    };
+  });
+}
+
+async function drawManualBenchmark(){
+  const canvas=$('benchmark-chart');
+  if(!canvas||typeof Chart==='undefined')return;
+
+  bindHistoryModeControls();
+  const selector=$('benchmark-selector');
+  if(selector){
+    selector.value=selectedBenchmark;
+    selector.onchange=async()=>{
+      selectedBenchmark=selector.value;
+      benchmarkSeriesCache={};
+      localStorage.setItem('atlas-benchmark',selectedBenchmark);
+      await drawManualBenchmark();
+    };
+  }
+
+  const comparison=$('benchmark-comparison-value');
+  const label=$('benchmark-comparison-label');
+  const meta=BENCHMARK_META[selectedBenchmark]||BENCHMARK_META.sp500;
+  if(label)label.textContent=`Diferença face a ${meta.label}`;
+  if(comparison){comparison.textContent='A carregar…';comparison.className=''}
+
+  try{
+    const series=await fetchBenchmarkSeries();
+    const realPortfolio=normalizeBenchmarkRows(state.snapshots,'snapshot_date','total_value');
+    const benchmark=(series[selectedBenchmark]||[])
+      .map(x=>({date:String(x.date||'').slice(0,10),value:Number(x.value||0)}))
+      .filter(x=>x.date&&x.value>0);
+
+    const activeMode=resolvedHistoryMode(realPortfolio);
+    const portfolio=activeMode==='real'
+      ? realPortfolio
+      : estimatePortfolioFromBenchmark(benchmark);
+
+    const badge=$('history-estimate-badge');
+    if(badge)badge.classList.toggle('hidden',activeMode!=='estimated');
+
+    const aligned=commonBenchmarkData(portfolio,benchmark);
+
+    const previous=charts.find(chart=>chart.canvas===canvas);
+    if(previous){
+      previous.destroy();
+      charts=charts.filter(chart=>chart!==previous);
+    }
+
+    if(aligned.labels.length<2){
+      charts.push(new Chart(canvas,{
+        type:'line',
+        data:{labels:[],datasets:[
+          {label:'A tua carteira',data:[]},
+          {label:meta.label,data:[]}
+        ]},
+        options:{plugins:{legend:{labels:{color:'#f5f7fa'}}}}
+      }));
+      if(comparison)comparison.textContent=benchmark.length<2
+        ?'A função benchmark-data não devolveu histórico'
+        :activeMode==='estimated'
+          ?'Não foi possível criar a estimativa'
+          :'Ainda sem histórico real suficiente';
+      return;
+    }
+
+    charts.push(new Chart(canvas,{
+      type:'line',
+      data:{
+        labels:aligned.labels,
+        datasets:[
+          {label:'A tua carteira',data:aligned.portfolio,borderWidth:3,pointRadius:0,spanGaps:true},
+          {label:meta.label,data:aligned.benchmark,borderWidth:2,pointRadius:0,spanGaps:true}
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:true,
+        interaction:{mode:'index',intersect:false},
+        plugins:{legend:{labels:{color:'#f5f7fa'}}},
+        scales:{
+          x:{ticks:{color:'#9aa6b6',maxTicksLimit:7}},
+          y:{ticks:{color:'#9aa6b6'},title:{display:true,text:'Base 100',color:'#9aa6b6'}}
+        }
+      }
+    }));
+
+    const portfolioLast=aligned.portfolio.at(-1);
+    const benchmarkLast=aligned.benchmark.at(-1);
+    const diff=portfolioLast-benchmarkLast;
+
+    if(comparison){
+      comparison.textContent=`${diff>=0?'+':''}${diff.toFixed(2)} pontos percentuais`;
+      comparison.className=diff>0?'good':diff<0?'bad':'';
+    }
+  }catch(error){
+    console.error('Benchmark:',error);
+    if(comparison)comparison.textContent='Benchmark temporariamente indisponível';
+  }
+}
+
+function drawCharts(){
+ if(typeof Chart==='undefined')return;destroyCharts();
+ const portfolioMetrics=calculatePortfolioMetrics();
+ const labels=portfolioMetrics.assets.map(item=>item.asset.name),values=portfolioMetrics.assets.map(item=>item.currentValue);
+ const divMap={};state.dividends.forEach(d=>divMap[d.asset_name]=(divMap[d.asset_name]||0)+(+d.net_value||0));
+ 
+ const common={plugins:{legend:{labels:{color:'#f5f7fa'}}},scales:{x:{ticks:{color:'#9aa6b6'}},y:{ticks:{color:'#9aa6b6'}}}};
+ const a=$('allocation-chart'),h=$('history-chart'),d=$('dividend-chart');
+ if(a)charts.push(new Chart(a,{type:'doughnut',data:{labels,datasets:[{data:values}]},options:{plugins:{legend:{labels:{color:'#f5f7fa'}}}}}));
+ if(h){
+  const intraday=state.marketHistory||[];
+  const useIntraday=intraday.length>=2;
+  const rows=useIntraday?intraday:state.snapshots;
+  const historyLabels=rows.map(x=>
+    useIntraday
+      ?new Intl.DateTimeFormat('pt-PT',{hour:'2-digit',minute:'2-digit'}).format(new Date(x.captured_at))
+      :x.snapshot_date
+  );
+
+  charts.push(new Chart(h,{
+    type:'line',
+    data:{
+      labels:historyLabels,
+      datasets:[{
+        label:useIntraday?'Património hoje (€)':'Património (€)',
+        data:rows.map(x=>Number(x.total_value)||0),
+        borderWidth:2,
+        pointRadius:2,
+        tension:.25
+      }]
+    },
+    options:common
+  }));
+}
+ if(d)charts.push(new Chart(d,{type:'bar',data:{labels:Object.keys(divMap),datasets:[{label:'Dividendos (€)',data:Object.values(divMap)}]},options:common}));
+ drawManualBenchmark();
+}
+function runSearch(term){
+ const q=String(term||'').trim().toLowerCase(),box=$('results');if(!q){box.innerHTML='';return}
+ const rows=[
+  ...state.assets.map(x=>({type:'Ativo',title:x.name,text:`${x.ticker||''} ${x.category||''}`,page:'portfolio'})),
+  ...state.diary.map(x=>({type:'Diário',title:x.title,text:x.entry_text||'',page:'journal'})),
+  ...state.knowledge.map(x=>({type:'Academia',title:x.topic,text:`${x.summary||''} ${x.application||''}`,page:'academy'})),
+  ...state.goals.map(x=>({type:'Objetivo',title:x.name,text:`${x.current_value||0}/${x.target_value||0}`,page:'goals'}))
+ ].filter(x=>(x.title+' '+x.text).toLowerCase().includes(q)).slice(0,12);
+ box.innerHTML=rows.length?rows.map(x=>`<div class="result" data-page="${x.page}"><b>${esc(x.type)} · ${esc(x.title)}</b><div class="muted small">${esc(x.text).slice(0,160)}</div></div>`).join(''):empty('Sem resultados.');
+ box.querySelectorAll('.result').forEach(x=>x.onclick=()=>showPage(x.dataset.page));
+}
+
+
+function inferAssetCategory(ticker,name=''){
+  const t=String(ticker||'').toUpperCase();
+  const n=String(name||'').toLowerCase();
+
+  if(['SGLN','IGLN','PHAU'].includes(t)||n.includes('gold')||n.includes('ouro')) return 'Ouro';
+  if(['SXR8','QDVE','IWDA','EUNL','VUAA','CSPX','VWCE','VWRL'].includes(t)||n.includes('etf')||n.includes('ishares')||n.includes('vanguard')) return 'ETF';
+  if(['EUR','USD','CASH'].includes(t)||n.includes('liquidez')||n.includes('cash')) return 'Liquidez';
+  return 'Ação';
+}
+
+
+function parseAtlasNumber(value){
+  if(typeof value==='number')return Number.isFinite(value)?value:0;
+  let text=String(value??'').trim().replace(/\s/g,'');
+  if(!text)return 0;
+
+  // Aceita 3.765,98 e 3765.98.
+  if(text.includes(',')&&text.includes('.')){
+    if(text.lastIndexOf(',')>text.lastIndexOf('.')){
+      text=text.replace(/\./g,'').replace(',','.');
+    }else{
+      text=text.replace(/,/g,'');
+    }
+  }else if(text.includes(',')){
+    text=text.replace(',','.');
+  }
+
+  const number=Number(text);
+  return Number.isFinite(number)?number:0;
+}
+
+function formatAtlasMoney(value){
+  const number=Number(value||0);
+  return new Intl.NumberFormat('pt-PT',{
+    style:'currency',
+    currency:'EUR',
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  }).format(Number.isFinite(number)?number:0);
+}
+
+function formatAtlasPercent(value){
+  const number=Number(value||0);
+  const sign=number>0?'+':'';
+  return `${sign}${new Intl.NumberFormat('pt-PT',{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  }).format(Number.isFinite(number)?number:0)}%`;
+}
+
+function assetInput(label,icon,name,value,type='text',extra='',full=false){
+  const safe=value===null||value===undefined?'':String(value);
+  return `<label class="asset-field ${full?'full':''}">
+    <span class="asset-field-label"><span class="asset-field-icon">${icon}</span>${label}</span>
+    <input name="${name}" type="${type}" value="${esc(safe)}" ${extra}>
+  </label>`;
+}
+
+function assetEditorFields(asset={}){
+  const quantity=Number(asset.quantity||0);
+  const average=Number(asset.average_price||0);
+  const invested=quantity*average;
+  const currentPrice=Number(asset.current_price||0);
+
+  return `
+    ${assetInput('Nome','🏷️','name',asset.name||'','text','',true)}
+    ${assetInput('Ticker','📈','ticker',asset.ticker||'')}
+    ${assetInput('Valor investido','💵','invested_value',invested,'number','step="any" min="0"')}
+    ${assetInput('Número de posições','📦','quantity',quantity,'number','step="any" min="0"')}
+    ${assetInput('Preço médio calculado','🧮','average_price',average,'number','step="any" readonly')}
+    ${assetInput('Preço atual de mercado','💶','current_price',currentPrice,'number','step="any" readonly')}
+  `;
+}
+
+function assetCalculationPanel(){
+  return `<aside class="asset-calculation-panel">
+    <h3>Resumo automático</h3>
+    <div class="asset-calculation-list">
+      <div class="asset-calculation-item">
+        <span class="asset-calculation-name"><span>💵</span>Valor investido</span>
+        <strong class="asset-calculation-value" data-calc="invested">${formatAtlasMoney(0)}</strong>
+      </div>
+      <div class="asset-calculation-item">
+        <span class="asset-calculation-name"><span>📈</span>Lucro</span>
+        <strong class="asset-calculation-value" data-calc="profit">${formatAtlasMoney(0)}</strong>
+      </div>
+      <div class="asset-calculation-item">
+        <span class="asset-calculation-name"><span>📊</span>Rentabilidade</span>
+        <strong class="asset-calculation-value" data-calc="return">${formatAtlasPercent(0)}</strong>
+      </div>
+    </div>
+    <div class="asset-calculation-note">
+      Preço médio = valor investido ÷ posições.<br>
+      O preço atual é obtido pelo mercado.
+    </div>
+  </aside>`;
+}
+
+function bindAssetCalculations(form){
+  if(!form)return;
+  const invested=form.elements.invested_value;
+  const quantity=form.elements.quantity;
+  const average=form.elements.average_price;
+  const currentPrice=form.elements.current_price;
+  if(!invested||!quantity||!average)return;
+
+  const update=()=>{
+    const total=parseAtlasNumber(invested.value);
+    const q=parseAtlasNumber(quantity.value);
+    const avg=q>0?total/q:0;
+    average.value=avg?String(Math.round(avg*100000000)/100000000):'0';
+
+    const current=q*parseAtlasNumber(currentPrice?.value||0);
+    const profit=current-total;
+    const returnPct=total>0?(profit/total)*100:0;
+
+    const investedEl=form.querySelector('[data-calc="invested"]');
+    const profitEl=form.querySelector('[data-calc="profit"]');
+    const returnEl=form.querySelector('[data-calc="return"]');
+
+    if(investedEl)investedEl.textContent=formatAtlasMoney(total);
+    if(profitEl){
+      profitEl.textContent=(profit>0?'+':'')+formatAtlasMoney(profit);
+      profitEl.className=`asset-calculation-value ${profit>0?'good':profit<0?'bad':''}`;
+    }
+    if(returnEl){
+      returnEl.textContent=formatAtlasPercent(returnPct);
+      returnEl.className=`asset-calculation-value ${returnPct>0?'good':returnPct<0?'bad':''}`;
+    }
+  };
+
+  [invested,quantity].forEach(input=>{
+    input.addEventListener('input',update);
+    input.addEventListener('change',update);
+  });
+  update();
+}
+
+function assetForm(){return `
+<form id="asset-form" class="form hidden">
+  <div class="asset-editor-layout full">
+    <div class="asset-editor-fields">
+      ${assetEditorFields({})}
+    </div>
+    ${assetCalculationPanel()}
+  </div>
+  <div class="full"><button class="btn primary">Guardar ativo</button></div>
+</form>`}
+function opForm(){return `<form id="op-form" class="form hidden"><label>Data<input name="date" type="date" required></label><label>Ativo<select name="asset_name">${state.assets.map(a=>`<option>${esc(a.name)}</option>`).join('')}</select></label><label>Tipo<select name="type"><option>Compra</option><option>Reforço</option><option>Venda</option></select></label><label>Valor<input name="value" type="number" step="any" required></label><label class="full">Notas<textarea name="notes"></textarea></label><div class="full"><button class="btn primary">Guardar operação</button></div></form>`}
+function divForm(){return `<form id="div-form" class="form hidden"><label>Data<input name="date" type="date" required></label><label>Ativo<select name="asset_name">${state.assets.map(a=>`<option>${esc(a.name)}</option>`).join('')}</select></label><label>Valor líquido<input name="net_value" type="number" step="any" required></label><label class="full">Notas<textarea name="notes"></textarea></label><div class="full"><button class="btn primary">Guardar dividendo</button></div></form>`}
+function renderPortfolio(){
+ const tv=totalValue();
+ $('portfolio').innerHTML=`${head('Carteira completa','Posições, operações e dividendos')}<div class="toolbar"><button class="btn primary" id="add-asset">Adicionar ativo</button><button class="btn" id="add-op">Registar operação</button><button class="btn" id="add-div">Registar dividendo</button></div>${assetForm()}${opForm()}${divForm()}
+ <h2>Ativos</h2>${state.assets.length?`<div class="asset-grid">${state.assets.map(a=>{const item=assetMetrics(a),value=item.currentValue,weight=item.weight,ratio=a.target_weight?Math.min(100,weight/a.target_weight*100):0;return `<article class="asset"><div class="asset-top"><div><div class="asset-name">${esc(a.name)}</div><div class="muted small">${esc(a.ticker||'')}</div></div><span class="tag">${esc(a.category||'Ativo')}</span></div><div class="progress"><span style="width:${ratio}%"></span></div><div class="stats4"><div class="muted">Valor<b>${eur(value)}</b></div><div class="muted">Peso<b>${pct(weight)}</b></div><div class="muted">Objetivo<b>${pct(a.target_weight)}</b></div><div class="muted">Preço<b>${eur(effectivePrice(a))}</b></div></div><div class="toolbar"><button class="btn" onclick="window.atlas.editAsset('${a.id}')">Editar</button><button class="btn danger" onclick="window.atlas.remove('assets','${a.id}')">Eliminar</button></div></article>`}).join('')}</div>`:empty('Ainda não existem ativos.')}
+ <h2>Operações</h2>${state.operations.length?`<table><thead><tr><th>Data</th><th>Ativo</th><th>Tipo</th><th>Valor</th><th>Notas</th><th></th></tr></thead><tbody>${state.operations.map(o=>`<tr><td>${esc(o.date)}</td><td>${esc(o.asset_name||'')}</td><td>${esc(o.type||'')}</td><td>${eur(o.value)}</td><td>${esc(o.notes||'')}</td><td><button class="btn danger" onclick="window.atlas.remove('operations','${o.id}')">Eliminar</button></td></tr>`).join('')}</tbody></table>`:empty('Sem operações.')}
+ <h2>Dividendos</h2>${state.dividends.length?`<table><thead><tr><th>Data</th><th>Ativo</th><th>Valor</th><th>Notas</th><th></th></tr></thead><tbody>${state.dividends.map(d=>`<tr><td>${esc(d.date)}</td><td>${esc(d.asset_name||'')}</td><td>${eur(d.net_value)}</td><td>${esc(d.notes||'')}</td><td><button class="btn danger" onclick="window.atlas.remove('dividends','${d.id}')">Eliminar</button></td></tr>`).join('')}</tbody></table>`:empty('Sem dividendos.')}`;
+ $('add-asset').onclick=()=>toggle('asset-form');$('add-op').onclick=()=>toggle('op-form');$('add-div').onclick=()=>toggle('div-form');
+ bindForm('asset-form',addAsset);bindForm('op-form',addOperation);bindForm('div-form',addDividend);
+}
+function toggle(id){$(id)?.classList.toggle('hidden')}
+async function insert(table,obj){obj.user_id=uid();const {error}=await db.from(table).insert(obj);if(error)throw error;await loadAll()}
+async function addAsset(e){
+  e.preventDefault();
+  try{
+    const fd=new FormData(e.currentTarget);
+    const name=String(fd.get('name')||'').trim();
+    const ticker=String(fd.get('ticker')||'').trim().toUpperCase();
+    const investedValue=parseAtlasNumber(fd.get('invested_value'));
+    const quantity=parseAtlasNumber(fd.get('quantity'));
+
+    if(!name)return toast('Indica o nome do ativo.');
+    if(!ticker)return toast('Indica o ticker.');
+    if(!(quantity>0))return toast('O número de posições tem de ser superior a zero.');
+    if(!(investedValue>0))return toast('O valor investido tem de ser superior a zero.');
+
+    const averagePrice=investedValue/quantity;
+    let currentPrice=averagePrice;
+
+    try{
+      const {data,error}=await db.functions.invoke(
+        CONFIG.functions.market,
+        {body:{symbols:[ticker]}}
+      );
+      if(!error){
+        const quote=data?.quotes?.[ticker]||null;
+        const live=freshQuotePriceEUR({ticker,current_price:averagePrice},quote);
+        if(Number.isFinite(live)&&live>0)currentPrice=live;
+      }
+    }catch(error){
+      console.warn('Cotação inicial:',error);
+    }
+
+    await insert('assets',{
+      name,
+      ticker,
+      category:inferAssetCategory(ticker,name),
+      quantity,
+      average_price:averagePrice,
+      current_price:currentPrice,
+      target_weight:0,
+      conviction:3
+    });
+
+    toast('Ativo guardado.');
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+async function addOperation(e){e.preventDefault();try{const o=formObj(e);o.value=+o.value;await insert('operations',o);toast('Operação guardada')}catch(x){toast(x.message)}}
+async function addDividend(e){e.preventDefault();try{const o=formObj(e);o.net_value=+o.net_value;await insert('dividends',o);toast('Dividendo guardado')}catch(x){toast(x.message)}}
+
+function closeAssetEditor(){
+  document.getElementById('asset-edit-modal')?.remove();
+}
+
+function assetEditorField(label,name,value,type='text',extra=''){
+  const safe=value===null||value===undefined?'':String(value);
+  return `<label>${label}<input name="${name}" type="${type}" value="${esc(safe)}" ${extra}></label>`;
+}
+
+async function editAsset(id){
+  const a=state.assets.find(x=>x.id===id);
+  if(!a)return;
+
+  closeAssetEditor();
+
+  const modal=document.createElement('div');
+  modal.id='asset-edit-modal';
+  modal.className='edit-modal-backdrop';
+  modal.innerHTML=`
+    <section class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="asset-edit-title">
+      <div class="edit-modal-head">
+        <div>
+          <div class="muted small">Editar ativo</div>
+          <h2 id="asset-edit-title">${esc(a.name||a.ticker||'Ativo')}</h2>
+        </div>
+        <button type="button" class="edit-modal-close" aria-label="Fechar">×</button>
+      </div>
+
+      <form id="asset-edit-form">
+        <div class="edit-modal-body">
+          <div class="asset-editor-layout">
+            <div class="asset-editor-fields">
+              ${assetEditorFields(a)}
+            </div>
+            ${assetCalculationPanel()}
+          </div>
+        </div>
+
+        <div class="edit-modal-actions">
+          <button type="button" class="btn" data-cancel>Cancelar</button>
+          <button type="submit" class="btn primary">Guardar alterações</button>
+        </div>
+      </form>
+    </section>`;
+
+  document.body.appendChild(modal);
+
+  const close=()=>closeAssetEditor();
+  modal.querySelector('.edit-modal-close').addEventListener('click',close);
+  modal.querySelector('[data-cancel]').addEventListener('click',close);
+  modal.addEventListener('click',e=>{if(e.target===modal)close()});
+  document.addEventListener('keydown',function escClose(e){
+    if(e.key==='Escape'){close();document.removeEventListener('keydown',escClose)}
+  });
+
+  const form=modal.querySelector('#asset-edit-form');
+  bindAssetCalculations(form);
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const fd=new FormData(form);
+    const name=String(fd.get('name')||'').trim();
+    const ticker=String(fd.get('ticker')||'').trim().toUpperCase();
+    const quantity=parseAtlasNumber(fd.get('quantity'));
+    const investedValue=parseAtlasNumber(fd.get('invested_value'));
+    const averagePrice=quantity>0?investedValue/quantity:0;
+    const currentPrice=Number(a.current_price)||averagePrice;
+
+    const payload={
+      name,
+      ticker,
+      category:inferAssetCategory(ticker,name),
+      quantity,
+      average_price:averagePrice,
+      current_price:currentPrice,
+    };
+
+    if(!payload.name)return toast('Indica o nome do ativo.');
+    if(!payload.ticker)return toast('Indica o ticker.');
+    if(!Number.isFinite(payload.quantity)||payload.quantity<0)return toast('Número de posições inválido.');
+    if(!Number.isFinite(payload.average_price)||payload.average_price<0)return toast('Preço médio inválido.');
+
+    const submit=form.querySelector('button[type="submit"]');
+    submit.disabled=true;
+    submit.textContent='A guardar…';
+
+    const {error}=await db.from('assets').update(payload).eq('id',id);
+    if(error){
+      submit.disabled=false;
+      submit.textContent='Guardar alterações';
+      return toast(error.message);
+    }
+
+    close();
+    await loadAll();
+    toast('Ativo atualizado');
+  });
+
+  setTimeout(()=>form.elements.name?.focus(),50);
+}
+async function removeRow(table,id){if(!confirm('Eliminar este registo?'))return;const {error}=await db.from(table).delete().eq('id',id);if(error)return toast(error.message);await loadAll()}
+
+function smartMoneyScore(){
+ const data=state.radarData||{};
+ const components=[];
+ const insiders=data?.sections?.insiders;
+ const signal=insiders?.summary?.signal;
+ if(insiders && insiders.status!=='disabled' && insiders.status!=='error'){
+  const value=signal==='buying'?78:signal==='selling'?32:50;
+  components.push({key:'insiders',label:'Insiders',value,weight:30,available:true});
+ }else components.push({key:'insiders',label:'Insiders',value:null,weight:30,available:false});
+ const level=data?.overview?.level;
+ if(level){
+  const value=level==='low'?72:level==='medium'?52:28;
+  components.push({key:'macro',label:'Macro e notícias',value,weight:25,available:true});
+ }else components.push({key:'macro',label:'Macro e notícias',value:null,weight:25,available:false});
+ const next=futureEvents()[0];
+ if(next){
+  const days=Math.ceil((new Date(next.date+'T00:00:00')-new Date())/86400000);
+  const value=next.impact==='high' && days<=7?42:next.impact==='medium' && days<=7?58:70;
+  components.push({key:'calendar',label:'Calendário macro',value,weight:15,available:true});
+ }else components.push({key:'calendar',label:'Calendário macro',value:null,weight:15,available:false});
+ const optional=[
+  ['buybacks','Buybacks',15],['funds','Grandes fundos',15]
+ ];
+ optional.forEach(([key,label,weight])=>{
+  const section=data?.sections?.[key];
+  if(section?.score!=null)components.push({key,label,value:Number(section.score),weight,available:true});
+  else components.push({key,label,value:null,weight,available:false});
+ });
+ const available=components.filter(c=>c.available);
+ const weight=available.reduce((s,c)=>s+c.weight,0);
+ const score=weight?Math.round(available.reduce((s,c)=>s+c.value*c.weight,0)/weight):50;
+ const label=score>=75?'Muito positivo':score>=60?'Positivo':score>=45?'Neutro':score>=30?'Cautela':'Pressão negativa';
+ const tone=score>=60?'good':score>=45?'warn':'bad';
+ return {score,label,tone,components,coverage:Math.round(weight/100*100)};
+}
+function money(v){return v==null?'—':new Intl.NumberFormat('pt-PT',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v)}
+function formatDateTime(v){if(!v)return '—';try{return new Intl.DateTimeFormat('pt-PT',{dateStyle:'medium'}).format(new Date(v))}catch{return v}}
+function moduleState(section){
+ if(!section)return {label:'Sem cobertura gratuita',className:'muted'};
+ if(section.status==='ok')return {label:'Com dados',className:'good'};
+ if(section.status==='empty')return {label:'Sem ocorrências',className:'warn'};
+ if(section.status==='disabled')return {label:'Não configurado',className:'warn'};
+ return {label:'Indisponível',className:'bad'};
+}
+
+function impactLabel(x){return x==='high'?'Elevado':x==='medium'?'Atenção':'Reduzido'}
+function trackedSymbols(){
+ const portfolio=state.assets.map(a=>String(a.ticker||'').trim().toUpperCase()).filter(Boolean);
+ let manual=[];
+ try{manual=JSON.parse(localStorage.getItem('atlas_tracked_symbols')||'[]')}catch{}
+ return [...new Set([...portfolio,...manual.map(x=>String(x).trim().toUpperCase()).filter(Boolean)])];
+}
+function manualTrackedSymbols(){
+ try{return JSON.parse(localStorage.getItem('atlas_tracked_symbols')||'[]').map(x=>String(x).trim().toUpperCase()).filter(Boolean)}catch{return []}
+}
+function saveManualTrackedSymbols(symbols){
+ localStorage.setItem('atlas_tracked_symbols',JSON.stringify([...new Set(symbols)]));
+}
+function addTrackedSymbol(){
+ const input=$('tracked-symbol-input');
+ const symbol=String(input?.value||'').trim().toUpperCase().replace(/[^A-Z0-9.\-]/g,'');
+ if(!symbol)return toast('Escreve um ticker válido.');
+ const list=manualTrackedSymbols();
+ if(!list.includes(symbol))list.push(symbol);
+ saveManualTrackedSymbols(list);
+ renderRadar();
+ toast(symbol+' adicionado ao acompanhamento.');
+}
+function removeTrackedSymbol(symbol){
+ saveManualTrackedSymbols(manualTrackedSymbols().filter(x=>x!==symbol));
+ renderRadar();
+ toast(symbol+' removido do acompanhamento manual.');
+}
+function renderRadar(){
+ const data=state.radarData||{};
+ const score=smartMoneyScore();
+ const insiders=data?.sections?.insiders;
+ const transactions=insiders?.transactions||[];
+ const buybacks=data?.sections?.buybacks;
+ const funds=data?.sections?.funds;
+ const nextEvents=futureEvents().slice(0,4);
+ const news=state.news||[];
+ const insiderState=moduleState(insiders),buybackState=moduleState(buybacks),fundState=moduleState(funds);
+ const portfolioSymbols=state.assets.map(a=>String(a.ticker||'').trim().toUpperCase()).filter(Boolean);
+ const manualSymbols=manualTrackedSymbols();
+ const allTracked=trackedSymbols();
+ const componentRows=score.components.map(c=>`<div class="sm-component"><span>${esc(c.label)}</span><b class="${c.available?(c.value>=60?'good':c.value>=45?'warn':'bad'):'muted'}">${c.available?c.value+'/100':'Sem dados'}</b></div>`).join('');
+ const newsHtml=news.length?`<div class="news-list">${news.map(n=>`<article class="news"><div class="news-top"><div><div class="muted small">${esc(n.topic||'Economia')} · ${esc(n.domain||'')} · ${formatDateTime(n.published_at||n.seendate)}</div><h3><a href="${safeUrl(n.url)}" target="_blank" rel="noopener">${esc(n.title)}</a></h3></div><span class="badge ${n.impact||'low'}">${impactLabel(n.impact)}</span></div><div class="muted small">${esc(n.reason||'')}</div></article>`).join('')}</div>`:empty('Sem notícias relevantes nas fontes disponíveis.');
+ const insiderHtml=transactions.length?`<div class="smart-grid">${transactions.slice(0,10).map(t=>`<article class="signal-card"><div class="signal-head"><div><b>${esc(t.ticker||t.issuer)}</b><div class="muted small">${esc(t.insider||'Insider')} · ${esc(t.role||'')}</div></div><span class="badge ${t.action==='buy'?'low':'medium'}">${t.action==='buy'?'Compra':'Venda'}</span></div><div class="signal-value">${money(t.estimated_value)}</div><div class="muted small">${t.shares??'—'} ações · ${formatDateTime(t.transaction_date)}</div><a class="source-link" href="${safeUrl(t.filing_url)}" target="_blank" rel="noopener">SEC Form 4 ↗</a></article>`).join('')}</div>`:`<div class="module-empty"><b>${insiderState.label}</b><p>${esc(insiders?.summary?.conclusion||'Não foram encontradas compras ou vendas no mercado aberto no período analisado.')}</p></div>`;
+ $('radar').innerHTML=`${head('ATLAS Intelligence Center','Smart Money, macro, eventos e notícias públicas','<button class="btn primary" id="radar-refresh">Atualizar Intelligence Center</button>')}
+ <section class="intelligence-hero"><div><div class="eyebrow">SMART MONEY SCORE</div><div class="score-line"><span class="score-number ${score.tone}">${score.score}</span><span class="score-max">/100</span></div><div class="score-label ${score.tone}">${score.label}</div><p class="muted">Cobertura gratuita disponível: ${score.coverage}%. Componentes sem dados não entram no cálculo.</p></div><div class="score-components">${componentRows}</div></section>
+ <div class="note ${score.tone}"><b>Conclusão ATLAS</b><br>${esc(state.newsOverview?.conclusion||'Atualiza o centro para obter uma leitura dos sinais disponíveis.')}</div>
+ <section class="intel-card tracked-panel"><div class="intel-title"><h2>👁 Empresas acompanhadas</h2><span class="muted">${allTracked.length} símbolos</span></div>
+  <div class="tracked-row"><input id="tracked-symbol-input" placeholder="Ex.: JOBY, AAPL, MSFT"><button class="btn primary" id="tracked-symbol-add">Adicionar</button></div>
+  <div class="tracked-groups"><div><b>Da Carteira</b><div class="tracked-chips">${portfolioSymbols.length?portfolioSymbols.map(s=>`<span class="tracked-chip auto">${esc(s)}<small>automático</small></span>`).join(''):'<span class="muted small">Nenhum ticker registado na Carteira.</span>'}</div></div>
+  <div><b>Manuais</b><div class="tracked-chips">${manualSymbols.length?manualSymbols.map(s=>`<span class="tracked-chip">${esc(s)}<button onclick="window.atlas.removeTrackedSymbol('${s}')" aria-label="Remover ${s}">×</button></span>`).join(''):'<span class="muted small">Ainda não adicionaste empresas manualmente.</span>'}</div></div></div>
+  <div class="muted small">Os tickers da Carteira entram automaticamente. Empresas adicionadas aqui são acompanhadas mesmo sem estarem na Carteira.</div>
+ </section>
+ <div class="intel-tabs">
+  <section class="intel-card"><div class="intel-title"><h2>💼 Smart Money</h2><span class="${insiderState.className}">${insiderState.label}</span></div><div class="smart-summary"><div><span>Compras</span><b class="good">${insiders?.summary?.buys??0}</b></div><div><span>Vendas</span><b class="warn">${insiders?.summary?.sells??0}</b></div><div><span>Valor compras</span><b>${money(insiders?.summary?.estimated_buy_value)}</b></div><div><span>Valor vendas</span><b>${money(insiders?.summary?.estimated_sell_value)}</b></div></div>${insiderHtml}<div class="disclaimer">${esc(insiders?.disclaimer||'Apenas dados públicos divulgados após a execução.')}</div></section>
+  <section class="intel-card"><div class="intel-title"><h2>💰 Buybacks</h2><span class="${buybackState.className}">${buybackState.label}</span></div><div class="module-empty"><b>Monitor preparado</b><p>Programas de recompra exigem leitura e normalização de comunicados e filings. Nesta versão, dados não verificados ficam fora do score.</p></div></section>
+  <section class="intel-card"><div class="intel-title"><h2>🏛️ Grandes fundos</h2><span class="${fundState.className}">${fundState.label}</span></div><div class="module-empty"><b>SEC 13F — cobertura limitada</b><p>Os dados são públicos e gratuitos, mas trimestrais e atrasados. O ATLAS não apresenta alterações até conseguir comparar dois períodos com segurança.</p></div></section>
+  <section class="intel-card"><div class="intel-title"><h2>📈 Opções e Dark Pools</h2><span class="muted">Sem cobertura gratuita fiável</span></div><div class="module-empty"><b>Não entram no score</b><p>Dados completos e em tempo útil são geralmente pagos. O ATLAS não inventa estimativas nem usa fontes opacas.</p></div></section>
+ </div>
+ <h2>🌍 Macro e notícias</h2>${newsHtml}
+ <h2>📅 Próximos eventos oficiais</h2><div class="calendar-list">${nextEvents.length?nextEvents.map(e=>`<div class="calendar-event"><div><b>${esc(e.date)}</b><div class="muted small">${esc(e.time||'')}</div></div><div><b>${esc(e.event)}</b><div class="muted small">${esc(e.country)} · ${esc(e.source)}</div></div><span class="badge ${e.impact}">${impactLabel(e.impact)}</span></div>`).join(''):empty('Sem eventos futuros.')}</div>
+ <div class="muted small">O score é um indicador experimental baseado apenas em informação pública. Não é recomendação de investimento.</div>`;
+ $('radar-refresh').onclick=refreshRadar;
+ const addTracked=$('tracked-symbol-add');if(addTracked)addTracked.onclick=addTrackedSymbol;
+ const trackedInput=$('tracked-symbol-input');if(trackedInput)trackedInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addTrackedSymbol()}};
+}
+async function refreshRadar(){
+ const b=$('radar-refresh');serviceState.radar='loading';if(b){b.disabled=true;b.innerHTML='<span class="spinner"></span>A atualizar…'}renderHome();renderSystem();
+ try{
+  const symbols=trackedSymbols();
+  const {data,error}=await db.functions.invoke(CONFIG.functions.radar,{body:{tickers:symbols,insider_symbols:symbols,news_hours:72,insider_days:90}});
+  if(error)throw error;
+  state.radarData=data||null;state.news=data?.articles||data?.sections?.macro_and_news?.articles||[];state.newsOverview=data?.overview||null;
+  serviceState.radar=state.news.length||data?.sections?.insiders?'operational':'empty';renderRadar();renderHome();renderSystem();toast('Intelligence Center atualizado');
+ }catch(e){console.error(e);serviceState.radar='error';renderHome();renderSystem();toast('Radar indisponível. Confirma economic-radar e os Logs.');}
+ finally{const btn=$('radar-refresh');if(btn){btn.disabled=false;btn.textContent='Atualizar Intelligence Center'}}
+}
+
+function renderCalendar(){
+ const events=futureEvents();
+ $('calendar').innerHTML=`${head('Calendário económico 2026','Apenas datas oficiais da Fed e do BCE')} ${events.length?`<div class="calendar-list">${events.map(e=>`<div class="calendar-event"><div><b>${esc(e.date)}</b><div class="muted small">${esc(e.time||'')}</div></div><div><a href="${safeUrl(e.url)}" target="_blank" style="color:inherit;text-decoration:none"><b>${esc(e.event)}</b></a><div class="muted small">${esc(e.country)} · Fonte: ${esc(e.source)}</div></div><span class="badge ${e.impact}">${impactLabel(e.impact)}</span></div>`).join('')}</div>`:empty('Não existem mais eventos oficiais de 2026.')}`;
+}
+
+function journalForm(){return `<form id="journal-form" class="form hidden"><label>Data<input name="date" type="date" required></label><label>Tipo<select name="type"><option>Compra</option><option>Venda</option><option>Reflexão</option><option>Revisão</option></select></label><label>Ativo<select name="asset_name"><option>Geral</option>${state.assets.map(a=>`<option>${esc(a.name)}</option>`).join('')}</select></label><label>Confiança 0–10<input name="confidence" type="number" min="0" max="10" value="5"></label><label class="full">Título<input name="title" required></label><label class="full">Reflexão<textarea name="entry_text" required></textarea></label><div class="full"><button class="btn primary">Guardar</button></div></form>`}
+function renderJournal(){$('journal').innerHTML=`${head('Diário','Decisões, emoções e aprendizagem','<button id="new-journal" class="btn primary">Nova entrada</button>')}${journalForm()}<div class="timeline">${state.diary.length?state.diary.map(d=>`<article class="entry"><div class="entry-top"><div class="muted small">${esc(d.date)} · ${esc(d.type||'')} · ${esc(d.asset_name||'')}</div><button class="btn danger" onclick="window.atlas.remove('diary_entries','${d.id}')">Eliminar</button></div><h3>${esc(d.title)}</h3><p>${esc(d.entry_text||'')}</p><div class="muted small">Confiança: ${d.confidence||0}/10</div></article>`).join(''):empty('Sem entradas.')}</div>`;$('new-journal').onclick=()=>toggle('journal-form');bindForm('journal-form',addJournal)}
+async function addJournal(e){e.preventDefault();try{const o=formObj(e);o.confidence=+o.confidence;await insert('diary_entries',o);toast('Entrada guardada')}catch(x){toast(x.message)}}
+
+function knowledgeForm(){return `<form id="knowledge-form" class="form hidden"><label>Tema<input name="topic" required></label><label>Estado<select name="status"><option>Por estudar</option><option>Em estudo</option><option>Concluído</option></select></label><label class="full">Resumo<textarea name="summary"></textarea></label><label class="full">Aplicação prática<textarea name="application"></textarea></label><div class="full"><button class="btn primary">Guardar</button></div></form>`}
+function renderAcademy(){$('academy').innerHTML=`${head('Academia','Conhecimento com aplicação prática','<button id="new-knowledge" class="btn primary">Adicionar tema</button>')}${knowledgeForm()}<div class="grid two">${state.knowledge.length?state.knowledge.map(k=>`<article class="card"><div class="entry-top"><div><h3>${esc(k.topic)}</h3><div class="muted small">${esc(k.status||'')}</div></div><button class="btn danger" onclick="window.atlas.remove('knowledge','${k.id}')">Eliminar</button></div><p>${esc(k.summary||'')}</p>${k.application?`<div class="note"><b>Aplicação</b><br>${esc(k.application)}</div>`:''}</article>`).join(''):empty('Sem temas.')}</div>`;$('new-knowledge').onclick=()=>toggle('knowledge-form');bindForm('knowledge-form',addKnowledge)}
+async function addKnowledge(e){e.preventDefault();try{await insert('knowledge',formObj(e));toast('Tema guardado')}catch(x){toast(x.message)}}
+
+function goalForm(){return `<form id="goal-form" class="form hidden"><label>Objetivo<input name="name" required></label><label>Unidade<input name="unit"></label><label>Atual<input name="current_value" type="number" step="any" value="0"></label><label>Meta<input name="target_value" type="number" step="any" value="0"></label><div class="full"><button class="btn primary">Guardar</button></div></form>`}
+function renderGoals(){$('goals').innerHTML=`${head('Objetivos','Progresso financeiro e de processo','<button id="new-goal" class="btn primary">Adicionar objetivo</button>')}${goalForm()}<div class="grid two">${state.goals.length?state.goals.map(g=>{const p=g.target_value?Math.min(100,g.current_value/g.target_value*100):0;return `<article class="card"><div class="entry-top"><h3>${esc(g.name)}</h3><button class="btn danger" onclick="window.atlas.remove('goals','${g.id}')">Eliminar</button></div><div style="font-size:25px;font-weight:750;margin-top:12px">${g.current_value||0} / ${g.target_value||0} ${esc(g.unit||'')}</div><div class="progress"><span style="width:${p}%"></span></div><div class="muted small">${pct(p)} concluído</div></article>`}).join(''):empty('Sem objetivos.')}</div>`;$('new-goal').onclick=()=>toggle('goal-form');bindForm('goal-form',addGoal)}
+async function addGoal(e){e.preventDefault();try{const o=formObj(e);o.current_value=+o.current_value;o.target_value=+o.target_value;await insert('goals',o);toast('Objetivo guardado')}catch(x){toast(x.message)}}
+
+function renderAssistant(){
+ $('assistant').innerHTML=`${head('ATLAS Intelligence','Análise fundamentada nos teus dados, com incerteza explícita')}<div class="chat"><div id="messages" class="messages">${state.messages.length?state.messages.map(m=>`<div class="message ${m.role}">${esc(m.text)}</div>`).join(''):'<div class="message ai">Posso analisar a carteira, exposição, risco, dividendos, decisões, objetivos, notícias e calendário. Não prometo previsões infalíveis; explico cenários, evidência e confiança.</div>'}</div><div class="composer"><textarea id="question" placeholder="Ex.: Faz uma análise completa da minha carteira e diz o que merece atenção."></textarea><button id="ask" class="btn primary">Analisar</button></div></div>`;
+ $('ask').onclick=askAI;
+}
+async function askAI(){
+ const q=$('question').value.trim();if(!q)return;
+ state.messages.push({role:'user',text:q});renderAssistant();
+ state.messages.push({role:'ai',text:'A cruzar carteira, risco, Radar, Diário e objetivos…'});renderAssistant();
+ serviceState.ai='loading';renderHome();renderSystem();
+ try{
+  const payload={question:q,portfolio:calculatePortfolioMetrics().assets.map(item=>({...item.asset,live_price:item.currentPrice,current_value:item.currentValue,invested_value:item.investedValue,profit:item.profit,return_percentage:item.returnPercentage,price_source:item.priceSource})),operations:state.operations.slice(0,50),dividends:state.dividends,diary:state.diary.slice(0,30),goals:state.goals,radar:state.radarData||state.newsOverview||state.radar,news:state.news.slice(0,12),calendar:futureEvents().slice(0,10),snapshots:state.snapshots.slice(-30)};
+  const {data,error}=await db.functions.invoke(CONFIG.functions.ai,{body:payload});
+  if(error)throw error;
+  serviceState.ai='operational';
+  state.messages[state.messages.length-1]={role:'ai',text:data?.answer||'Sem resposta.'};
+  renderAssistant();renderHome();renderSystem();
+ }catch(e){
+  console.error(e);
+  serviceState.ai='error';
+  state.messages[state.messages.length-1]={role:'ai',text:'A IA está indisponível. Confirma ai-assistant, OPENAI_API_KEY e os Logs.'};
+  renderAssistant();renderHome();renderSystem();
+ }
+}
+
+function renderSystem(){
+ const status=serviceStatus();
+ const latest=updateState.latest?.version||'—';
+ $('system').innerHTML=`${head('Sistema','Estado dos serviços, versão e atualizações')}
+ <div class="grid two">
+  <div class="card"><h3>ATLAS Status</h3><div class="toolbar">
+   ${statusBadge(status.database,'Base de dados')}
+   ${statusBadge(status.sync,'Sincronização')}
+   ${statusBadge(status.ai,'IA')}
+   ${statusBadge(status.radar,'Radar')}
+   ${statusBadge(status.market,'Mercado')}
+  </div><p class="muted small">Um serviço configurado pode ainda estar temporariamente indisponível. Os erros detalhados aparecem na própria área.</p></div>
+  <div class="card"><h3>Conta</h3><p class="muted">${esc(session?.user?.email||'')}</p><button class="btn ghost" onclick="window.atlas.logout()">Sair</button></div>
+  <div class="card"><h3>Sincronização</h3><p class="muted">Os dados ficam guardados no Supabase.</p><button class="btn primary" onclick="window.atlas.sync()">Sincronizar agora</button></div>
+  <div class="card"><h3>Instalação</h3><p class="muted">A aplicação pode ser instalada a partir do endereço HTTPS.</p><button class="btn" onclick="window.atlas.install()">Instalar aplicação</button></div>
+  <div class="card"><h3>ATLAS Updates</h3>
+   <p class="muted">Versão instalada: <b>${esc(CONFIG.version)}</b><br>Versão publicada: <b>${esc(latest)}</b></p>
+   ${updateState.available?'<div class="note warn">Existe uma nova versão publicada.</div>':'<div class="muted small">Nenhuma atualização pendente identificada.</div>'}
+   <div class="toolbar"><button class="btn" onclick="window.atlas.checkUpdates()">Procurar atualizações</button>${updateState.available?'<button class="btn primary" onclick="window.atlas.applyUpdate()">Atualizar agora</button>':''}</div>
+  </div>
+  <div class="card"><h3>Identidade</h3><p><b>ATLAS</b><br><span class="muted">Investment Operating System</span></p><p class="muted small">Clareza para decidir. Disciplina para investir.</p></div>
+ </div>`;
+}
+async function refreshMarketData(){
+ serviceState.market='loading';renderHome();renderSystem();
+ try{
+  const symbols=state.assets
+    .map(a=>String(a.ticker||'').trim().toUpperCase())
+    .filter(Boolean);
+
+  if(!symbols.length){
+   serviceState.market='empty';renderHome();renderSystem();
+   return toast('Adiciona tickers aos ativos para obter cotações.');
+  }
+
+  const {data,error}=await db.functions.invoke(
+    CONFIG.functions.market,
+    {body:{symbols}}
+  );
+  if(error)throw error;
+
+  const quotes=data?.quotes||{};
+  state.prices=quotes;
+
+  let updated=0;
+  let unchanged=0;
+
+  for(const asset of state.assets){
+    const ticker=String(asset.ticker||'').trim().toUpperCase();
+    const quote=quotes[ticker]||null;
+    const freshPrice=freshQuotePriceEUR(asset,quote);
+
+    if(!(Number.isFinite(freshPrice)&&freshPrice>0)){
+      unchanged++;
+      continue;
+    }
+
+    const {error:updateError}=await db
+      .from('assets')
+      .update({current_price:freshPrice})
+      .eq('id',asset.id)
+      .eq('user_id',uid());
+
+    if(updateError){
+      console.error(`Preço ${ticker}:`,updateError);
+      unchanged++;
+      continue;
+    }
+
+    asset.current_price=freshPrice;
+    updated++;
+  }
+
+  serviceState.market=updated?'operational':'empty';
+
+  await saveMarketHistory();
+  await saveSnapshot();
+  await loadAll();
+
+  toast(
+    updated
+      ?`${updated} preço(s) atualizados${unchanged?`; ${unchanged} mantidos.`:'.'}`
+      :'Nenhuma cotação válida. Os preços existentes foram mantidos.'
+  );
+ }catch(e){
+  console.error(e);
+  serviceState.market='error';
+  renderHome();renderSystem();
+  toast('Cotações indisponíveis. Os preços existentes foram mantidos.');
+ }
+}
+
+async function saveSnapshot(){
+ const date=new Date().toISOString().slice(0,10);
+ const portfolioMetrics=calculatePortfolioMetrics();
+ await db.from('portfolio_snapshots').upsert({user_id:uid(),snapshot_date:date,total_value:portfolioMetrics.currentValue,invested_value:portfolioMetrics.investedValue},{onConflict:'user_id,snapshot_date'});
+ const {data}=await db.from('portfolio_snapshots').select('*').eq('user_id',uid()).order('snapshot_date');state.snapshots=data||[];
+}
+
+async function inspectPWA(){
+ try{
+  const manifestLink=document.querySelector('link[rel="manifest"]');
+  if(manifestLink){
+   const response=await fetch(manifestLink.href,{cache:'no-store'});
+   pwaState.manifest=response.ok;
+  }
+ }catch(error){
+  console.warn('Manifest:',error);
+  pwaState.manifest=false;
+ }
+
+ try{
+  if('serviceWorker' in navigator){
+   const registration=await navigator.serviceWorker.getRegistration('./');
+   pwaState.serviceWorker=Boolean(registration);
+  }
+ }catch(error){
+  console.warn('Service Worker:',error);
+  pwaState.serviceWorker=false;
+ }
+
+ pwaState.installed=window.matchMedia('(display-mode: standalone)').matches||Boolean(navigator.standalone);
+ return pwaState;
+}
+
+function pwaMessage(){
+ if(pwaState.installed)return 'O ATLAS já está instalado neste dispositivo.';
+ if(!window.isSecureContext)return 'A instalação exige uma ligação HTTPS.';
+ if(!pwaState.manifest)return 'O manifesto da aplicação não foi carregado. Atualiza a página e tenta novamente.';
+ if(!pwaState.serviceWorker)return 'O serviço offline ainda não ficou ativo. Atualiza a página e tenta novamente.';
+ return 'No Chrome, abre o menu ⋮ e escolhe “Instalar ATLAS”. No Safari do Mac, usa Ficheiro → Adicionar à Dock.';
+}
+
+async function requestNotifications(){
+ if(!('Notification'in window))return toast('Notificações não suportadas.');
+ const p=await Notification.requestPermission();if(p==='granted'){new Notification('ATLAS',{body:'Notificações locais ativadas.'});toast('Notificações ativadas')}else toast('Permissão recusada')
+}
+function installApp(){if(deferredInstall){deferredInstall.prompt();deferredInstall=null}else toast('Publica em HTTPS e usa o menu do navegador para instalar.')}
+async function logout(){await db.auth.signOut();location.reload()}
+
+window.atlas={show:showPage,refreshPrices:refreshMarketData,refreshRadar,editAsset,remove:removeRow,sync:loadAll,install:installApp,notify:requestNotifications,logout,checkUpdates:()=>checkForUpdates(true),applyUpdate,removeTrackedSymbol};
+
+$('auth-form').onsubmit=async e=>{e.preventDefault();$('auth-status').textContent='A entrar…';const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)return $('auth-status').textContent=error.message;session=data.session;await openApp()};
+$('signup').onclick=async()=>{const {error}=await db.auth.signUp({email:$('email').value.trim(),password:$('password').value});$('auth-status').textContent=error?error.message:'Conta criada. Confirma o email se for solicitado.'};
+$('logout').onclick=logout;$('install').onclick=installApp;$('sync').onclick=loadAll;$('menu').onclick=()=>document.querySelector('.sidebar').classList.toggle('open');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;pwaState.installable=true;});
+window.addEventListener('appinstalled',()=>{pwaState.installed=true;deferredInstall=null;toast('ATLAS instalado com sucesso.');});
+if('serviceWorker' in navigator){
+ let reloadingForWorker=false;
+
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{
+  if(reloadingForWorker)return;
+  reloadingForWorker=true;
+  location.reload();
+ });
+
+ window.addEventListener('load',async()=>{
+  try{
+   const registration=await navigator.serviceWorker.register(
+    './service-worker.js',
+    {scope:'./',updateViaCache:'none'}
+   );
+
+   await navigator.serviceWorker.ready;
+   pwaState.serviceWorker=true;
+
+   const announceWaitingWorker=()=>{
+    if(!registration.waiting)return;
+    updateState.available=true;
+    updateState.status='operational';
+    serviceState.updates='operational';
+    renderHome();
+    renderSystem();
+    toast('Nova versão disponível. Abre Sistema para atualizar.');
+   };
+
+   announceWaitingWorker();
+
+   registration.addEventListener('updatefound',()=>{
+    const worker=registration.installing;
+    if(!worker)return;
+
+    worker.addEventListener('statechange',()=>{
+     if(
+      worker.state==='installed' &&
+      navigator.serviceWorker.controller
+     ){
+      announceWaitingWorker();
+     }
+    });
+   });
+
+   // Verifica atualizações ao abrir, de 5 em 5 minutos e ao regressar ao separador.
+   await registration.update().catch(()=>{});
+
+   setInterval(()=>{
+    registration.update().catch(()=>{});
+   },5*60*1000);
+
+   document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'){
+     registration.update().catch(()=>{});
+     checkForUpdates(false);
+    }
+   });
+  }catch(error){
+   console.warn('Service Worker:',error);
+   pwaState.serviceWorker=false;
+  }
+ });
+}
+bootstrap();
+</script>
+</body>
+</html>

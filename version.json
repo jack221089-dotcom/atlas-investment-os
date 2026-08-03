@@ -1,0 +1,11 @@
+{
+  "version": "3.0.0-alpha.19",
+  "name": "ATLAS 3.0 Alpha 19 — Automatic Updates",
+  "notes": [
+    "Compatibilidade completa com GitHub Pages",
+    "Service Worker com caminhos relativos ao projeto",
+    "Eliminação automática de caches antigas",
+    "Deteção automática de novas versões",
+    "Ativação e recarregamento do novo frontend"
+  ]
+}
