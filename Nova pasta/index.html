@@ -360,7 +360,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 15</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 17</small>
       </div>
     </aside>
 
@@ -391,7 +391,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.15'
+  version:'3.0.0-alpha.17'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -425,7 +425,7 @@ const serviceState={
   security:'operational'
 };
 const state={
- assets:[],operations:[],dividends:[],diary:[],knowledge:[],goals:[],snapshots:[],
+ assets:[],operations:[],dividends:[],diary:[],knowledge:[],goals:[],snapshots:[],marketHistory:[],
  radar:{market:'Normal',summary:'Nenhuma alteração relevante.',updated:''},
  news:[],newsOverview:null,radarData:null,prices:{},messages:[]
 };
@@ -456,57 +456,29 @@ function quoteCurrency(quote){
 }
 
 function resolveAssetPriceEUR(asset){
-  const ticker=String(asset?.ticker||'').trim().toUpperCase();
-  const quote=state.prices[ticker]||state.prices[asset?.ticker||'']||null;
-  const manualPrice=Number(asset?.current_price)||0;
+  const price=Number(asset?.current_price)||0;
+  return{price,source:'saved-current-price',currency:'EUR'};
+}
 
-  // Uma função futura de mercado pode devolver diretamente o preço convertido.
-  const convertedPrice=Number(
+function freshQuotePriceEUR(asset,quote){
+  const savedPrice=Number(asset?.current_price)||0;
+  const converted=Number(
     quote?.price_eur ??
     quote?.converted_price_eur ??
     quote?.eur_price
   );
-  if(Number.isFinite(convertedPrice)&&convertedPrice>0){
-    return{
-      price:convertedPrice,
-      source:'live-converted',
-      currency:'EUR'
-    };
-  }
+  if(Number.isFinite(converted)&&converted>0)return converted;
 
-  const livePrice=Number(quote?.price);
+  const price=Number(quote?.price);
   const currency=quoteCurrency(quote);
+  if(Number.isFinite(price)&&price>0&&currency==='EUR')return price;
 
-  // Só utiliza diretamente a cotação quando sabemos que está em EUR.
-  if(Number.isFinite(livePrice)&&livePrice>0&&currency==='EUR'){
-    return{
-      price:livePrice,
-      source:'live-eur',
-      currency:'EUR'
-    };
+  if(Number.isFinite(price)&&price>0&&!currency&&savedPrice>0){
+    const difference=Math.abs(price-savedPrice)/savedPrice;
+    if(difference<=0.20)return price;
   }
 
-  // Compatibilidade: alguns endpoints antigos não enviavam moeda.
-  // Apenas aceitamos esses preços para ativos cujo valor manual já seja próximo,
-  // evitando tratar USD ou pence como euros.
-  if(Number.isFinite(livePrice)&&livePrice>0&&!currency&&manualPrice>0){
-    const difference=Math.abs(livePrice-manualPrice)/manualPrice;
-    if(difference<=0.15){
-      return{
-        price:livePrice,
-        source:'live-compatible',
-        currency:'EUR'
-      };
-    }
-  }
-
-  return{
-    price:manualPrice,
-    source:quote?'manual-currency-protection':'manual',
-    currency:'EUR',
-    nativeCurrency:currency||null,
-    nativePrice:Number.isFinite(livePrice)?livePrice:null
-  };
+  return null;
 }
 
 function calculatePortfolioMetrics(){
@@ -605,7 +577,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.15','3.0.0 Alpha 15');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.17','3.0.0 Alpha 17');await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -623,9 +595,52 @@ async function loadAll(){
   const err=r.find(x=>x.error)?.error;if(err)throw err;
   [state.assets,state.operations,state.dividends,state.diary,state.knowledge,state.goals]=r.slice(0,6).map(x=>x.data||[]);
   state.radar=r[6].data||state.radar;state.snapshots=r[7].data||[];
+  await loadMarketHistory();
   serviceState.sync='operational';renderAll();syncStatus('Sincronizado');setTimeout(()=>checkForUpdates(false),700);
  }catch(e){console.error(e);serviceState.sync='error';syncStatus('Erro de sincronização',false);toast(e.message||'Erro de sincronização')}
 }
+
+async function loadMarketHistory(){
+  try{
+    const since=new Date(Date.now()-24*60*60*1000).toISOString();
+    const {data,error}=await db
+      .from('portfolio_price_history')
+      .select('*')
+      .eq('user_id',uid())
+      .gte('captured_at',since)
+      .order('captured_at',{ascending:true});
+    if(error)throw error;
+    state.marketHistory=data||[];
+  }catch(error){
+    console.warn('Histórico intradiário indisponível:',error.message);
+    state.marketHistory=[];
+  }
+}
+
+async function saveMarketHistory(){
+  try{
+    const metrics=calculatePortfolioMetrics();
+    const prices=Object.fromEntries(
+      metrics.assets.map(item=>[
+        String(item.asset?.ticker||'').toUpperCase(),
+        {price:item.currentPrice,value:item.currentValue}
+      ])
+    );
+
+    await db.from('portfolio_price_history').insert({
+      user_id:uid(),
+      captured_at:new Date().toISOString(),
+      total_value:metrics.currentValue,
+      invested_value:metrics.investedValue,
+      prices
+    });
+
+    await loadMarketHistory();
+  }catch(error){
+    console.warn('Histórico intradiário não guardado:',error.message);
+  }
+}
+
 function renderAll(){
  for(const fn of [renderHome,renderDashboard,renderPortfolio,renderRadar,renderCalendar,renderJournal,renderAcademy,renderGoals,renderAssistant,renderSystem]){
   try{fn()}catch(e){console.error(fn.name,e)}
@@ -709,6 +724,7 @@ function diagnosticSourceLabel(source){
     'live-compatible':'API compatível',
     'manual-currency-protection':'Preço manual — proteção cambial',
     'manual':'Preço manual',
+    'saved-current-price':'Preço atual guardado',
     'none':'Sem preço'
   };
   return labels[source]||source||'Desconhecida';
@@ -851,7 +867,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.15','3.0.0 Alpha 15'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.17','3.0.0 Alpha 17'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -1109,7 +1125,31 @@ function drawCharts(){
  const common={plugins:{legend:{labels:{color:'#f5f7fa'}}},scales:{x:{ticks:{color:'#9aa6b6'}},y:{ticks:{color:'#9aa6b6'}}}};
  const a=$('allocation-chart'),h=$('history-chart'),d=$('dividend-chart');
  if(a)charts.push(new Chart(a,{type:'doughnut',data:{labels,datasets:[{data:values}]},options:{plugins:{legend:{labels:{color:'#f5f7fa'}}}}}));
- if(h)charts.push(new Chart(h,{type:'line',data:{labels:state.snapshots.map(x=>x.snapshot_date),datasets:[{label:'Património (€)',data:state.snapshots.map(x=>x.total_value)}]},options:common}));
+ if(h){
+  const intraday=state.marketHistory||[];
+  const useIntraday=intraday.length>=2;
+  const rows=useIntraday?intraday:state.snapshots;
+  const historyLabels=rows.map(x=>
+    useIntraday
+      ?new Intl.DateTimeFormat('pt-PT',{hour:'2-digit',minute:'2-digit'}).format(new Date(x.captured_at))
+      :x.snapshot_date
+  );
+
+  charts.push(new Chart(h,{
+    type:'line',
+    data:{
+      labels:historyLabels,
+      datasets:[{
+        label:useIntraday?'Património hoje (€)':'Património (€)',
+        data:rows.map(x=>Number(x.total_value)||0),
+        borderWidth:2,
+        pointRadius:2,
+        tension:.25
+      }]
+    },
+    options:common
+  }));
+}
  if(d)charts.push(new Chart(d,{type:'bar',data:{labels:Object.keys(divMap),datasets:[{label:'Dividendos (€)',data:Object.values(divMap)}]},options:common}));
  drawManualBenchmark();
 }
@@ -1187,15 +1227,16 @@ function assetInput(label,icon,name,value,type='text',extra='',full=false){
 function assetEditorFields(asset={}){
   const quantity=Number(asset.quantity||0);
   const average=Number(asset.average_price||0);
-  const current=Number(asset.current_price||0);
-  const currentValue=quantity*current;
+  const invested=quantity*average;
+  const currentPrice=Number(asset.current_price||0);
 
   return `
     ${assetInput('Nome','🏷️','name',asset.name||'','text','',true)}
     ${assetInput('Ticker','📈','ticker',asset.ticker||'')}
+    ${assetInput('Valor investido','💵','invested_value',invested,'number','step="any" min="0"')}
     ${assetInput('Número de posições','📦','quantity',quantity,'number','step="any" min="0"')}
-    ${assetInput('Preço médio','💶','average_price',average,'number','step="any" min="0"')}
-    ${assetInput('Valor atual','💼','current_value',currentValue,'number','step="any" min="0"')}
+    ${assetInput('Preço médio calculado','🧮','average_price',average,'number','step="any" readonly')}
+    ${assetInput('Preço atual de mercado','💶','current_price',currentPrice,'number','step="any" readonly')}
   `;
 }
 
@@ -1217,34 +1258,35 @@ function assetCalculationPanel(){
       </div>
     </div>
     <div class="asset-calculation-note">
-      Valor investido = posições × preço médio.<br>
-      Lucro = valor atual − valor investido.
+      Preço médio = valor investido ÷ posições.<br>
+      O preço atual é obtido pelo mercado.
     </div>
   </aside>`;
 }
 
 function bindAssetCalculations(form){
   if(!form)return;
-
+  const invested=form.elements.invested_value;
   const quantity=form.elements.quantity;
   const average=form.elements.average_price;
-  const currentValue=form.elements.current_value;
-  if(!quantity||!average||!currentValue)return;
+  const currentPrice=form.elements.current_price;
+  if(!invested||!quantity||!average)return;
 
   const update=()=>{
+    const total=parseAtlasNumber(invested.value);
     const q=parseAtlasNumber(quantity.value);
-    const avg=parseAtlasNumber(average.value);
-    const current=parseAtlasNumber(currentValue.value);
+    const avg=q>0?total/q:0;
+    average.value=avg?String(Math.round(avg*100000000)/100000000):'0';
 
-    const invested=q*avg;
-    const profit=current-invested;
-    const returnPct=invested>0?(profit/invested)*100:0;
+    const current=q*parseAtlasNumber(currentPrice?.value||0);
+    const profit=current-total;
+    const returnPct=total>0?(profit/total)*100:0;
 
     const investedEl=form.querySelector('[data-calc="invested"]');
     const profitEl=form.querySelector('[data-calc="profit"]');
     const returnEl=form.querySelector('[data-calc="return"]');
 
-    if(investedEl)investedEl.textContent=formatAtlasMoney(invested);
+    if(investedEl)investedEl.textContent=formatAtlasMoney(total);
     if(profitEl){
       profitEl.textContent=(profit>0?'+':'')+formatAtlasMoney(profit);
       profitEl.className=`asset-calculation-value ${profit>0?'good':profit<0?'bad':''}`;
@@ -1255,11 +1297,10 @@ function bindAssetCalculations(form){
     }
   };
 
-  [quantity,average,currentValue].forEach(input=>{
+  [invested,quantity].forEach(input=>{
     input.addEventListener('input',update);
     input.addEventListener('change',update);
   });
-
   update();
 }
 
@@ -1288,24 +1329,36 @@ function toggle(id){$(id)?.classList.toggle('hidden')}
 async function insert(table,obj){obj.user_id=uid();const {error}=await db.from(table).insert(obj);if(error)throw error;await loadAll()}
 async function addAsset(e){
   e.preventDefault();
-
   try{
     const fd=new FormData(e.currentTarget);
     const name=String(fd.get('name')||'').trim();
     const ticker=String(fd.get('ticker')||'').trim().toUpperCase();
+    const investedValue=parseAtlasNumber(fd.get('invested_value'));
     const quantity=parseAtlasNumber(fd.get('quantity'));
-    const averagePrice=parseAtlasNumber(fd.get('average_price'));
-    const currentValue=parseAtlasNumber(fd.get('current_value'));
 
     if(!name)return toast('Indica o nome do ativo.');
     if(!ticker)return toast('Indica o ticker.');
-    if(quantity<0)return toast('Número de posições inválido.');
-    if(averagePrice<0)return toast('Preço médio inválido.');
-    if(currentValue<0)return toast('Valor atual inválido.');
+    if(!(quantity>0))return toast('O número de posições tem de ser superior a zero.');
+    if(!(investedValue>0))return toast('O valor investido tem de ser superior a zero.');
 
-    const currentPrice=quantity>0?currentValue/quantity:0;
+    const averagePrice=investedValue/quantity;
+    let currentPrice=averagePrice;
 
-    const payload={
+    try{
+      const {data,error}=await db.functions.invoke(
+        CONFIG.functions.market,
+        {body:{symbols:[ticker]}}
+      );
+      if(!error){
+        const quote=data?.quotes?.[ticker]||null;
+        const live=freshQuotePriceEUR({ticker,current_price:averagePrice},quote);
+        if(Number.isFinite(live)&&live>0)currentPrice=live;
+      }
+    }catch(error){
+      console.warn('Cotação inicial:',error);
+    }
+
+    await insert('assets',{
       name,
       ticker,
       category:inferAssetCategory(ticker,name),
@@ -1313,15 +1366,15 @@ async function addAsset(e){
       average_price:averagePrice,
       current_price:currentPrice,
       target_weight:0,
-      conviction:3,
-    };
+      conviction:3
+    });
 
-    await insert('assets',payload);
-    toast('Ativo guardado');
+    toast('Ativo guardado.');
   }catch(error){
     toast(error.message);
   }
 }
+
 async function addOperation(e){e.preventDefault();try{const o=formObj(e);o.value=+o.value;await insert('operations',o);toast('Operação guardada')}catch(x){toast(x.message)}}
 async function addDividend(e){e.preventDefault();try{const o=formObj(e);o.net_value=+o.net_value;await insert('dividends',o);toast('Dividendo guardado')}catch(x){toast(x.message)}}
 
@@ -1388,9 +1441,9 @@ async function editAsset(id){
     const name=String(fd.get('name')||'').trim();
     const ticker=String(fd.get('ticker')||'').trim().toUpperCase();
     const quantity=parseAtlasNumber(fd.get('quantity'));
-    const averagePrice=parseAtlasNumber(fd.get('average_price'));
-    const currentValue=parseAtlasNumber(fd.get('current_value'));
-    const currentPrice=quantity>0?currentValue/quantity:0;
+    const investedValue=parseAtlasNumber(fd.get('invested_value'));
+    const averagePrice=quantity>0?investedValue/quantity:0;
+    const currentPrice=Number(a.current_price)||averagePrice;
 
     const payload={
       name,
@@ -1616,32 +1669,72 @@ function renderSystem(){
 async function refreshMarketData(){
  serviceState.market='loading';renderHome();renderSystem();
  try{
-  const symbols=state.assets.map(a=>a.ticker).filter(Boolean);
+  const symbols=state.assets
+    .map(a=>String(a.ticker||'').trim().toUpperCase())
+    .filter(Boolean);
+
   if(!symbols.length){
    serviceState.market='empty';renderHome();renderSystem();
    return toast('Adiciona tickers aos ativos para obter cotações.');
   }
-  const {data,error}=await db.functions.invoke(CONFIG.functions.market,{body:{symbols}});
+
+  const {data,error}=await db.functions.invoke(
+    CONFIG.functions.market,
+    {body:{symbols}}
+  );
   if(error)throw error;
-  state.prices=data?.quotes||{};
-  serviceState.market=Object.keys(state.prices).length?'operational':'empty';
+
+  const quotes=data?.quotes||{};
+  state.prices=quotes;
+
+  let updated=0;
+  let unchanged=0;
+
+  for(const asset of state.assets){
+    const ticker=String(asset.ticker||'').trim().toUpperCase();
+    const quote=quotes[ticker]||null;
+    const freshPrice=freshQuotePriceEUR(asset,quote);
+
+    if(!(Number.isFinite(freshPrice)&&freshPrice>0)){
+      unchanged++;
+      continue;
+    }
+
+    const {error:updateError}=await db
+      .from('assets')
+      .update({current_price:freshPrice})
+      .eq('id',asset.id)
+      .eq('user_id',uid());
+
+    if(updateError){
+      console.error(`Preço ${ticker}:`,updateError);
+      unchanged++;
+      continue;
+    }
+
+    asset.current_price=freshPrice;
+    updated++;
+  }
+
+  serviceState.market=updated?'operational':'empty';
+
+  await saveMarketHistory();
   await saveSnapshot();
-  renderAll();
-  const protectedAssets=calculatePortfolioMetrics().assets.filter(item=>item.priceSource==='manual-currency-protection');
+  await loadAll();
+
   toast(
-    protectedAssets.length
-      ?`Cotações atualizadas. ${protectedAssets.length} ativo(s) mantiveram o preço manual por diferença de moeda.`
-      :Object.keys(state.prices).length
-        ?'Cotações atualizadas'
-        :'Sem cotações disponíveis'
+    updated
+      ?`${updated} preço(s) atualizados${unchanged?`; ${unchanged} mantidos.`:'.'}`
+      :'Nenhuma cotação válida. Os preços existentes foram mantidos.'
   );
  }catch(e){
   console.error(e);
   serviceState.market='error';
   renderHome();renderSystem();
-  toast('Cotações indisponíveis. Confirma market-data e FINNHUB_API_KEY.');
+  toast('Cotações indisponíveis. Os preços existentes foram mantidos.');
  }
 }
+
 async function saveSnapshot(){
  const date=new Date().toISOString().slice(0,10);
  const portfolioMetrics=calculatePortfolioMetrics();
