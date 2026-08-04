@@ -1,11 +1,11 @@
 {
-  "version": "3.0.0-alpha.20.2",
-  "name": "ATLAS 3.0 Alpha 20.2 — Install Prompt Hotfix",
+  "version": "3.0.0-alpha.20.3",
+  "name": "ATLAS 3.0 Alpha 20.3 — Distribution Percentages",
   "notes": [
-    "Removido o falso bloqueio baseado no teste manual ao manifesto",
-    "Instalação controlada diretamente pelo beforeinstallprompt",
-    "Botão mostra Instalar agora quando o navegador está pronto",
-    "Mensagens específicas para Chrome, Edge e Safari",
-    "Sem alterações à carteira, cálculos, dashboard ou cotações"
+    "Percentagens adicionadas à legenda do gráfico Distribuição",
+    "Percentagens desenhadas nas fatias com 4% ou mais",
+    "Tooltip mostra valor atual e percentagem",
+    "Atualização automática após reforço, venda ou nova cotação",
+    "Sem alterações às restantes funcionalidades"
   ]
 }

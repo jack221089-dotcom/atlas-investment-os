@@ -362,7 +362,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 20.2.1</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 20.3.1</small>
       </div>
     </aside>
 
@@ -393,7 +393,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.20.2'
+  version:'3.0.0-alpha.20.3'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -579,7 +579,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.20.2','3.0.0 Alpha 20.2');updateInstallButton();await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.20.3','3.0.0 Alpha 20.3');updateInstallButton();await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -722,7 +722,7 @@ async function applyUpdate(){
   const keys=await caches.keys();
   await Promise.all(
     keys
-      .filter(key=>!key.includes('alpha20-2'))
+      .filter(key=>!key.includes('alpha20-3'))
       .map(key=>caches.delete(key))
   );
  }catch(error){
@@ -883,7 +883,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.20.2','3.0.0 Alpha 20.2'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.20.3','3.0.0 Alpha 20.3'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -1132,15 +1132,108 @@ async function drawManualBenchmark(){
   }
 }
 
+
+const allocationPercentagePlugin={
+ id:'allocationPercentagePlugin',
+ afterDatasetsDraw(chart,args,pluginOptions){
+  const dataset=chart.data.datasets?.[0];
+  if(!dataset)return;
+
+  const values=(dataset.data||[]).map(value=>Number(value)||0);
+  const total=values.reduce((sum,value)=>sum+value,0);
+  if(!(total>0))return;
+
+  const ctx=chart.ctx;
+  const meta=chart.getDatasetMeta(0);
+
+  ctx.save();
+  ctx.fillStyle=pluginOptions?.color||'#ffffff';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.font='700 13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+
+  meta.data.forEach((arc,index)=>{
+   const percentage=(values[index]/total)*100;
+   if(percentage<Number(pluginOptions?.minimumPercentage??4))return;
+
+   const position=arc.tooltipPosition();
+   ctx.fillText(
+    percentage.toLocaleString('pt-PT',{
+     minimumFractionDigits:1,
+     maximumFractionDigits:2
+    })+'%',
+    position.x,
+    position.y
+   );
+  });
+
+  ctx.restore();
+ }
+};
+
 function drawCharts(){
  if(typeof Chart==='undefined')return;destroyCharts();
  const portfolioMetrics=calculatePortfolioMetrics();
- const labels=portfolioMetrics.assets.map(item=>item.asset.name),values=portfolioMetrics.assets.map(item=>item.currentValue);
+ const rawLabels=portfolioMetrics.assets.map(item=>item.asset.name);
+ const values=portfolioMetrics.assets.map(item=>item.currentValue);
+ const allocationTotal=values.reduce((sum,value)=>sum+(Number(value)||0),0);
+ const labels=rawLabels.map((label,index)=>{
+  const percentage=allocationTotal>0
+   ?((Number(values[index])||0)/allocationTotal)*100
+   :0;
+
+  return `${label} — ${percentage.toLocaleString('pt-PT',{
+   minimumFractionDigits:1,
+   maximumFractionDigits:2
+  })}%`;
+ });
  const divMap={};state.dividends.forEach(d=>divMap[d.asset_name]=(divMap[d.asset_name]||0)+(+d.net_value||0));
- 
+
  const common={plugins:{legend:{labels:{color:'#f5f7fa'}}},scales:{x:{ticks:{color:'#9aa6b6'}},y:{ticks:{color:'#9aa6b6'}}}};
  const a=$('allocation-chart'),h=$('history-chart'),d=$('dividend-chart');
- if(a)charts.push(new Chart(a,{type:'doughnut',data:{labels,datasets:[{data:values}]},options:{plugins:{legend:{labels:{color:'#f5f7fa'}}}}}));
+ if(a)charts.push(new Chart(a,{
+  type:'doughnut',
+  data:{
+   labels,
+   datasets:[{
+    data:values,
+    borderColor:'#f5f7fa',
+    borderWidth:2
+   }]
+  },
+  plugins:[allocationPercentagePlugin],
+  options:{
+   responsive:true,
+   maintainAspectRatio:false,
+   cutout:'48%',
+   plugins:{
+    legend:{
+     position:'top',
+     labels:{
+      color:'#f5f7fa',
+      padding:12,
+      boxWidth:38
+     }
+    },
+    tooltip:{
+     callbacks:{
+      label(context){
+       const value=Number(context.raw)||0;
+       const percentage=allocationTotal>0?(value/allocationTotal)*100:0;
+       return `${rawLabels[context.dataIndex]}: ${eur(value)} (${percentage.toLocaleString('pt-PT',{
+        minimumFractionDigits:1,
+        maximumFractionDigits:2
+       })}%)`;
+      }
+     }
+    },
+    allocationPercentagePlugin:{
+     minimumPercentage:4,
+     color:'#ffffff'
+    }
+   }
+  }
+ }));
  if(h){
   const intraday=state.marketHistory||[];
   const useIntraday=intraday.length>=2;
