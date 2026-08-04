@@ -363,7 +363,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 19</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 20</small>
       </div>
     </aside>
 
@@ -394,7 +394,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.19'
+  version:'3.0.0-alpha.20'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -580,7 +580,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.19','3.0.0 Alpha 19');await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.20','3.0.0 Alpha 20');updateInstallButton();await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -723,7 +723,7 @@ async function applyUpdate(){
   const keys=await caches.keys();
   await Promise.all(
     keys
-      .filter(key=>!key.includes('alpha19'))
+      .filter(key=>!key.includes('alpha20'))
       .map(key=>caches.delete(key))
   );
  }catch(error){
@@ -884,7 +884,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.19','3.0.0 Alpha 19'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.20','3.0.0 Alpha 20'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -1797,16 +1797,89 @@ async function requestNotifications(){
  if(!('Notification'in window))return toast('Notificações não suportadas.');
  const p=await Notification.requestPermission();if(p==='granted'){new Notification('ATLAS',{body:'Notificações locais ativadas.'});toast('Notificações ativadas')}else toast('Permissão recusada')
 }
-function installApp(){if(deferredInstall){deferredInstall.prompt();deferredInstall=null}else toast('Publica em HTTPS e usa o menu do navegador para instalar.')}
+function updateInstallButton(){
+ const button=$('install');
+ if(!button)return;
+
+ pwaState.installed=
+  window.matchMedia('(display-mode: standalone)').matches||
+  Boolean(navigator.standalone);
+
+ if(pwaState.installed){
+  button.textContent='Instalado';
+  button.disabled=true;
+  button.title='O ATLAS já está instalado neste dispositivo.';
+  return;
+ }
+
+ button.disabled=false;
+ button.textContent='Instalar';
+ button.title=deferredInstall
+  ?'Instalar o ATLAS neste dispositivo'
+  :'A instalação será disponibilizada pelo navegador quando os requisitos estiverem reunidos.';
+}
+
+async function installApp(){
+ await inspectPWA();
+ updateInstallButton();
+
+ if(pwaState.installed){
+  return toast('O ATLAS já está instalado neste dispositivo.');
+ }
+
+ if(deferredInstall){
+  const promptEvent=deferredInstall;
+  deferredInstall=null;
+  pwaState.installable=false;
+  updateInstallButton();
+
+  try{
+   await promptEvent.prompt();
+   const choice=await promptEvent.userChoice;
+
+   if(choice?.outcome==='accepted'){
+    toast('Instalação do ATLAS iniciada.');
+   }else{
+    toast('Instalação cancelada.');
+   }
+  }catch(error){
+   console.warn('Instalação PWA:',error);
+   toast('Não foi possível abrir a instalação. Tenta novamente.');
+  }
+
+  updateInstallButton();
+  return;
+ }
+
+ const message=pwaMessage();
+ toast(message);
+}
+
 async function logout(){await db.auth.signOut();location.reload()}
 
 window.atlas={show:showPage,refreshPrices:refreshMarketData,refreshRadar,editAsset,remove:removeRow,sync:loadAll,install:installApp,notify:requestNotifications,logout,checkUpdates:()=>checkForUpdates(true),applyUpdate,removeTrackedSymbol};
 
 $('auth-form').onsubmit=async e=>{e.preventDefault();$('auth-status').textContent='A entrar…';const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)return $('auth-status').textContent=error.message;session=data.session;await openApp()};
 $('signup').onclick=async()=>{const {error}=await db.auth.signUp({email:$('email').value.trim(),password:$('password').value});$('auth-status').textContent=error?error.message:'Conta criada. Confirma o email se for solicitado.'};
-$('logout').onclick=logout;$('install').onclick=installApp;$('sync').onclick=loadAll;$('menu').onclick=()=>document.querySelector('.sidebar').classList.toggle('open');
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;pwaState.installable=true;});
-window.addEventListener('appinstalled',()=>{pwaState.installed=true;deferredInstall=null;toast('ATLAS instalado com sucesso.');});
+$('logout').onclick=logout;$('install').onclick=installApp;$('sync').onclick=loadAll;$('menu').onclick=()=>document.querySelector('.sidebar').classList.toggle('open');updateInstallButton();
+window.addEventListener('beforeinstallprompt',event=>{
+ event.preventDefault();
+ deferredInstall=event;
+ pwaState.installable=true;
+ updateInstallButton();
+});
+
+window.addEventListener('appinstalled',()=>{
+ pwaState.installed=true;
+ pwaState.installable=false;
+ deferredInstall=null;
+ updateInstallButton();
+ toast('ATLAS instalado com sucesso.');
+});
+
+window.matchMedia('(display-mode: standalone)').addEventListener?.('change',()=>{
+ updateInstallButton();
+});
 if('serviceWorker' in navigator){
  let reloadingForWorker=false;
 
@@ -1825,6 +1898,8 @@ if('serviceWorker' in navigator){
 
    await navigator.serviceWorker.ready;
    pwaState.serviceWorker=true;
+   await inspectPWA();
+   updateInstallButton();
 
    const announceWaitingWorker=()=>{
     if(!registration.waiting)return;

@@ -1,4 +1,4 @@
-const CACHE_NAME = "atlas-3.0.0-alpha19";
+const CACHE_NAME = "atlas-3.0.0-alpha20";
 
 const scopeUrl = new URL(self.registration.scope);
 const assetUrl = path => new URL(path, scopeUrl).toString();
@@ -14,8 +14,6 @@ const APP_SHELL = [
 ].map(assetUrl);
 
 self.addEventListener("install", event => {
-  self.skipWaiting();
-
   event.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
       for (const url of APP_SHELL) {
@@ -37,7 +35,7 @@ self.addEventListener("activate", event => {
 
       await Promise.all(
         keys
-          .filter(key => key !== CACHE_NAME)
+          .filter(key => key.startsWith("atlas-") && key !== CACHE_NAME)
           .map(key => caches.delete(key))
       );
 

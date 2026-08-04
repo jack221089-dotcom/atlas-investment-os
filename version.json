@@ -1,11 +1,11 @@
 {
-  "version": "3.0.0-alpha.19",
-  "name": "ATLAS 3.0 Alpha 19 — Automatic Updates",
+  "version": "3.0.0-alpha.20",
+  "name": "ATLAS 3.0 Alpha 20 — PWA Stabilization",
   "notes": [
-    "Compatibilidade completa com GitHub Pages",
-    "Service Worker com caminhos relativos ao projeto",
-    "Eliminação automática de caches antigas",
-    "Deteção automática de novas versões",
-    "Ativação e recarregamento do novo frontend"
+    "Botão Instalar restaurado com o pedido nativo do navegador",
+    "Estado Instalado apresentado automaticamente",
+    "Cache atualizada para Alpha 20",
+    "Limpeza controlada das caches ATLAS antigas",
+    "Sem alterações à carteira, cálculos, dashboard, radar ou cotações"
   ]
 }
