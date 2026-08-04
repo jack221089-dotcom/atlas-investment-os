@@ -1,10 +1,11 @@
 {
-  "version": "3.0.0-alpha.20.4",
-  "name": "ATLAS 3.0 Alpha 20.4 — Distribution Colors",
+  "version": "3.0.0-alpha.20.5",
+  "name": "ATLAS 3.0 Alpha 20.5 — Signup Validation",
   "notes": [
-    "Cores restauradas no gráfico Distribuição",
-    "Percentagens mantidas na legenda e nas fatias",
-    "Tooltip mantido sem alterações",
+    "Validação de email e palavra-passe antes de criar conta",
+    "Mensagem clara quando os campos estão vazios",
+    "Mensagem clara para conta já existente",
+    "Confirmação explícita quando é necessário validar o email",
     "Sem alterações às restantes funcionalidades"
   ]
 }

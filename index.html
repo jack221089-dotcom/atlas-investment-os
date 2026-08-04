@@ -362,7 +362,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 20.4.1</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 20.5.1</small>
       </div>
     </aside>
 
@@ -393,7 +393,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.20.4'
+  version:'3.0.0-alpha.20.5'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -579,7 +579,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.20.4','3.0.0 Alpha 20.4');updateInstallButton();await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.20.5','3.0.0 Alpha 20.5');updateInstallButton();await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -722,7 +722,7 @@ async function applyUpdate(){
   const keys=await caches.keys();
   await Promise.all(
     keys
-      .filter(key=>!key.includes('alpha20-4'))
+      .filter(key=>!key.includes('alpha20-5'))
       .map(key=>caches.delete(key))
   );
  }catch(error){
@@ -883,7 +883,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.20.4','3.0.0 Alpha 20.4'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.20.5','3.0.0 Alpha 20.5'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -1981,7 +1981,80 @@ async function logout(){await db.auth.signOut();location.reload()}
 window.atlas={show:showPage,refreshPrices:refreshMarketData,refreshRadar,editAsset,remove:removeRow,sync:loadAll,install:installApp,notify:requestNotifications,logout,checkUpdates:()=>checkForUpdates(true),applyUpdate,removeTrackedSymbol};
 
 $('auth-form').onsubmit=async e=>{e.preventDefault();$('auth-status').textContent='A entrar…';const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)return $('auth-status').textContent=error.message;session=data.session;await openApp()};
-$('signup').onclick=async()=>{const {error}=await db.auth.signUp({email:$('email').value.trim(),password:$('password').value});$('auth-status').textContent=error?error.message:'Conta criada. Confirma o email se for solicitado.'};
+$('signup').onclick=async()=>{
+ const email=$('email').value.trim();
+ const password=$('password').value;
+ const status=$('auth-status');
+
+ status.className='muted small';
+
+ if(!email&&!password){
+  status.textContent='Introduz o email e uma palavra-passe antes de criar a conta.';
+  $('email').focus();
+  return;
+ }
+
+ if(!email){
+  status.textContent='Introduz um endereço de email.';
+  $('email').focus();
+  return;
+ }
+
+ if(!$('email').checkValidity()){
+  status.textContent='Introduz um endereço de email válido.';
+  $('email').focus();
+  return;
+ }
+
+ if(!password){
+  status.textContent='Introduz uma palavra-passe.';
+  $('password').focus();
+  return;
+ }
+
+ if(password.length<6){
+  status.textContent='A palavra-passe deve ter pelo menos 6 caracteres.';
+  $('password').focus();
+  return;
+ }
+
+ status.textContent='A criar conta…';
+ $('signup').disabled=true;
+
+ try{
+  const {data,error}=await db.auth.signUp({email,password});
+
+  if(error){
+   const message=String(error.message||'').toLowerCase();
+
+   if(message.includes('anonymous')){
+    status.textContent='Introduz o email e uma palavra-passe válidos para criar a conta.';
+   }else if(message.includes('already registered')||message.includes('already exists')){
+    status.textContent='Já existe uma conta com este email. Usa o botão Entrar.';
+   }else if(message.includes('password')){
+    status.textContent='A palavra-passe não cumpre os requisitos de segurança.';
+   }else if(message.includes('email')){
+    status.textContent='Não foi possível usar este endereço de email.';
+   }else{
+    status.textContent=error.message||'Não foi possível criar a conta.';
+   }
+   return;
+  }
+
+  if(data?.session){
+   session=data.session;
+   status.textContent='Conta criada com sucesso.';
+   await openApp();
+  }else{
+   status.textContent='Conta criada. Confirma o email recebido antes de entrares.';
+  }
+ }catch(error){
+  console.error('Registo:',error);
+  status.textContent='Ocorreu um erro ao criar a conta. Tenta novamente.';
+ }finally{
+  $('signup').disabled=false;
+ }
+};
 $('logout').onclick=logout;$('install').onclick=installApp;$('sync').onclick=loadAll;$('menu').onclick=()=>document.querySelector('.sidebar').classList.toggle('open');updateInstallButton();
 window.addEventListener('beforeinstallprompt',event=>{
  event.preventDefault();
