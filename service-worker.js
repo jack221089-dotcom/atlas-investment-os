@@ -1,4 +1,4 @@
-const CACHE_NAME = "atlas-3.0.0-alpha21";
+const CACHE_NAME = "atlas-3.0.0-alpha22-1";
 
 const scopeUrl = new URL(self.registration.scope);
 const assetUrl = path => new URL(path, scopeUrl).toString();

@@ -1,14 +1,13 @@
 {
-  "version": "3.0.0-alpha.21",
-  "name": "ATLAS 3.0 Alpha 21 — Market Opportunities",
+  "version": "3.0.0-alpha.22.1",
+  "name": "ATLAS 3.0 Alpha 22.1 — Smart Radar",
   "notes": [
-    "Novo módulo Novas Oportunidades",
-    "Pesquisa de IPOs e empresas recém-cotadas",
-    "Classificação por setor e grupo de mercado",
-    "Preço, capitalização, bolsa, país e data de IPO",
-    "Risco transparente e fatores positivos/negativos",
-    "Preço-alvo e potencial apenas quando existe cobertura de analistas",
-    "Filtros por grupo, risco, mercado e pesquisa",
-    "Sem promessas ou projeções inventadas"
+    "Novo Radar Inteligente baseado em dados de mercado",
+    "Pesquisa de empresas por ticker ou nome",
+    "Universo diversificado de empresas emergentes",
+    "Filtros por grupo, mercado e preço máximo",
+    "Preço, variação diária, tendência de 30 dias e volume relativo",
+    "Interface renovada",
+    "Sem Score ATLAS, ranking, IA, notícias, SEC ou eventos nesta versão"
   ]
 }
