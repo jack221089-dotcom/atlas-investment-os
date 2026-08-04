@@ -1,11 +1,12 @@
 {
-  "version": "3.0.0-alpha.20",
-  "name": "ATLAS 3.0 Alpha 20 — PWA Stabilization",
+  "version": "3.0.0-alpha.20.1",
+  "name": "ATLAS 3.0 Alpha 20.1 — PWA Manifest Fix",
   "notes": [
-    "Botão Instalar restaurado com o pedido nativo do navegador",
-    "Estado Instalado apresentado automaticamente",
-    "Cache atualizada para Alpha 20",
-    "Limpeza controlada das caches ATLAS antigas",
-    "Sem alterações à carteira, cálculos, dashboard, radar ou cotações"
+    "Manifesto PWA incluído na raiz do GitHub Pages",
+    "Ícones 192x192 e 512x512 incluídos",
+    "Caminhos relativos compatíveis com /atlas-investment-os/",
+    "Botão Instalar usa o pedido nativo do navegador",
+    "Cache própria da Alpha 20.1",
+    "Sem alterações à carteira, cálculos, dashboard ou cotações"
   ]
 }
