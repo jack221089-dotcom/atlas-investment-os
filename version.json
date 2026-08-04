@@ -1,11 +1,10 @@
 {
-  "version": "3.0.0-alpha.20.3",
-  "name": "ATLAS 3.0 Alpha 20.3 — Distribution Percentages",
+  "version": "3.0.0-alpha.20.4",
+  "name": "ATLAS 3.0 Alpha 20.4 — Distribution Colors",
   "notes": [
-    "Percentagens adicionadas à legenda do gráfico Distribuição",
-    "Percentagens desenhadas nas fatias com 4% ou mais",
-    "Tooltip mostra valor atual e percentagem",
-    "Atualização automática após reforço, venda ou nova cotação",
+    "Cores restauradas no gráfico Distribuição",
+    "Percentagens mantidas na legenda e nas fatias",
+    "Tooltip mantido sem alterações",
     "Sem alterações às restantes funcionalidades"
   ]
 }
