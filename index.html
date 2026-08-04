@@ -330,6 +330,72 @@ body{background:
 .asset-diagnostic-note{margin-top:14px;color:var(--muted,#9eb0c8);font-size:12px;line-height:1.5}
 @media(max-width:720px){.asset-diagnostic-total{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+
+.opportunity-toolbar{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;
+  margin:14px 0 18px
+}
+.opportunity-toolbar label{
+  display:flex;flex-direction:column;gap:7px;color:var(--muted);font-size:12px
+}
+.opportunity-toolbar select,.opportunity-toolbar input{
+  min-height:44px;padding:10px 12px;border-radius:11px;
+  border:1px solid var(--line);background:#0d1118;color:var(--text)
+}
+.opportunity-summary{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px
+}
+.opportunity-card{
+  background:linear-gradient(145deg,#151c27,#101720);
+  border:1px solid var(--line);border-radius:17px;padding:18px;
+  display:grid;gap:14px
+}
+.opportunity-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px
+}
+.opportunity-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.opportunity-company{display:flex;gap:12px;align-items:center}
+.opportunity-logo{
+  width:46px;height:46px;border-radius:12px;background:#0b1118;border:1px solid var(--line);
+  display:grid;place-items:center;overflow:hidden;font-weight:800
+}
+.opportunity-logo img{width:100%;height:100%;object-fit:contain;background:#fff}
+.opportunity-name{font-size:18px;font-weight:800}
+.opportunity-symbol{color:var(--muted);font-size:12px;margin-top:3px}
+.opportunity-meta{display:flex;gap:7px;flex-wrap:wrap}
+.opportunity-facts{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px
+}
+.opportunity-fact{
+  padding:11px;border:1px solid rgba(148,163,184,.15);
+  border-radius:11px;background:rgba(255,255,255,.025)
+}
+.opportunity-fact span{display:block;color:var(--muted);font-size:11px}
+.opportunity-fact strong{display:block;margin-top:5px;font-size:14px}
+.opportunity-scenario{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px
+}
+.opportunity-scenario>div{
+  padding:11px;border-radius:11px;border:1px solid rgba(148,163,184,.15);
+  background:rgba(255,255,255,.025)
+}
+.opportunity-scenario span{display:block;color:var(--muted);font-size:11px}
+.opportunity-scenario strong{display:block;margin-top:5px}
+.opportunity-reasons{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opportunity-reasons ul{margin:7px 0 0;padding-left:18px;color:#c3cfdd;font-size:12px;line-height:1.5}
+.opportunity-note{
+  border-left:3px solid var(--warn);padding:11px 13px;background:rgba(233,189,90,.06);
+  border-radius:9px;color:#c8d2df;font-size:12px;line-height:1.5
+}
+.risk-speculative{color:#ff7676}.risk-high{color:#f5b95b}.risk-medium{color:#ffd369}.risk-low{color:var(--good)}
+@media(max-width:950px){
+  .opportunity-toolbar,.opportunity-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .opportunity-grid{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .opportunity-toolbar,.opportunity-summary,.opportunity-facts,.opportunity-scenario,.opportunity-reasons{grid-template-columns:1fr}
+}
+
 </style>
   <title>ATLAS Investment Operating System 3.0</title>
 </head>
@@ -362,7 +428,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 20.5.1</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 21.1</small>
       </div>
     </aside>
 
@@ -381,6 +447,7 @@ body{background:
       <section id="journal" class="page hidden"></section>
       <section id="academy" class="page hidden"></section>
       <section id="goals" class="page hidden"></section>
+      <section id="opportunities" class="page hidden"></section>
       <section id="assistant" class="page hidden"></section>
       <section id="system" class="page hidden"></section>
     </main>
@@ -392,8 +459,8 @@ body{background:
 const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
-  functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.20.5'
+  functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core',opportunities:'market-opportunities'},
+  version:'3.0.0-alpha.21'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -429,12 +496,12 @@ const serviceState={
 const state={
  assets:[],operations:[],dividends:[],diary:[],knowledge:[],goals:[],snapshots:[],marketHistory:[],
  radar:{market:'Normal',summary:'Nenhuma alteração relevante.',updated:''},
- news:[],newsOverview:null,radarData:null,prices:{},messages:[]
+ news:[],newsOverview:null,radarData:null,prices:{},messages:[],opportunities:[],opportunityMeta:null
 };
 const pages=[
  ['home','🏠 Home'],['dashboard','📊 Dashboard'],['portfolio','💼 Carteira'],
  ['radar','🌍 Radar'],['calendar','📅 Calendário'],['journal','📖 Diário'],
- ['academy','📚 Academia'],['goals','🎯 Objetivos'],['assistant','🤖 Atlas IA'],['system','⚙️ Sistema']
+ ['academy','📚 Academia'],['goals','🎯 Objetivos'],['opportunities','🚀 Novas Oportunidades'],['assistant','🤖 Atlas IA'],['system','⚙️ Sistema']
 ];
 
 const $=id=>document.getElementById(id);
@@ -579,7 +646,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.20.5','3.0.0 Alpha 20.5');updateInstallButton();await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.21','3.0.0 Alpha 21');updateInstallButton();await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -644,7 +711,7 @@ async function saveMarketHistory(){
 }
 
 function renderAll(){
- for(const fn of [renderHome,renderDashboard,renderPortfolio,renderRadar,renderCalendar,renderJournal,renderAcademy,renderGoals,renderAssistant,renderSystem]){
+ for(const fn of [renderHome,renderDashboard,renderPortfolio,renderRadar,renderCalendar,renderJournal,renderAcademy,renderGoals,renderOpportunities,renderAssistant,renderSystem]){
   try{fn()}catch(e){console.error(fn.name,e)}
  }
 }
@@ -722,7 +789,7 @@ async function applyUpdate(){
   const keys=await caches.keys();
   await Promise.all(
     keys
-      .filter(key=>!key.includes('alpha20-5'))
+      .filter(key=>!key.includes('alpha21'))
       .map(key=>caches.delete(key))
   );
  }catch(error){
@@ -883,7 +950,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.20.5','3.0.0 Alpha 20.5'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.21','3.0.0 Alpha 21'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -1735,6 +1802,236 @@ function goalForm(){return `<form id="goal-form" class="form hidden"><label>Obje
 function renderGoals(){$('goals').innerHTML=`${head('Objetivos','Progresso financeiro e de processo','<button id="new-goal" class="btn primary">Adicionar objetivo</button>')}${goalForm()}<div class="grid two">${state.goals.length?state.goals.map(g=>{const p=g.target_value?Math.min(100,g.current_value/g.target_value*100):0;return `<article class="card"><div class="entry-top"><h3>${esc(g.name)}</h3><button class="btn danger" onclick="window.atlas.remove('goals','${g.id}')">Eliminar</button></div><div style="font-size:25px;font-weight:750;margin-top:12px">${g.current_value||0} / ${g.target_value||0} ${esc(g.unit||'')}</div><div class="progress"><span style="width:${p}%"></span></div><div class="muted small">${pct(p)} concluído</div></article>`}).join(''):empty('Sem objetivos.')}</div>`;$('new-goal').onclick=()=>toggle('goal-form');bindForm('goal-form',addGoal)}
 async function addGoal(e){e.preventDefault();try{const o=formObj(e);o.current_value=+o.current_value;o.target_value=+o.target_value;await insert('goals',o);toast('Objetivo guardado')}catch(x){toast(x.message)}}
 
+
+function opportunityRiskClass(risk){
+ const value=String(risk||'').toLowerCase();
+ if(value.includes('espec'))return'risk-speculative';
+ if(value.includes('elev'))return'risk-high';
+ if(value.includes('baix'))return'risk-low';
+ return'risk-medium';
+}
+
+function opportunityMoney(value,currency='USD'){
+ const number=Number(value);
+ if(!Number.isFinite(number))return'—';
+ try{
+  return new Intl.NumberFormat('pt-PT',{
+   style:'currency',
+   currency:currency||'USD',
+   maximumFractionDigits:2
+  }).format(number);
+ }catch{
+  return `${number.toLocaleString('pt-PT')} ${currency||''}`.trim();
+ }
+}
+
+function opportunityPercentage(value){
+ const number=Number(value);
+ if(!Number.isFinite(number))return'Dados insuficientes';
+ return `${number>=0?'+':''}${number.toLocaleString('pt-PT',{
+  minimumFractionDigits:1,
+  maximumFractionDigits:1
+ })}%`;
+}
+
+function opportunityList(items,fallback){
+ const values=Array.isArray(items)?items.filter(Boolean):[];
+ return values.length
+  ?`<ul>${values.map(item=>`<li>${esc(item)}</li>`).join('')}</ul>`
+  :`<div class="muted small">${esc(fallback)}</div>`;
+}
+
+function filteredOpportunities(){
+ const sector=$('opportunity-sector')?.value||'all';
+ const risk=$('opportunity-risk')?.value||'all';
+ const market=$('opportunity-market')?.value||'all';
+ const query=String($('opportunity-search')?.value||'').trim().toLowerCase();
+
+ return(state.opportunities||[]).filter(item=>{
+  if(sector!=='all'&&String(item.group||'')!==sector)return false;
+  if(risk!=='all'&&String(item.risk||'')!==risk)return false;
+  if(market!=='all'&&String(item.market||'')!==market)return false;
+
+  if(query){
+   const haystack=[
+    item.name,item.symbol,item.industry,item.group,item.country,item.exchange
+   ].join(' ').toLowerCase();
+   if(!haystack.includes(query))return false;
+  }
+  return true;
+ });
+}
+
+function drawOpportunityCards(){
+ const root=$('opportunity-results');
+ if(!root)return;
+
+ const items=filteredOpportunities();
+ const count=$('opportunity-count');
+ if(count)count.textContent=`${items.length} empresas`;
+
+ if(!items.length){
+  root.innerHTML=empty('Nenhuma oportunidade corresponde aos filtros atuais.');
+  return;
+ }
+
+ root.innerHTML=items.map(item=>{
+  const targetAvailable=Number.isFinite(Number(item.target_mean))&&Number(item.target_mean)>0;
+  const potentialAvailable=Number.isFinite(Number(item.potential_percent));
+  const marketCap=Number(item.market_cap_million);
+
+  return`
+   <article class="opportunity-card">
+    <div class="opportunity-head">
+     <div class="opportunity-company">
+      <div class="opportunity-logo">
+       ${item.logo?`<img src="${safeUrl(item.logo)}" alt="">`:esc(String(item.symbol||'?').slice(0,2))}
+      </div>
+      <div>
+       <div class="opportunity-name">${esc(item.name||item.symbol||'Empresa')}</div>
+       <div class="opportunity-symbol">${esc(item.symbol||'')} · ${esc(item.exchange||'Bolsa desconhecida')}</div>
+      </div>
+     </div>
+     <span class="badge ${opportunityRiskClass(item.risk)}">${esc(item.risk||'Risco não avaliado')}</span>
+    </div>
+
+    <div class="opportunity-meta">
+     <span class="tag">${esc(item.group||'Outro')}</span>
+     <span class="tag">${esc(item.industry||'Setor não indicado')}</span>
+     <span class="tag">${esc(item.country||'País não indicado')}</span>
+     <span class="tag">${esc(item.status||'Recém-cotada')}</span>
+    </div>
+
+    <div class="opportunity-facts">
+     <div class="opportunity-fact"><span>Preço atual</span><strong>${opportunityMoney(item.price,item.currency)}</strong></div>
+     <div class="opportunity-fact"><span>Capitalização</span><strong>${Number.isFinite(marketCap)?`${marketCap.toLocaleString('pt-PT',{maximumFractionDigits:0})} M ${esc(item.currency||'USD')}`:'—'}</strong></div>
+     <div class="opportunity-fact"><span>Entrada em bolsa</span><strong>${esc(item.ipo_date||'—')}</strong></div>
+    </div>
+
+    <div class="opportunity-scenario">
+     <div><span>Preço-alvo mínimo</span><strong>${targetAvailable?opportunityMoney(item.target_low,item.currency):'Sem cobertura'}</strong></div>
+     <div><span>Preço-alvo médio</span><strong>${targetAvailable?opportunityMoney(item.target_mean,item.currency):'Sem cobertura'}</strong></div>
+     <div><span>Potencial de consenso</span><strong class="${potentialAvailable?(Number(item.potential_percent)>=0?'good':'bad'):'muted'}">${potentialAvailable?opportunityPercentage(item.potential_percent):'Dados insuficientes'}</strong></div>
+    </div>
+
+    <div class="opportunity-reasons">
+     <div>
+      <b>Fatores positivos</b>
+      ${opportunityList(item.positive_factors,'Ainda não existem dados suficientes.')}
+     </div>
+     <div>
+      <b>Principais riscos</b>
+      ${opportunityList(item.risk_factors,'Ainda não existem dados suficientes.')}
+     </div>
+    </div>
+
+    <div class="opportunity-note">
+     ${targetAvailable
+       ?'O potencial apresentado deriva de preços-alvo publicados por analistas e não constitui garantia de retorno.'
+       :'Não existe cobertura gratuita suficiente para estimar ganhos futuros. O ATLAS não inventa uma projeção.'}
+    </div>
+   </article>`;
+ }).join('');
+}
+
+function bindOpportunityFilters(){
+ ['opportunity-sector','opportunity-risk','opportunity-market','opportunity-search']
+  .forEach(id=>{
+   const element=$(id);
+   if(!element)return;
+   element.oninput=drawOpportunityCards;
+   element.onchange=drawOpportunityCards;
+  });
+
+ const refresh=$('opportunity-refresh');
+ if(refresh)refresh.onclick=()=>refreshOpportunities();
+}
+
+async function refreshOpportunities(){
+ const button=$('opportunity-refresh');
+ if(button)button.disabled=true;
+
+ try{
+  const {data,error}=await db.functions.invoke(CONFIG.functions.opportunities,{
+   body:{days_back:180,days_forward:45,limit:30}
+  });
+  if(error)throw error;
+
+  state.opportunities=Array.isArray(data?.items)?data.items:[];
+  state.opportunityMeta={
+   generated_at:data?.generated_at||new Date().toISOString(),
+   source:data?.source||'Finnhub',
+   coverage:data?.coverage||'partial'
+  };
+
+  renderOpportunities();
+  toast(`${state.opportunities.length} oportunidades analisadas.`);
+ }catch(error){
+  console.error('Novas oportunidades:',error);
+  toast(error.message||'Não foi possível atualizar as oportunidades.');
+ }finally{
+  if(button)button.disabled=false;
+ }
+}
+
+function renderOpportunities(){
+ const groups=[...new Set((state.opportunities||[]).map(item=>item.group).filter(Boolean))].sort();
+ const risks=[...new Set((state.opportunities||[]).map(item=>item.risk).filter(Boolean))].sort();
+ const markets=[...new Set((state.opportunities||[]).map(item=>item.market).filter(Boolean))].sort();
+ const withTargets=(state.opportunities||[]).filter(item=>Number.isFinite(Number(item.potential_percent))).length;
+ const speculative=(state.opportunities||[]).filter(item=>String(item.risk||'').toLowerCase().includes('espec')).length;
+
+ $('opportunities').innerHTML=`
+  ${head(
+   'Novas Oportunidades',
+   'Empresas recém-cotadas, grupos de mercado, risco e cobertura de analistas.',
+   '<button class="btn primary" id="opportunity-refresh">Atualizar oportunidades</button>'
+  )}
+
+  <div class="opportunity-note">
+   Uma ação com preço baixo não é necessariamente barata. O ATLAS considera capitalização, setor, cobertura, risco e dados disponíveis.
+   Esta área é de pesquisa e não constitui recomendação de investimento.
+  </div>
+
+  <div class="opportunity-summary">
+   <div class="card metric"><div class="label">Empresas analisadas</div><div class="value">${state.opportunities.length}</div><div class="foot">IPOs e recém-cotadas</div></div>
+   <div class="card metric"><div class="label">Com preço-alvo</div><div class="value">${withTargets}</div><div class="foot">Cobertura de analistas</div></div>
+   <div class="card metric"><div class="label">Especulativas</div><div class="value">${speculative}</div><div class="foot">Risco muito elevado</div></div>
+   <div class="card metric"><div class="label">Última atualização</div><div class="value" style="font-size:16px">${state.opportunityMeta?.generated_at?new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date(state.opportunityMeta.generated_at)):'—'}</div><div class="foot">${esc(state.opportunityMeta?.source||'Ainda não atualizado')}</div></div>
+  </div>
+
+  <div class="opportunity-toolbar">
+   <label>Pesquisar
+    <input id="opportunity-search" placeholder="Empresa, ticker ou setor">
+   </label>
+   <label>Grupo
+    <select id="opportunity-sector">
+     <option value="all">Todos</option>
+     ${groups.map(value=>`<option value="${esc(value)}">${esc(value)}</option>`).join('')}
+    </select>
+   </label>
+   <label>Risco
+    <select id="opportunity-risk">
+     <option value="all">Todos</option>
+     ${risks.map(value=>`<option value="${esc(value)}">${esc(value)}</option>`).join('')}
+    </select>
+   </label>
+   <label>Mercado
+    <select id="opportunity-market">
+     <option value="all">Todos</option>
+     ${markets.map(value=>`<option value="${esc(value)}">${esc(value)}</option>`).join('')}
+    </select>
+   </label>
+  </div>
+
+  <div class="toolbar"><span id="opportunity-count" class="muted small"></span></div>
+  <div id="opportunity-results" class="opportunity-grid"></div>
+ `;
+
+ bindOpportunityFilters();
+ drawOpportunityCards();
+}
+
 function renderAssistant(){
  $('assistant').innerHTML=`${head('ATLAS Intelligence','Análise fundamentada nos teus dados, com incerteza explícita')}<div class="chat"><div id="messages" class="messages">${state.messages.length?state.messages.map(m=>`<div class="message ${m.role}">${esc(m.text)}</div>`).join(''):'<div class="message ai">Posso analisar a carteira, exposição, risco, dividendos, decisões, objetivos, notícias e calendário. Não prometo previsões infalíveis; explico cenários, evidência e confiança.</div>'}</div><div class="composer"><textarea id="question" placeholder="Ex.: Faz uma análise completa da minha carteira e diz o que merece atenção."></textarea><button id="ask" class="btn primary">Analisar</button></div></div>`;
  $('ask').onclick=askAI;
@@ -1978,7 +2275,8 @@ async function installApp(){
 
 async function logout(){await db.auth.signOut();location.reload()}
 
-window.atlas={show:showPage,refreshPrices:refreshMarketData,refreshRadar,editAsset,remove:removeRow,sync:loadAll,install:installApp,notify:requestNotifications,logout,checkUpdates:()=>checkForUpdates(true),applyUpdate,removeTrackedSymbol};
+window.atlas={show:showPage,refreshPrices:refreshMarketData,refreshRadar,editAsset,remove:removeRow,sync:loadAll,install:installApp,notify:requestNotifications,logout,checkUpdates:()=>checkForUpdates(true),
+ refreshOpportunities,applyUpdate,removeTrackedSymbol};
 
 $('auth-form').onsubmit=async e=>{e.preventDefault();$('auth-status').textContent='A entrar…';const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)return $('auth-status').textContent=error.message;session=data.session;await openApp()};
 $('signup').onclick=async()=>{

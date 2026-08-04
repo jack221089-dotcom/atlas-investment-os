@@ -1,11 +1,14 @@
 {
-  "version": "3.0.0-alpha.20.5",
-  "name": "ATLAS 3.0 Alpha 20.5 — Signup Validation",
+  "version": "3.0.0-alpha.21",
+  "name": "ATLAS 3.0 Alpha 21 — Market Opportunities",
   "notes": [
-    "Validação de email e palavra-passe antes de criar conta",
-    "Mensagem clara quando os campos estão vazios",
-    "Mensagem clara para conta já existente",
-    "Confirmação explícita quando é necessário validar o email",
-    "Sem alterações às restantes funcionalidades"
+    "Novo módulo Novas Oportunidades",
+    "Pesquisa de IPOs e empresas recém-cotadas",
+    "Classificação por setor e grupo de mercado",
+    "Preço, capitalização, bolsa, país e data de IPO",
+    "Risco transparente e fatores positivos/negativos",
+    "Preço-alvo e potencial apenas quando existe cobertura de analistas",
+    "Filtros por grupo, risco, mercado e pesquisa",
+    "Sem promessas ou projeções inventadas"
   ]
 }
