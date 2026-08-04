@@ -362,7 +362,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 20.1.1</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 20.2.1</small>
       </div>
     </aside>
 
@@ -393,7 +393,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.20.1'
+  version:'3.0.0-alpha.20.2'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -579,7 +579,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.20.1','3.0.0 Alpha 20.1');updateInstallButton();await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.20.2','3.0.0 Alpha 20.2');updateInstallButton();await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -722,7 +722,7 @@ async function applyUpdate(){
   const keys=await caches.keys();
   await Promise.all(
     keys
-      .filter(key=>!key.includes('alpha20-1'))
+      .filter(key=>!key.includes('alpha20-2'))
       .map(key=>caches.delete(key))
   );
  }catch(error){
@@ -883,7 +883,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.20.1','3.0.0 Alpha 20.1'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.20.2','3.0.0 Alpha 20.2'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -1759,37 +1759,54 @@ async function saveSnapshot(){
 }
 
 async function inspectPWA(){
- try{
-  const manifestLink=document.querySelector('link[rel="manifest"]');
-  if(manifestLink){
-   const response=await fetch(manifestLink.href,{cache:'no-store'});
-   pwaState.manifest=response.ok;
-  }
- }catch(error){
-  console.warn('Manifest:',error);
-  pwaState.manifest=false;
- }
+ pwaState.installed=
+  window.matchMedia('(display-mode: standalone)').matches||
+  Boolean(navigator.standalone);
+
+ pwaState.manifest=Boolean(
+  document.querySelector('link[rel="manifest"]')
+ );
 
  try{
   if('serviceWorker' in navigator){
-   const registration=await navigator.serviceWorker.getRegistration('./');
+   const registration=
+    await navigator.serviceWorker.getRegistration('./')||
+    await navigator.serviceWorker.ready;
    pwaState.serviceWorker=Boolean(registration);
+  }else{
+   pwaState.serviceWorker=false;
   }
  }catch(error){
   console.warn('Service Worker:',error);
   pwaState.serviceWorker=false;
  }
 
- pwaState.installed=window.matchMedia('(display-mode: standalone)').matches||Boolean(navigator.standalone);
+ pwaState.installable=Boolean(deferredInstall);
  return pwaState;
 }
 
 function pwaMessage(){
- if(pwaState.installed)return 'O ATLAS já está instalado neste dispositivo.';
- if(!window.isSecureContext)return 'A instalação exige uma ligação HTTPS.';
- if(!pwaState.manifest)return 'O manifesto da aplicação não foi carregado. Atualiza a página e tenta novamente.';
- if(!pwaState.serviceWorker)return 'O serviço offline ainda não ficou ativo. Atualiza a página e tenta novamente.';
- return 'No Chrome, abre o menu ⋮ e escolhe “Instalar ATLAS”. No Safari do Mac, usa Ficheiro → Adicionar à Dock.';
+ if(pwaState.installed){
+  return 'O ATLAS já está instalado neste dispositivo.';
+ }
+
+ if(!window.isSecureContext){
+  return 'A instalação exige uma ligação HTTPS.';
+ }
+
+ const ua=navigator.userAgent||'';
+ const isIOS=/iPad|iPhone|iPod/.test(ua);
+ const isSafari=/Safari/.test(ua)&&!/Chrome|CriOS|Edg|OPR/.test(ua);
+
+ if(isIOS||isSafari){
+  return 'No Safari, usa Partilhar e escolhe “Adicionar ao ecrã principal”.';
+ }
+
+ if(!pwaState.serviceWorker){
+  return 'O serviço de instalação ainda está a iniciar. Atualiza a página e tenta novamente.';
+ }
+
+ return 'O navegador ainda não disponibilizou a instalação. No Chrome ou Edge, aguarda alguns segundos e volta a carregar em Instalar.';
 }
 
 async function requestNotifications(){
@@ -1812,10 +1829,10 @@ function updateInstallButton(){
  }
 
  button.disabled=false;
- button.textContent='Instalar';
+ button.textContent=deferredInstall?'Instalar agora':'Instalar';
  button.title=deferredInstall
-  ?'Instalar o ATLAS neste dispositivo'
-  :'A instalação será disponibilizada pelo navegador quando os requisitos estiverem reunidos.';
+  ?'Abrir a instalação do ATLAS'
+  :'Verificar se a instalação está disponível';
 }
 
 async function installApp(){
@@ -1824,6 +1841,11 @@ async function installApp(){
 
  if(pwaState.installed){
   return toast('O ATLAS já está instalado neste dispositivo.');
+ }
+
+ if(!deferredInstall){
+  // Alguns navegadores entregam o evento poucos instantes após o carregamento.
+  await new Promise(resolve=>setTimeout(resolve,700));
  }
 
  if(deferredInstall){
@@ -1850,8 +1872,8 @@ async function installApp(){
   return;
  }
 
- const message=pwaMessage();
- toast(message);
+ await inspectPWA();
+ toast(pwaMessage());
 }
 
 async function logout(){await db.auth.signOut();location.reload()}

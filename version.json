@@ -1,12 +1,11 @@
 {
-  "version": "3.0.0-alpha.20.1",
-  "name": "ATLAS 3.0 Alpha 20.1 — PWA Manifest Fix",
+  "version": "3.0.0-alpha.20.2",
+  "name": "ATLAS 3.0 Alpha 20.2 — Install Prompt Hotfix",
   "notes": [
-    "Manifesto PWA incluído na raiz do GitHub Pages",
-    "Ícones 192x192 e 512x512 incluídos",
-    "Caminhos relativos compatíveis com /atlas-investment-os/",
-    "Botão Instalar usa o pedido nativo do navegador",
-    "Cache própria da Alpha 20.1",
+    "Removido o falso bloqueio baseado no teste manual ao manifesto",
+    "Instalação controlada diretamente pelo beforeinstallprompt",
+    "Botão mostra Instalar agora quando o navegador está pronto",
+    "Mensagens específicas para Chrome, Edge e Safari",
     "Sem alterações à carteira, cálculos, dashboard ou cotações"
   ]
 }
