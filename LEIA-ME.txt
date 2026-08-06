@@ -1,0 +1,57 @@
+ATLAS 3.0 Alpha 22.2 — Score e Ranking
+
+INCLUÍDO
+- ATLAS Score 0–100;
+- Ranking automático;
+- componentes Mercado, Crescimento, Fundamentais e Risco;
+- explicação do cálculo;
+- score mínimo;
+- Top 10 / Top 20 / Todos;
+- ordenação por score, tendência, volume ou preço.
+
+NÃO INCLUÍDO
+- IA explicativa;
+- notícias;
+- SEC;
+- eventos.
+
+1. GITHUB — RAIZ
+Substitui:
+- index.html
+- service-worker.js
+- version.json
+
+Commit:
+ATLAS 3.0 Alpha 22.2 - Score and ranking
+
+2. SUPABASE
+Abre:
+Edge Functions > market-data > Code
+
+- apaga o código atual;
+- cola todo o conteúdo de market-data-index.ts;
+- faz Deploy updates.
+
+3. TESTE
+Body:
+{
+  "action": "radar",
+  "limit": 30
+}
+
+Cada item deve devolver:
+- atlas_score
+- rank
+- data_quality
+- score_components
+- score_positive
+- score_negative
+
+4. NO ATLAS
+- abre Radar Inteligente;
+- carrega em Analisar mercado;
+- confirma ranking e Score;
+- testa Score mínimo e Top 10.
+
+O Score adapta os pesos quando uma fonte não disponibiliza fundamentais.
+Não é previsão de retorno nem recomendação de investimento.

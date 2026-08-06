@@ -685,19 +685,38 @@ function renderNav(){
  $('nav').querySelector('button')?.classList.add('active');
 }
 function showPage(id){
+ if(!$(id))id='home';
  document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));
  $(id).classList.remove('hidden');
  document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));
+ if(location.hash!==`#${id}`)history.replaceState(null,'',`#${id}`);
  if(innerWidth<900)document.querySelector('.sidebar').classList.remove('open');
 }
+window.addEventListener('hashchange',()=>{
+ const id=location.hash.replace('#','')||'home';
+ if(session&&pages.some(([pageId])=>pageId===id))showPage(id);
+});
 function bindForm(id,fn){const f=$(id);if(f)f.onsubmit=fn}
 
 async function bootstrap(){
  const {data}=await db.auth.getSession();session=data.session;
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
+function displayVersion(version){
+ return String(version||'')
+  .replace(/^(\d+\.\d+\.\d+)-alpha\.(.+)$/,'$1 Alpha $2')
+  .replace(/^(\d+\.\d+\.\d+)-beta\.(.+)$/,'$1 Beta $2');
+}
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.22.2','3.0.0 Alpha 22.2');updateInstallButton();await loadAll();
+ $('auth').classList.add('hidden');
+ $('shell').classList.remove('hidden');
+ renderNav();
+ const sv=document.getElementById('sidebar-version');
+ if(sv)sv.textContent='Version '+displayVersion(CONFIG.version);
+ updateInstallButton();
+ await loadAll();
+ const requested=location.hash.replace('#','');
+ if(requested&&pages.some(([id])=>id===requested))showPage(requested);
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -826,30 +845,52 @@ async function checkForUpdates(showToast=true){
 }
 async function applyUpdate(){
  try{
-  if('serviceWorker' in navigator){
-   const registration=await navigator.serviceWorker.getRegistration('./');
+  if(!('serviceWorker' in navigator)){
+   location.reload();
+   return;
+  }
 
-   if(registration?.waiting){
-    registration.waiting.postMessage('SKIP_WAITING');
-    return;
-   }
+  const registration=await navigator.serviceWorker.getRegistration('./');
+  if(!registration){
+   location.reload();
+   return;
+  }
 
-   await registration?.update();
+  if(registration.waiting){
+   registration.waiting.postMessage('SKIP_WAITING');
+   return;
+  }
+
+  await registration.update();
+
+  const installing=registration.installing;
+  if(installing){
+   await new Promise(resolve=>{
+    const finish=()=>{
+     if(installing.state==='installed'||installing.state==='activated'||installing.state==='redundant'){
+      installing.removeEventListener('statechange',finish);
+      resolve();
+     }
+    };
+    installing.addEventListener('statechange',finish);
+    finish();
+    setTimeout(resolve,8000);
+   });
+  }
+
+  if(registration.waiting){
+   registration.waiting.postMessage('SKIP_WAITING');
+   return;
   }
 
   const keys=await caches.keys();
-  await Promise.all(
-    keys
-      .filter(key=>!key.includes('alpha22-2'))
-      .map(key=>caches.delete(key))
-  );
+  await Promise.all(keys.filter(key=>!key.includes('alpha22-2')).map(key=>caches.delete(key)));
+  location.reload();
  }catch(error){
   console.warn('Atualização ATLAS:',error);
+  location.reload();
  }
-
- location.reload();
 }
-
 
 function diagnosticSourceLabel(source){
   const labels={
@@ -1697,7 +1738,7 @@ async function editAsset(id){
     submit.disabled=true;
     submit.textContent='A guardar…';
 
-    const {error}=await db.from('assets').update(payload).eq('id',id);
+    const {error}=await db.from('assets').update(payload).eq('id',id).eq('user_id',uid());
     if(error){
       submit.disabled=false;
       submit.textContent='Guardar alterações';
@@ -1711,7 +1752,12 @@ async function editAsset(id){
 
   setTimeout(()=>form.elements.name?.focus(),50);
 }
-async function removeRow(table,id){if(!confirm('Eliminar este registo?'))return;const {error}=await db.from(table).delete().eq('id',id);if(error)return toast(error.message);await loadAll()}
+async function removeRow(table,id){
+ if(!confirm('Eliminar este registo?'))return;
+ const {error}=await db.from(table).delete().eq('id',id).eq('user_id',uid());
+ if(error)return toast(error.message);
+ await loadAll();
+}
 
 function smartMoneyScore(){
  const data=state.radarData||{};

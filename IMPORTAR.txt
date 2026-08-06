@@ -1,0 +1,11 @@
+IMPORTAÇÃO ÚNICA
+
+1. No GitHub, carrega todos os ficheiros e a pasta .github deste pacote para a raiz.
+2. Confirma que os nomes ficam sem (1), (2) ou outros sufixos.
+3. Faz Commit changes.
+4. Em Settings > Pages, escolhe GitHub Actions apenas se ainda não estiver escolhido.
+5. Em Actions, espera por "Deploy ATLAS to GitHub Pages" com visto verde.
+6. Abre o ATLAS.
+
+SUPABASE:
+Usa market-data-index.ts em Edge Functions > market-data > Code > Deploy updates.
