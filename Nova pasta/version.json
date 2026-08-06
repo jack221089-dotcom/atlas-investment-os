@@ -1,11 +1,15 @@
 {
-  "version": "3.0.0-alpha.19",
-  "name": "ATLAS 3.0 Alpha 19 — Automatic Updates",
+  "version": "3.0.0-alpha.22.2",
+  "name": "ATLAS 3.0 Alpha 22.2 — Score and Ranking",
   "notes": [
-    "Compatibilidade completa com GitHub Pages",
-    "Service Worker com caminhos relativos ao projeto",
-    "Eliminação automática de caches antigas",
-    "Deteção automática de novas versões",
-    "Ativação e recarregamento do novo frontend"
+    "ATLAS Score transparente de 0 a 100",
+    "Componentes Mercado, Crescimento, Fundamentais e Risco",
+    "Ranking automático dentro do Radar Inteligente",
+    "Explicação dos fatores positivos e penalizações",
+    "Filtro por score mínimo",
+    "Top 10, Top 20 ou todos",
+    "Ordenação por score, tendência, volume ou preço",
+    "Pesos adaptados quando faltam dados",
+    "Sem IA, notícias, SEC ou eventos nesta versão"
   ]
 }
