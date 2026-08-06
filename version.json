@@ -1,13 +1,15 @@
 {
-  "version": "3.0.0-alpha.22.1",
-  "name": "ATLAS 3.0 Alpha 22.1 — Smart Radar",
+  "version": "3.0.0-alpha.22.2",
+  "name": "ATLAS 3.0 Alpha 22.2 — Score and Ranking",
   "notes": [
-    "Novo Radar Inteligente baseado em dados de mercado",
-    "Pesquisa de empresas por ticker ou nome",
-    "Universo diversificado de empresas emergentes",
-    "Filtros por grupo, mercado e preço máximo",
-    "Preço, variação diária, tendência de 30 dias e volume relativo",
-    "Interface renovada",
-    "Sem Score ATLAS, ranking, IA, notícias, SEC ou eventos nesta versão"
+    "ATLAS Score transparente de 0 a 100",
+    "Componentes Mercado, Crescimento, Fundamentais e Risco",
+    "Ranking automático dentro do Radar Inteligente",
+    "Explicação dos fatores positivos e penalizações",
+    "Filtro por score mínimo",
+    "Top 10, Top 20 ou todos",
+    "Ordenação por score, tendência, volume ou preço",
+    "Pesos adaptados quando faltam dados",
+    "Sem IA, notícias, SEC ou eventos nesta versão"
   ]
 }

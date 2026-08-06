@@ -407,6 +407,46 @@ body{background:
 .radar-market-stats strong{display:block;margin-top:5px;font-size:14px}
 @media(max-width:700px){.radar-search-panel{grid-template-columns:1fr}.radar-market-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+
+.atlas-score-wrap{display:flex;align-items:center;gap:12px;min-width:150px}
+.atlas-score-ring{
+  --score:0;
+  width:62px;height:62px;border-radius:50%;
+  display:grid;place-items:center;
+  background:conic-gradient(var(--score-color,#6b7280) calc(var(--score)*1%),#202938 0);
+  position:relative;flex:0 0 auto
+}
+.atlas-score-ring::before{
+  content:"";position:absolute;inset:6px;border-radius:50%;background:#101720
+}
+.atlas-score-ring strong{position:relative;font-size:17px;z-index:1}
+.atlas-score-label{font-size:11px;color:var(--muted)}
+.atlas-score-grade{font-size:12px;font-weight:750;margin-top:3px}
+.score-excellent{--score-color:#2ecc8f}.score-strong{--score-color:#3ba0e5}
+.score-watch{--score-color:#f1c75b}.score-speculative{--score-color:#f59e42}
+.score-risky{--score-color:#ef6b73}
+.score-components{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.score-component{padding:10px;border:1px solid rgba(148,163,184,.14);border-radius:10px;background:rgba(255,255,255,.025)}
+.score-component span{display:block;color:var(--muted);font-size:10px}
+.score-component strong{display:block;margin-top:4px}
+.score-bar{height:6px;border-radius:999px;background:#202938;overflow:hidden;margin-top:7px}
+.score-bar i{display:block;height:100%;border-radius:inherit;background:var(--accent)}
+.score-details{border-top:1px solid rgba(148,163,184,.14);padding-top:10px}
+.score-details summary{cursor:pointer;font-weight:700;font-size:12px}
+.score-reasons{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.score-reasons ul{margin:6px 0 0;padding-left:18px;color:#c4cfdd;font-size:12px;line-height:1.5}
+.ranking-badge{
+  min-width:38px;height:38px;padding:0 9px;border-radius:12px;
+  display:grid;place-items:center;font-weight:850;background:#192333;border:1px solid var(--line)
+}
+.ranking-1{background:rgba(241,199,91,.14);color:#f1c75b}
+.ranking-2{background:rgba(185,196,211,.12);color:#cbd5e1}
+.ranking-3{background:rgba(205,127,50,.13);color:#d89a62}
+@media(max-width:700px){
+  .score-components,.score-reasons{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .opportunity-head{align-items:flex-start}
+}
+
 </style>
   <title>ATLAS Investment Operating System 3.0</title>
 </head>
@@ -439,7 +479,7 @@ body{background:
         <div id="sync-status" class="small muted">● A ligar…</div>
         <button class="btn ghost full" id="install">Instalar</button>
         <button class="btn ghost full" id="logout">Sair</button>
-        <small id="sidebar-version">Version 3.0.0 Alpha 22.1</small>
+        <small id="sidebar-version">Version 3.0.0 Alpha 22.2</small>
       </div>
     </aside>
 
@@ -471,7 +511,7 @@ const CONFIG={
   supabaseUrl:"https://sejvihpleywautjoecww.supabase.co",
   supabaseKey:"sb_publishable_A4-fw_DFlamWzKjw1na6_g_qOFi14lL",
   functions:{radar:'economic-radar',market:'market-data',ai:'ai-assistant',core:'atlas-core'},
-  version:'3.0.0-alpha.22.1'
+  version:'3.0.0-alpha.22.2'
 };
 
 const OFFICIAL_CALENDAR=[
@@ -657,7 +697,7 @@ async function bootstrap(){
  if(session)await openApp();else $('auth').classList.remove('hidden');
 }
 async function openApp(){
- $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.22.1','3.0.0 Alpha 22.1');updateInstallButton();await loadAll();
+ $('auth').classList.add('hidden');$('shell').classList.remove('hidden');renderNav();const sv=document.getElementById('sidebar-version');if(sv)sv.textContent='Version '+CONFIG.version.replace('3.0.0-alpha.22.2','3.0.0 Alpha 22.2');updateInstallButton();await loadAll();
 }
 async function loadAll(){
  serviceState.sync='loading';syncStatus('A sincronizar…',false);
@@ -800,7 +840,7 @@ async function applyUpdate(){
   const keys=await caches.keys();
   await Promise.all(
     keys
-      .filter(key=>!key.includes('alpha22-1'))
+      .filter(key=>!key.includes('alpha22-2'))
       .map(key=>caches.delete(key))
   );
  }catch(error){
@@ -961,7 +1001,7 @@ function renderHome(){
 
  <footer class="atlas-footer">
   <div class="footer-block footer-brand"><strong>ATLAS</strong><span>Investment Operating System</span></div>
-  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.22.1','3.0.0 Alpha 22.1'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
+  <div class="footer-block"><span class="footer-version">Version ${esc(CONFIG.version.replace('3.0.0-alpha.22.2','3.0.0 Alpha 22.2'))}</span><span class="footer-status">${updateState.available?'● Nova versão disponível':'● Atualizado'}</span></div>
   <div class="footer-block"><span class="footer-label">Última atualização</span><b>${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date())}</b></div>
   <div class="footer-block"><span class="footer-label">Sincronização</span><b class="good">● Sincronizado</b></div>
   <div class="footer-block"><button class="btn footer-update" onclick="window.atlas.checkUpdates()">↻ Procurar atualizações</button></div>
@@ -1842,38 +1882,119 @@ function filteredRadarItems(){
  const group=$('opportunity-sector')?.value||'all';
  const market=$('opportunity-market')?.value||'all';
  const priceMax=Number($('opportunity-price')?.value||0);
+ const scoreMin=Number($('opportunity-score')?.value||0);
+ const topMode=$('opportunity-top')?.value||'all';
+ const sortMode=$('opportunity-sort')?.value||'score';
  const query=String($('opportunity-filter')?.value||'').trim().toLowerCase();
- return radarCombinedItems().filter(item=>{
+
+ let items=radarCombinedItems().filter(item=>{
   if(group!=='all'&&String(item.group||'')!==group)return false;
   if(market!=='all'&&String(item.market||'')!==market)return false;
   if(priceMax>0&&Number(item.price)>priceMax)return false;
+  if(scoreMin>0&&Number(item.atlas_score)<scoreMin)return false;
   if(query&&!([item.name,item.symbol,item.industry,item.group,item.market].join(' ').toLowerCase().includes(query)))return false;
   return true;
  });
+
+ items.sort((a,b)=>{
+  if(sortMode==='price-asc')return(Number(a.price)||Infinity)-(Number(b.price)||Infinity);
+  if(sortMode==='price-desc')return(Number(b.price)||-Infinity)-(Number(a.price)||-Infinity);
+  if(sortMode==='trend')return(Number(b.month_change_percent)||-Infinity)-(Number(a.month_change_percent)||-Infinity);
+  if(sortMode==='volume')return(Number(b.volume_ratio)||-Infinity)-(Number(a.volume_ratio)||-Infinity);
+  return(Number(b.atlas_score)||0)-(Number(a.atlas_score)||0);
+ });
+
+ if(topMode!=='all')items=items.slice(0,Number(topMode));
+ return items;
 }
+
+function atlasScoreClass(score){
+ const value=Number(score)||0;
+ if(value>=90)return'score-excellent';
+ if(value>=80)return'score-strong';
+ if(value>=70)return'score-watch';
+ if(value>=60)return'score-speculative';
+ return'score-risky';
+}
+function atlasScoreGrade(score){
+ const value=Number(score)||0;
+ if(value>=90)return'Excelente';
+ if(value>=80)return'Muito interessante';
+ if(value>=70)return'Vale acompanhar';
+ if(value>=60)return'Especulativa';
+ return'Risco elevado';
+}
+function scoreComponent(label,value){
+ const score=Number(value);
+ const safe=Number.isFinite(score)?Math.max(0,Math.min(100,score)):0;
+ return`<div class="score-component"><span>${esc(label)}</span><strong>${Number.isFinite(score)?Math.round(score)+'/100':'—'}</strong><div class="score-bar"><i style="width:${safe}%"></i></div></div>`;
+}
+
 function radarCard(item){
  const change=Number(item.change_percent),month=Number(item.month_change_percent),volumeRatio=Number(item.volume_ratio);
  const signals=Array.isArray(item.signals)?item.signals:[];
+ const score=Number(item.atlas_score);
+ const components=item.score_components||{};
+ const positives=Array.isArray(item.score_positive)?item.score_positive:[];
+ const negatives=Array.isArray(item.score_negative)?item.score_negative:[];
+ const rank=Number(item.rank);
+
  return`
   <article class="opportunity-card">
    <div class="opportunity-head">
     <div class="opportunity-company">
+     <div class="ranking-badge ${rank<=3?`ranking-${rank}`:''}">${Number.isFinite(rank)?'#'+rank:'—'}</div>
      <div class="opportunity-logo">${esc(String(item.symbol||'?').slice(0,4))}</div>
-     <div><div class="opportunity-name">${esc(item.name||item.symbol||'Empresa')}</div><div class="opportunity-symbol">${esc(item.symbol||'')} · ${esc(item.exchange||'Mercado não indicado')}</div></div>
+     <div>
+      <div class="opportunity-name">${esc(item.name||item.symbol||'Empresa')}</div>
+      <div class="opportunity-symbol">${esc(item.symbol||'')} · ${esc(item.exchange||'Mercado não indicado')}</div>
+     </div>
     </div>
-    <span class="badge">${esc(item.group||'Outro')}</span>
+    <div class="atlas-score-wrap">
+     <div class="atlas-score-ring ${atlasScoreClass(score)}" style="--score:${Number.isFinite(score)?score:0}">
+      <strong>${Number.isFinite(score)?Math.round(score):'—'}</strong>
+     </div>
+     <div><div class="atlas-score-label">ATLAS SCORE</div><div class="atlas-score-grade">${atlasScoreGrade(score)}</div></div>
+    </div>
    </div>
-   <div class="opportunity-meta"><span class="tag">${esc(item.industry||'Setor não indicado')}</span><span class="tag">${esc(item.market||'Global')}</span><span class="tag">${esc(item.currency||'USD')}</span></div>
+
+   <div class="opportunity-meta">
+    <span class="tag">${esc(item.group||'Outro')}</span>
+    <span class="tag">${esc(item.industry||'Setor não indicado')}</span>
+    <span class="tag">${esc(item.market||'Global')}</span>
+    <span class="tag">${esc(item.currency||'USD')}</span>
+    <span class="tag">Dados ${Math.round(Number(item.data_quality)||0)}%</span>
+   </div>
+
    <div class="radar-market-stats">
     <div><span>Preço atual</span><strong>${radarMoney(item.price,item.currency)}</strong></div>
     <div><span>Hoje</span><strong class="${radarSignalClass(change)}">${radarPercent(change)}</strong></div>
     <div><span>30 dias</span><strong class="${radarSignalClass(month)}">${radarPercent(month)}</strong></div>
     <div><span>Volume relativo</span><strong>${Number.isFinite(volumeRatio)?`${volumeRatio.toLocaleString('pt-PT',{maximumFractionDigits:1})}×`:'—'}</strong></div>
    </div>
+
+   <div class="score-components">
+    ${scoreComponent('Mercado',components.market)}
+    ${scoreComponent('Crescimento',components.growth)}
+    ${scoreComponent('Fundamentais',components.fundamentals)}
+    ${scoreComponent('Risco',components.risk)}
+   </div>
+
    <div class="radar-signal"><b>Porque apareceu no radar?</b><br>${signals.length?signals.map(signal=>esc(signal)).join(' · '):'Cotação encontrada, mas ainda sem um sinal de mercado forte.'}</div>
-   <div class="opportunity-note">Dados de mercado para descoberta e acompanhamento. Não constitui recomendação de compra.${item.provider?`<br><span class="muted">Fonte: ${esc(item.provider)} · Atualizado: ${esc(item.updated_at||'—')}</span>`:''}</div>
+
+   <details class="score-details">
+    <summary>Como foi calculado o Score</summary>
+    <div class="score-reasons">
+     <div><b>Fatores positivos</b>${positives.length?`<ul>${positives.map(value=>`<li>${esc(value)}</li>`).join('')}</ul>`:'<div class="muted small">Sem fatores positivos suficientes.</div>'}</div>
+     <div><b>Penalizações e riscos</b>${negatives.length?`<ul>${negatives.map(value=>`<li>${esc(value)}</li>`).join('')}</ul>`:'<div class="muted small">Sem penalizações relevantes nos dados disponíveis.</div>'}</div>
+    </div>
+    <div class="muted small" style="margin-top:9px">O score adapta os pesos quando faltam dados. Não é previsão de retorno nem recomendação.</div>
+   </details>
+
+   <div class="opportunity-note">Fonte: ${esc(item.provider||'Dados de mercado')} · Atualizado: ${esc(item.updated_at||'—')}</div>
   </article>`;
 }
+
 function drawRadarCards(){
  const root=$('opportunity-results');if(!root)return;
  const items=filteredRadarItems();
@@ -1881,7 +2002,7 @@ function drawRadarCards(){
  root.innerHTML=items.length?items.map(radarCard).join(''):empty('Nenhuma empresa corresponde aos filtros atuais.');
 }
 function bindRadarFilters(){
- ['opportunity-sector','opportunity-market','opportunity-price','opportunity-filter'].forEach(id=>{
+ ['opportunity-sector','opportunity-market','opportunity-price','opportunity-score','opportunity-top','opportunity-sort','opportunity-filter'].forEach(id=>{
   const element=$(id);if(!element)return;element.oninput=drawRadarCards;element.onchange=drawRadarCards;
  });
  const refresh=$('opportunity-refresh');if(refresh)refresh.onclick=()=>refreshSmartRadar();
@@ -1918,27 +2039,51 @@ function renderOpportunities(){
  const all=radarCombinedItems();
  const groups=[...new Set(all.map(item=>item.group).filter(Boolean))].sort();
  const markets=[...new Set(all.map(item=>item.market).filter(Boolean))].sort();
- const positive=all.filter(item=>Number(item.month_change_percent)>0).length;
- const volume=all.filter(item=>Number(item.volume_ratio)>=1.5).length;
+ const scored=all.filter(item=>Number.isFinite(Number(item.atlas_score)));
+ const topScore=scored.length?Math.max(...scored.map(item=>Number(item.atlas_score))):0;
+ const averageScore=scored.length?scored.reduce((sum,item)=>sum+Number(item.atlas_score),0)/scored.length:0;
+ const strong=scored.filter(item=>Number(item.atlas_score)>=80).length;
+
  $('opportunities').innerHTML=`
-  ${head('Radar Inteligente','Descobre e pesquisa empresas através de preço, tendência e atividade de mercado.','<button class="btn primary" id="opportunity-refresh">Analisar mercado</button>')}
-  <div class="opportunity-note">Esta versão analisa exclusivamente sinais de mercado. Score, ranking, IA, notícias, SEC e eventos não fazem parte da Alpha 22.1.</div>
-  <div class="radar-search-panel"><input id="radar-company-search" placeholder="Pesquisar ticker ou empresa — exemplo: RKLB, Joby, Palantir"><button class="btn primary" id="radar-company-button">Pesquisar empresa</button></div>
+  ${head('Radar Inteligente','Descobre, classifica e compara empresas com um Score transparente.','<button class="btn primary" id="opportunity-refresh">Analisar mercado</button>')}
+
+  <div class="opportunity-note">
+   A Alpha 22.2 acrescenta o ATLAS Score e o ranking. O score combina mercado, crescimento,
+   fundamentais disponíveis e risco. Não representa garantia de ganho nem recomendação.
+  </div>
+
+  <div class="radar-search-panel">
+   <input id="radar-company-search" placeholder="Pesquisar ticker ou empresa — exemplo: RKLB, Joby, Palantir">
+   <button class="btn primary" id="radar-company-button">Pesquisar empresa</button>
+  </div>
+
   <div class="opportunity-summary">
    <div class="card metric"><div class="label">Empresas analisadas</div><div class="value">${state.opportunities.length}</div><div class="foot">Universo do radar</div></div>
-   <div class="card metric"><div class="label">Resultados pesquisados</div><div class="value">${state.radarSearchResults.length}</div><div class="foot">Pesquisa manual</div></div>
-   <div class="card metric"><div class="label">30 dias positivos</div><div class="value">${positive}</div><div class="foot">Não implica recomendação</div></div>
-   <div class="card metric"><div class="label">Volume elevado</div><div class="value">${volume}</div><div class="foot">Volume ≥ 1,5× média</div></div>
+   <div class="card metric"><div class="label">Melhor Score</div><div class="value">${Math.round(topScore)}</div><div class="foot">Pontuação máxima atual</div></div>
+   <div class="card metric"><div class="label">Score médio</div><div class="value">${Math.round(averageScore)}</div><div class="foot">Apenas dados disponíveis</div></div>
+   <div class="card metric"><div class="label">Score ≥ 80</div><div class="value">${strong}</div><div class="foot">Muito interessantes</div></div>
   </div>
+
   <div class="opportunity-toolbar">
    <label>Filtrar resultados<input id="opportunity-filter" placeholder="Empresa, ticker ou setor"></label>
    <label>Grupo<select id="opportunity-sector"><option value="all">Todos</option>${groups.map(value=>`<option value="${esc(value)}">${esc(value)}</option>`).join('')}</select></label>
    <label>Mercado<select id="opportunity-market"><option value="all">Todos</option>${markets.map(value=>`<option value="${esc(value)}">${esc(value)}</option>`).join('')}</select></label>
    <label>Preço máximo<input id="opportunity-price" type="number" min="0" step="1" placeholder="Sem limite"></label>
+   <label>Score mínimo<input id="opportunity-score" type="number" min="0" max="100" step="5" placeholder="0"></label>
+   <label>Mostrar<select id="opportunity-top"><option value="all">Todos</option><option value="10">Top 10</option><option value="20">Top 20</option></select></label>
+   <label>Ordenar<select id="opportunity-sort"><option value="score">Score</option><option value="trend">Tendência 30 dias</option><option value="volume">Volume relativo</option><option value="price-asc">Preço crescente</option><option value="price-desc">Preço decrescente</option></select></label>
   </div>
-  <div class="radar-status"><span id="opportunity-count"></span><span>·</span><span>${state.opportunityMeta?.generated_at?`Atualizado ${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date(state.opportunityMeta.generated_at))}`:'Ainda não analisado'}</span><span>·</span><span>${esc(state.opportunityMeta?.source||'Fonte ainda não utilizada')}</span></div>
-  <div id="opportunity-results" class="opportunity-grid"></div>`;
- bindRadarFilters();drawRadarCards();
+
+  <div class="radar-status">
+   <span id="opportunity-count"></span><span>·</span>
+   <span>${state.opportunityMeta?.generated_at?`Atualizado ${new Intl.DateTimeFormat('pt-PT',{dateStyle:'short',timeStyle:'short'}).format(new Date(state.opportunityMeta.generated_at))}`:'Ainda não analisado'}</span><span>·</span>
+   <span>${esc(state.opportunityMeta?.source||'Fonte ainda não utilizada')}</span>
+  </div>
+
+  <div id="opportunity-results" class="opportunity-grid"></div>
+ `;
+ bindRadarFilters();
+ drawRadarCards();
 }
 
 function renderAssistant(){
